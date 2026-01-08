@@ -1,0 +1,95 @@
+﻿@using CureLogix.Entity.DTOs.HospitalDTOs
+@model List<HospitalListDto>
+
+@{
+    ViewData["Title"] = "Hastaneler Listesi";
+}
+
+<!-- Başlık ve Ekleme Butonu -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">🏥 Hastane Yönetimi</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Hastaneler</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tablo Alanı -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">Kayıtlı Sağlık Kurumları</h3>
+                <div class="card-tools">
+                    <a href="/Hospital/Add" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Yeni Hastane Ekle
+                    </a>
+                </div>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover text-nowrap">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%">#</th>
+                            <th>Hastane Adı</th>
+                            <th>Şehir</th>
+                            <th>Depo Kapasitesi</th>
+                            <th style="width: 15%">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Count > 0)
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Id</td>
+                                    <td>
+                                        <span class="font-weight-bold">@item.Name</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info">@item.City</span>
+                                    </td>
+                                    <td>
+                                        <!-- Kapasiteyi görselleştirelim -->
+                                        @item.MainStorageCapacity <small>birim</small>
+                                    </td>
+                                    <td>
+                                        <a href="/Hospital/Update/@item.Id" class="btn btn-warning btn-sm" title="Düzenle">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <a href="/Hospital/Delete/@item.Id" class="btn btn-danger btn-sm ml-1" title="Sil" onclick="return confirm('Bu hastaneyi silmek istediğinize emin misiniz?');">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">
+                                    <br />
+                                    <i class="fas fa-folder-open fa-3x"></i> <br />
+                                    <p class="mt-2">Sistemde henüz kayıtlı bir hastane bulunmuyor.</p>
+                                    <br />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+    </div>
+</section>

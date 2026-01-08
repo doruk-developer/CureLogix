@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>CureLogix | Sağlık Lojistik Sistemi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- 1. FONTLAR VE İKONLAR (CDN'den çekiyoruz, hızlı olsun) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@fontsource/source-sans-3@5.0.12/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.3.0/styles/overlayscrollbars.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- 2. ADMINLTE 4 TEMASI (Senin Bilgisayarından) -->
+    <!-- Dikkat: Yolu 'theme/css' olarak verdik -->
+    <link rel="stylesheet" href="~/theme/css/adminlte.min.css">
+
+    <style>
+        /* CureLogix Kurumsal Mavisi */
+        .app-sidebar-brand { background-color: #0d6efd !important; color: white !important; }
+        .nav-link.active { background-color: #0d6efd !important; color: white !important; }
+    </style>
+</head>
+
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+    <div class="app-wrapper">
+
+        <!-- A. ÜST MENÜ -->
+        <nav class="app-header navbar navbar-expand bg-body">
+            <div class="container-fluid">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                            <i class="bi bi-list"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item d-none d-md-block">
+                        <span class="nav-link fw-bold">CureLogix Yönetim Paneli</span>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-lte-toggle="fullscreen"><i class="bi bi-arrows-fullscreen"></i></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-person-circle me-1"></i>
+                            <span class="d-none d-md-inline">Dr. Yönetici</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- B. SOL MENÜ (SIDEBAR) -->
+        <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+            <div class="sidebar-brand">
+                <a href="/" class="brand-link">
+                    <i class="fa-solid fa-heart-pulse fa-lg me-2"></i>
+                    <span class="brand-text fw-light">CureLogix</span>
+                </a>
+            </div>
+
+            <div class="sidebar-wrapper">
+                <nav class="mt-2">
+                    <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
+
+                        <li class="nav-header">GENEL</li>
+                        <li class="nav-item">
+                            <a href="/" class="nav-link active">
+                                <i class="nav-icon bi bi-speedometer"></i>
+                                <p>Dashboard</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-header">OPERASYON</li>
+                        <li class="nav-item">
+                            <a href="/Hospital/Index" class="nav-link"><i class="nav-icon fa-solid fa-hospital"></i> <p>Hastaneler</p></a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link"><i class="nav-icon fa-solid fa-user-doctor"></i> <p>Doktorlar</p></a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link"><i class="nav-icon fa-solid fa-pills"></i> <p>İlaçlar</p></a>
+                        </li>
+
+                        <li class="nav-header">LOJİSTİK</li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link"><i class="nav-icon fa-solid fa-boxes-stacked"></i> <p>Merkez Depo</p></a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link"><i class="nav-icon fa-solid fa-truck-medical"></i> <p>Talepler</p></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- C. İÇERİK ALANI -->
+        <main class="app-main">
+            <div class="app-content-header">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6"><h3 class="mb-0">@ViewData["Title"]</h3></div>
+                    </div>
+                </div>
+            </div>
+            <div class="app-content">
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+            </div>
+        </main>
+
+        <!-- D. FOOTER -->
+        <footer class="app-footer">
+            <div class="float-end d-none d-sm-inline">v1.0</div>
+            <strong>Copyright &copy; @DateTime.Now.Year CureLogix.</strong>
+        </footer>
+    </div>
+
+    <!-- 3. SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.3.0/browser/overlayscrollbars.browser.es6.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+
+    <!-- AdminLTE JS (Yerel Dosya) -->
+    <script src="~/theme/js/adminlte.js"></script>
+
+    <script>
+        const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
+        const Default = { scrollbarTheme: "os-theme-light", scrollbarAutoHide: "leave", scrollbarClickScroll: true };
+        document.addEventListener("DOMContentLoaded", function() {
+            const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
+            if (sidebarWrapper && typeof OverlayScrollbarsGlobal?.OverlayScrollbars !== "undefined") {
+                OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, { scrollbars: { theme: Default.scrollbarTheme, autoHide: Default.scrollbarAutoHide, clickScroll: Default.scrollbarClickScroll } });
+            }
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

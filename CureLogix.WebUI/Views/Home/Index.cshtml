@@ -1,0 +1,148 @@
+﻿@model CureLogix.WebUI.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Komuta Merkezi";
+}
+
+<!-- ÜST BİLGİ KARTLARI (Small Boxes) -->
+<div class="row">
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>@Model.TotalHospitals</h3>
+                <p>Hastane & Merkez</p>
+            </div>
+            <div class="icon"><i class="fas fa-hospital"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>@Model.TotalDoctors</h3>
+                <p>Saha Personeli</p>
+            </div>
+            <div class="icon"><i class="fas fa-user-md"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>@Model.TotalMedicines</h3>
+                <p>İlaç Envanteri</p>
+            </div>
+            <div class="icon"><i class="fas fa-pills"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3>@Model.TotalProtocols</h3>
+                <p>Tedavi Protokolü</p>
+            </div>
+            <div class="icon"><i class="fas fa-file-medical-alt"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- GRAFİKLER BÖLÜMÜ -->
+<div class="row">
+
+    <!-- SOL KOLON: Hastane Doluluk (Bar Chart) -->
+    <div class="col-md-6">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">🏥 Hastane Doluluk Oranları (%)</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="hospitalChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAĞ KOLON: Protokol Durumu (Doughnut Chart) -->
+    <div class="col-md-6">
+        <div class="card card-danger">
+            <div class="card-header">
+                <h3 class="card-title">📋 Protokol Karar Dağılımı</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="protocolChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- ALT KOLON: Doktor Branşları (Pie Chart) -->
+    <div class="col-md-12">
+        <div class="card card-success">
+            <div class="card-header">
+                <h3 class="card-title">👨‍⚕️ Doktor Uzmanlık Dağılımı</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="doctorChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- SCRIPTS: Chart.js Kodları -->
+<!-- AdminLTE içinde Chart.js genelde vardır ama yoksa CDN'den çekeriz -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // 1. HASTANE DOLULUK GRAFİĞİ (BAR)
+    // C# Modelinden gelen verileri JS dizisine çeviriyoruz
+    var hospitalLabels = @Html.Raw(Json.Serialize(Model.HospitalNames));
+    var hospitalData = @Html.Raw(Json.Serialize(Model.OccupancyRates));
+
+    new Chart(document.getElementById('hospitalChart'), {
+        type: 'bar',
+        data: {
+            labels: hospitalLabels,
+            datasets: [{
+                label: 'Doluluk Oranı (%)',
+                data: hospitalData,
+                backgroundColor: 'rgba(60, 141, 188, 0.9)',
+                borderColor: 'rgba(60, 141, 188, 0.8)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, max: 100 }
+            }
+        }
+    });
+
+    // 2. PROTOKOL DURUM GRAFİĞİ (DOUGHNUT)
+    new Chart(document.getElementById('protocolChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Bekleyen', 'Onaylanan', 'Reddedilen'],
+            datasets: [{
+                data: [@Model.PendingProtocols, @Model.ApprovedProtocols, @Model.RejectedProtocols],
+                backgroundColor: ['#f39c12', '#00a65a', '#f56954'] // Sarı, Yeşil, Kırmızı
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    // 3. DOKTOR BRANŞ GRAFİĞİ (PIE)
+    var doctorLabels = @Html.Raw(Json.Serialize(Model.DoctorSpecialties));
+    var doctorData = @Html.Raw(Json.Serialize(Model.DoctorSpecialtyCounts));
+
+    new Chart(document.getElementById('doctorChart'), {
+        type: 'pie',
+        data: {
+            labels: doctorLabels,
+            datasets: [{
+                data: doctorData,
+                backgroundColor: ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc', '#d2d6de']
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+</script>
