@@ -10,8 +10,10 @@ namespace CureLogix.Business.Mappings.AutoMapper
         {
             // Hospital tablosunu -> HospitalListDto'ya dönüştür (ve tersi)
             CreateMap<Hospital, HospitalListDto>().ReverseMap();
-
             // İleride diğerlerini de buraya ekleyeceğiz (Doctor, Medicine vb.)
+
+            // Ekleme İşlemi İçin: DTO -> Entity
+            CreateMap<HospitalAddDto, Hospital>();
         }
     }
 }

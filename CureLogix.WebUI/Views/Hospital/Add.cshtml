@@ -1,0 +1,114 @@
+﻿@model CureLogix.Entity.DTOs.HospitalDTOs.HospitalAddDto
+
+@{
+    ViewData["Title"] = "Yeni Hastane Ekle";
+}
+
+<!-- Başlık Alanı -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">🏥 Yeni Kayıt Oluştur</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Hospital/Index">Listeye Dön</a></li>
+                    <li class="breadcrumb-item active">Yeni Ekle</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form Alanı -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Form Kartı -->
+            <div class="col-md-8">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Kurum Bilgileri</h3>
+                    </div>
+
+                    <!-- Form Başlangıcı -->
+                    <form method="post">
+                        <div class="card-body">
+
+                            <!-- HASTANE ADI -->
+                            <div class="form-group">
+                                <label>Hastane Adı</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-hospital"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" asp-for="Name" placeholder="Örn: Merkez Eğitim Araştırma Hastanesi">
+                                </div>
+                                <span asp-validation-for="Name" class="text-danger font-weight-bold small"></span>
+                            </div>
+
+                            <!-- ŞEHİR -->
+                            <div class="form-group">
+                                <label>Şehir</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" asp-for="City" placeholder="Örn: İstanbul">
+                                </div>
+                                <span asp-validation-for="City" class="text-danger font-weight-bold small"></span>
+                            </div>
+
+                            <div class="row">
+                                <!-- ANA DEPO KAPASİTESİ -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Ana Depo Kapasitesi (Kutu)</label>
+                                        <input type="number" class="form-control" asp-for="MainStorageCapacity" placeholder="50000">
+                                        <span asp-validation-for="MainStorageCapacity" class="text-danger font-weight-bold small"></span>
+                                    </div>
+                                </div>
+                                <!-- ATIK KAPASİTESİ -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Atık Depo Kapasitesi (Kutu)</label>
+                                        <input type="number" class="form-control" asp-for="WasteStorageCapacity" placeholder="5000">
+                                        <span asp-validation-for="WasteStorageCapacity" class="text-danger font-weight-bold small"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Butonlar -->
+                        <div class="card-footer text-right">
+                            <a href="/Hospital/Index" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Vazgeç
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Kaydet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sağ Taraf Bilgi Kutusu -->
+            <div class="col-md-4">
+                <div class="callout callout-info">
+                    <h5><i class="fas fa-info-circle"></i> Bilgilendirme</h5>
+                    <p>
+                        Sisteme yeni eklenen hastanelerin:
+                    </p>
+                    <ul>
+                        <li><strong>Doluluk Oranı:</strong> Otomatik olarak %0 atanır.</li>
+                        <li><strong>Durumu:</strong> Otomatik olarak "Aktif" işaretlenir.</li>
+                    </ul>
+                    <p class="text-muted small">
+                        * Kapasite bilgileri kriz anında lojistik planlama için kritiktir. Lütfen güncel resmi rakamları giriniz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
