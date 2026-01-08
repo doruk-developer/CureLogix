@@ -1,0 +1,61 @@
+﻿@model CureLogix.Entity.DTOs.DiseaseDTOs.DiseaseAddDto
+@{
+    ViewData["Title"] = "Yeni Hastalık Ekle";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <h1>🦠 Yeni Hastalık Kaydı</h1>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card card-danger">
+                    <div class="card-header"><h3 class="card-title">Hastalık Detayları</h3></div>
+
+                    <form method="post">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Hastalık Adı</label>
+                                <input type="text" class="form-control" asp-for="Name" placeholder="Örn: COVID-19 Varyant X">
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>ICD-10 Kodu</label>
+                                <input type="text" class="form-control" asp-for="Code" placeholder="Örn: U07.1">
+                                <span asp-validation-for="Code" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Risk Seviyesi</label>
+                                <select class="form-control custom-select" asp-for="RiskLevel">
+                                    <option value="">Seçiniz...</option>
+                                    <option value="Düşük">Düşük (Mevsimsel)</option>
+                                    <option value="Orta">Orta (İzlenmeli)</option>
+                                    <option value="Yüksek">Yüksek (Bölgesel Salgın)</option>
+                                    <option value="Kritik">Kritik (Ölümcül)</option>
+                                    <option value="Pandemik">Pandemik (Küresel)</option>
+                                </select>
+                                <span asp-validation-for="RiskLevel" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Açıklama / Belirtiler</label>
+                                <textarea class="form-control" asp-for="Description" rows="3"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="card-footer text-right">
+                            <a href="/Disease/Index" class="btn btn-secondary">Vazgeç</a>
+                            <button type="submit" class="btn btn-danger">Kaydet</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,64 @@
+﻿@using CureLogix.Entity.DTOs.DiseaseDTOs
+@model List<DiseaseListDto>
+
+@{
+    ViewData["Title"] = "Hastalık Tanımları";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6"><h1>🦠 Salgın & Hastalık Yönetimi</h1></div>
+            <div class="col-sm-6 text-right">
+                <a href="/Disease/Add" class="btn btn-danger"><i class="fas fa-biohazard"></i> Yeni Hastalık Tanımla</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-danger card-outline">
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ICD Kodu</th>
+                            <th>Hastalık Adı</th>
+                            <th>Risk Seviyesi</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td><span class="badge badge-secondary">@item.Code</span></td>
+                                <td>@item.Name</td>
+                                <td>
+                                    <!-- Risk Seviyesine Göre Renklendirme -->
+                                    @if (item.RiskLevel == "Pandemik" || item.RiskLevel == "Kritik")
+                                    {
+                                        <span class="badge badge-danger">@item.RiskLevel</span>
+                                    }
+                                    else if (item.RiskLevel == "Yüksek" || item.RiskLevel == "Orta")
+                                    {
+                                        <span class="badge badge-warning">@item.RiskLevel</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-success">@item.RiskLevel</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-xs btn-outline-primary">Düzenle</a>
+                                    <a href="#" class="btn btn-xs btn-outline-danger">Sil</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

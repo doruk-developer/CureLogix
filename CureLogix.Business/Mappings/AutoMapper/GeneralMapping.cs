@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CureLogix.Entity.Concrete;
+using CureLogix.Entity.DTOs.DiseaseDTOs;
 using CureLogix.Entity.DTOs.HospitalDTOs;
 
 namespace CureLogix.Business.Mappings.AutoMapper
@@ -14,6 +15,10 @@ namespace CureLogix.Business.Mappings.AutoMapper
 
             // Ekleme İşlemi İçin: DTO -> Entity
             CreateMap<HospitalAddDto, Hospital>();
+
+            // Hastalıklar
+            CreateMap<Disease, DiseaseListDto>().ReverseMap();
+            CreateMap<DiseaseAddDto, Disease>().ReverseMap();
         }
     }
 }
