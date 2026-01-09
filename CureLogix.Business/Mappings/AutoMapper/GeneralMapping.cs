@@ -6,6 +6,7 @@ using CureLogix.Entity.DTOs.DoctorDTOs;
 using CureLogix.Entity.DTOs.HospitalDTOs;
 using CureLogix.Entity.DTOs.MedicineDTOs;
 using CureLogix.Entity.DTOs.ProtocolDTOs;
+using CureLogix.Entity.DTOs.WarehouseDTOs;
 
 namespace CureLogix.Business.Mappings.AutoMapper
 {
@@ -58,6 +59,13 @@ namespace CureLogix.Business.Mappings.AutoMapper
                 .ForMember(dest => dest.HospitalName, opt => opt.MapFrom(src => src.Hospital.Name));
 
             CreateMap<DoctorAddDto, Doctor>();
+
+            // Merkez Depo
+            CreateMap<CentralWarehouse, CentralStockListDto>()
+                .ForMember(dest => dest.MedicineName, opt => opt.MapFrom(src => src.Medicine.Name))
+                .ForMember(dest => dest.MedicineUnit, opt => opt.MapFrom(src => src.Medicine.Unit));
+
+            CreateMap<CentralStockAddDto, CentralWarehouse>();
         }
     }
 }

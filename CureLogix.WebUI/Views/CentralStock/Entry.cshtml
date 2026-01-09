@@ -1,0 +1,53 @@
+﻿@model CureLogix.WebUI.Models.CentralStockViewModel
+@{
+    ViewData["Title"] = "Stok Girişi";
+}
+
+<div class="content-header">
+    <div class="container-fluid"><h1>📦 Stok Giriş (Mal Kabul)</h1></div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card card-indigo">
+                    <div class="card-header"><h3 class="card-title">İrsaliye Bilgileri</h3></div>
+                    <form method="post">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Gelen İlaç</label>
+                                <select asp-for="Data.MedicineId" asp-items="Model.MedicineList" class="form-control">
+                                    <option value="">Seçiniz...</option>
+                                </select>
+                                <span asp-validation-for="Data.MedicineId" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Miktar (Adet/Kutu)</label>
+                                <input type="number" asp-for="Data.Quantity" class="form-control" placeholder="Örn: 5000">
+                                <span asp-validation-for="Data.Quantity" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Parti Numarası (Batch No)</label>
+                                <input type="text" asp-for="Data.BatchNo" class="form-control" placeholder="Örn: BATCH-2026-X">
+                                <span asp-validation-for="Data.BatchNo" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Son Kullanma Tarihi</label>
+                                <input type="date" asp-for="Data.ExpiryDate" class="form-control">
+                                <span asp-validation-for="Data.ExpiryDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="card-footer text-right">
+                            <a href="/CentralStock/Index" class="btn btn-secondary">Vazgeç</a>
+                            <button type="submit" class="btn btn-indigo">Stoğa İşle</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

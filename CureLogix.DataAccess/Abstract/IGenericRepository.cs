@@ -8,7 +8,7 @@ namespace CureLogix.DataAccess.Abstract
         void Delete(T t);
         void Update(T t);
         List<T> GetList();
-        T GetById(int id);
+        T? GetById(int id);
         List<T> GetListByFilter(Expression<Func<T, bool>> filter);
     }
 }

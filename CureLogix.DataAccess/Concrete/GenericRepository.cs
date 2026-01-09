@@ -19,7 +19,7 @@ namespace CureLogix.DataAccess.Repositories
             _context.SaveChanges();
         }
 
-        public T GetById(int id)
+        public T? GetById(int id)
         {
             return _context.Set<T>().Find(id);
         }

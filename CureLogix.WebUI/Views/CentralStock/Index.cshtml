@@ -1,0 +1,55 @@
+﻿@using CureLogix.Entity.DTOs.WarehouseDTOs
+@model List<CentralStockListDto>
+
+@{
+    ViewData["Title"] = "Merkez Stok";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6"><h1>📦 Merkez Depo Yönetimi</h1></div>
+            <div class="col-sm-6 text-right">
+                <a href="/CentralStock/Entry" class="btn btn-indigo"><i class="fas fa-boxes"></i> Mal Kabul / Stok Girişi</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="card card-indigo card-outline">
+        <div class="card-body table-responsive p-0">
+            <table class="table table-hover text-nowrap">
+                <thead>
+                    <tr>
+                        <th>İlaç Adı</th>
+                        <th>Stok Miktarı</th>
+                        <th>Parti No (Batch)</th>
+                        <th>Son Kullanma Tarihi</th>
+                        <th>Durum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        // SKT Kontrolü (Görsel Uyarı)
+                        var daysLeft = (item.ExpiryDate - DateTime.Now).TotalDays;
+                        string badgeClass = daysLeft < 90 ? "badge-danger" : "badge-success";
+                        string statusText = daysLeft < 90 ? "Yaklaşıyor!" : "Uygun";
+
+                        <tr>
+                            <td><strong>@item.MedicineName</strong></td>
+                            <td>
+                                <span class="text-indigo font-weight-bold">@item.Quantity.ToString("N0")</span>
+                                <small class="text-muted">@item.MedicineUnit</small>
+                            </td>
+                            <td><code>@item.BatchNo</code></td>
+                            <td>@item.ExpiryDate.ToShortDateString()</td>
+                            <td><span class="badge @badgeClass">@statusText</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

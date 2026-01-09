@@ -28,9 +28,13 @@ namespace CureLogix.DataAccess.Concrete
         public virtual DbSet<HospitalInventory> HospitalInventories { get; set; }
         public virtual DbSet<SupplyRequest> SupplyRequests { get; set; }
 
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Fluent API ayarları buraya gelebilir, şimdilik base yeterli.
+            // EF Core'a diyoruz ki: "Senin CentralWarehouses dediğin tablo, SQL'de 'CentralWarehouse' adıyla kayıtlı."
+            modelBuilder.Entity<CentralWarehouse>().ToTable("CentralWarehouse");
+
             base.OnModelCreating(modelBuilder);
         }
     }
