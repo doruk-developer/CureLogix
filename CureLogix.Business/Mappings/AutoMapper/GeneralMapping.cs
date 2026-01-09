@@ -2,6 +2,8 @@
 using CureLogix.Entity.Concrete;
 using CureLogix.Entity.DTOs.DiseaseDTOs;
 using CureLogix.Entity.DTOs.HospitalDTOs;
+using CureLogix.Entity.DTOs.MedicineDTOs;
+using CureLogix.Entity.DTOs.ProtocolDTOs;
 
 namespace CureLogix.Business.Mappings.AutoMapper
 {
@@ -19,6 +21,19 @@ namespace CureLogix.Business.Mappings.AutoMapper
             // Hastalıklar
             CreateMap<Disease, DiseaseListDto>().ReverseMap();
             CreateMap<DiseaseAddDto, Disease>().ReverseMap();
+
+            // Protokol Eşleştirmeleri
+            CreateMap<ProtocolCreateDto, TreatmentProtocol>()
+                .ForMember(dest => dest.ProtocolMedicines, opt => opt.MapFrom(src => src.Medicines));
+
+            // Yukarıdaki satır: DTO'daki 'Medicines' listesini, Entity'deki 'ProtocolMedicines' listesine dök.
+            CreateMap<ProtocolMedicineDto, ProtocolMedicine>();
+
+            // İlaçlar
+            CreateMap<Medicine, MedicineListDto>().ReverseMap();
+
+            // İlaç Ekleme
+            CreateMap<MedicineAddDto, Medicine>();
         }
     }
 }

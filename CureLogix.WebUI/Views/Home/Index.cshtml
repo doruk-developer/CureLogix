@@ -94,8 +94,8 @@
 <script>
     // 1. HASTANE DOLULUK GRAFİĞİ (BAR)
     // C# Modelinden gelen verileri JS dizisine çeviriyoruz
-    var hospitalLabels = @Html.Raw(Json.Serialize(Model.HospitalNames));
-    var hospitalData = @Html.Raw(Json.Serialize(Model.OccupancyRates));
+    var hospitalLabels = JSON.parse('@Html.Raw(Json.Serialize(Model.HospitalNames))');
+    var hospitalData = JSON.parse('@Html.Raw(Json.Serialize(Model.OccupancyRates))');
 
     new Chart(document.getElementById('hospitalChart'), {
         type: 'bar',
@@ -131,8 +131,8 @@
     });
 
     // 3. DOKTOR BRANŞ GRAFİĞİ (PIE)
-    var doctorLabels = @Html.Raw(Json.Serialize(Model.DoctorSpecialties));
-    var doctorData = @Html.Raw(Json.Serialize(Model.DoctorSpecialtyCounts));
+    var doctorLabels = JSON.parse('@Html.Raw(Json.Serialize(Model.DoctorSpecialties))');
+    var doctorData = JSON.parse('@Html.Raw(Json.Serialize(Model.DoctorSpecialtyCounts))');
 
     new Chart(document.getElementById('doctorChart'), {
         type: 'pie',

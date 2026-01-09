@@ -1,0 +1,155 @@
+﻿@model CureLogix.WebUI.Models.ProtocolCreateViewModel
+
+@{
+    ViewData["Title"] = "Yeni Tedavi Protokolu";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">💊 Dinamik Reçete Motoru</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- Form Başlangıcı -->
+        <form method="post" id="protocolForm">
+            <div class="row">
+
+                <!-- SOL KOLON: PROTOKOL BAŞLIK BİLGİLERİ -->
+                <div class="col-md-4">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">Protokol Detayları</h3>
+                        </div>
+                        <div class="card-body">
+
+                            <div class="form-group">
+                                <label>Protokol Başlığı</label>
+                                <input asp-for="FormData.Title" class="form-control" placeholder="Örn: Ağır Grip Tedavisi">
+                                <span asp-validation-for="FormData.Title" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>İlgili Hastalık</label>
+                                <select asp-for="FormData.DiseaseId" asp-items="Model.DiseaseList" class="form-control">
+                                    <option value="">Hastalık Seçiniz...</option>
+                                </select>
+                                <span asp-validation-for="FormData.DiseaseId" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Öneren Doktor</label>
+                                <select asp-for="FormData.DoctorId" asp-items="Model.DoctorList" class="form-control">
+                                    <option value="">Doktor Seçiniz...</option>
+                                </select>
+                                <span asp-validation-for="FormData.DoctorId" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Açıklama</label>
+                                <textarea asp-for="FormData.Description" class="form-control" rows="4"></textarea>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SAĞ KOLON: İLAÇ LİSTESİ (BURASI EKSİKTİ) -->
+                <div class="col-md-8">
+                    <div class="card card-success">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="card-title">Reçete İçeriği</h3>
+                            <!-- İLAÇ EKLEME BUTONU BURADA -->
+                            <button type="button" class="btn btn-light btn-sm ml-auto font-weight-bold" onclick="addMedicineRow()">
+                                <i class="fas fa-plus"></i> İlaç Ekle
+                            </button>
+                        </div>
+
+                        <div class="card-body table-responsive p-0" style="height: 400px;">
+                            <table class="table table-head-fixed text-nowrap">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40%">İlaç Adı</th>
+                                        <th style="width: 20%">Adet</th>
+                                        <th>Dozaj Talimatı</th>
+                                        <th style="width: 10%">Sil</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="medicineTableBody">
+                                    <!-- JavaScript buraya satır ekleyecek -->
+                                </tbody>
+                            </table>
+
+                            <!-- Hata Mesajı Alanı -->
+                            <div class="p-3">
+                                <span asp-validation-for="FormData.Medicines" class="text-danger font-weight-bold"></span>
+                            </div>
+                        </div>
+
+                        <div class="card-footer text-right">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check-circle"></i> Protokolü Kaydet
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- JAVASCRIPT BÖLÜMÜ -->
+<script>
+    // ViewModel'den gelen ilaç listesini alıyoruz
+    var medicineList = JSON.parse('@Html.Raw(Json.Serialize(Model.MedicineSource))');
+    var rowIndex = 0;
+
+    function addMedicineRow() {
+        // Dropdown seçeneklerini hazırla
+        var options = '<option value="">İlaç Seçiniz...</option>';
+        medicineList.forEach(function(item) {
+            options += `<option value="${item.id}">${item.name} (${item.unit})</option>`;
+        });
+
+        // Yeni Satır HTML'i
+        var html = `
+            <tr id="row_${rowIndex}">
+                <td>
+                    <!-- Name: FormData.Medicines[0].MedicineId -->
+                    <select name="FormData.Medicines[${rowIndex}].MedicineId" class="form-control" required>
+                        ${options}
+                    </select>
+                </td>
+                <td>
+                    <input type="number" name="FormData.Medicines[${rowIndex}].RequiredQuantity" class="form-control" value="1" min="1" required>
+                </td>
+                <td>
+                    <input type="text" name="FormData.Medicines[${rowIndex}].DosageInstructions" class="form-control" placeholder="Örn: 2x1 Tok" required>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(${rowIndex})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+
+        document.getElementById('medicineTableBody').insertAdjacentHTML('beforeend', html);
+        rowIndex++;
+    }
+
+    function removeRow(index) {
+        document.getElementById(`row_${index}`).remove();
+    }
+
+    // Sayfa açıldığında otomatik 1 satır ekle
+    window.onload = function() {
+        addMedicineRow();
+    };
+</script>
