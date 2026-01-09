@@ -1,0 +1,93 @@
+﻿@using CureLogix.Entity.DTOs.DoctorDTOs
+@using CureLogix.Entity.Enums
+@model List<DoctorListDto>
+
+@{
+    ViewData["Title"] = "Doktor Kadrosu";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6"><h1>👨‍⚕️ Sağlık Personeli Yönetimi</h1></div>
+            <div class="col-sm-6 text-right">
+                <a href="/Doctor/Add" class="btn btn-info"><i class="fas fa-user-plus"></i> Yeni Doktor Ekle</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-info card-outline">
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover text-nowrap">
+                    <thead>
+                        <tr>
+                            <th>Ad Soyad</th>
+                            <th>Branş</th>
+                            <th>Hastane</th>
+                            <th>Yetki / Rol</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Count > 0)
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@item.FullName</strong><br />
+                                        <small class="text-muted">@item.Title</small>
+                                    </td>
+                                    <td>@item.Specialty</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.HospitalName))
+                                        {
+                                            <i class="fas fa-hospital text-muted"></i> 
+                                            @item.HospitalName
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">- Bağımsız -</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @{
+                                            var role = (RoleTypeEnum)item.RoleType;
+                                        }
+
+                                        @if (role == RoleTypeEnum.KonseyUyesi)
+                                        {
+                                            <span class="badge bg-purple">⚖️ Konsey Üyesi</span>
+                                        }
+                                        else if (role == RoleTypeEnum.Bashekim)
+                                        {
+                                            <span class="badge badge-danger">👑 Başhekim</span>
+                                        }
+                                        else if (role == RoleTypeEnum.BakanlikYetkilisi)
+                                        {
+                                            <span class="badge badge-dark">🏛️ Bakanlık</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-success">🩺 Saha Doktoru</span>
+                                        }
+                                    </td>
+                                    <td><a href="#" class="btn btn-xs btn-outline-info">Düzenle</a></td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center">Kayıtlı doktor bulunamadı.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

@@ -2,6 +2,7 @@
 using CureLogix.Entity.Concrete;
 using CureLogix.Entity.DTOs.CouncilDTOs;
 using CureLogix.Entity.DTOs.DiseaseDTOs;
+using CureLogix.Entity.DTOs.DoctorDTOs;
 using CureLogix.Entity.DTOs.HospitalDTOs;
 using CureLogix.Entity.DTOs.MedicineDTOs;
 using CureLogix.Entity.DTOs.ProtocolDTOs;
@@ -51,6 +52,12 @@ namespace CureLogix.Business.Mappings.AutoMapper
             // 2. Oy Verme Dönüşümü
             CreateMap<VoteOperationDto, CouncilVote>()
                 .ForMember(dest => dest.Vote, opt => opt.MapFrom(src => src.VoteResult));
+
+            // Doktorlar-Ünvan/Role
+            CreateMap<Doctor, DoctorListDto>()
+                .ForMember(dest => dest.HospitalName, opt => opt.MapFrom(src => src.Hospital.Name));
+
+            CreateMap<DoctorAddDto, Doctor>();
         }
     }
 }
