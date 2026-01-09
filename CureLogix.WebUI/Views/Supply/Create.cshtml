@@ -1,0 +1,31 @@
+﻿@model CureLogix.Entity.DTOs.SupplyDTOs.SupplyRequestAddDto
+@{
+    ViewData["Title"] = "Yeni İlaç Talebi";
+}
+
+<div class="content-header"><div class="container-fluid"><h1>🚑 İlaç Talebi Oluştur</h1></div></div>
+
+<section class="content">
+    <div class="card card-teal">
+        <div class="card-header"><h3 class="card-title">Talep Detayları</h3></div>
+        <form method="post">
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Talep Eden Hastane</label>
+                    <select asp-for="HospitalId" asp-items="ViewBag.Hospitals" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label>İstenen İlaç</label>
+                    <select asp-for="MedicineId" asp-items="ViewBag.Medicines" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label>Miktar</label>
+                    <input asp-for="RequestQuantity" type="number" class="form-control" placeholder="1000">
+                </div>
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-teal">Talebi Gönder</button>
+            </div>
+        </form>
+    </div>
+</section>

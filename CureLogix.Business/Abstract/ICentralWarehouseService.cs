@@ -1,2 +1,10 @@
 ﻿using CureLogix.Entity.Concrete;
-namespace CureLogix.Business.Abstract { public interface ICentralWarehouseService : IGenericService<CentralWarehouse> { } }
+
+namespace CureLogix.Business.Abstract
+{
+    public interface ICentralWarehouseService : IGenericService<CentralWarehouse>
+    {
+        // Yeni Metot: Akıllı Stok Düşümü
+        void DistributeStockByFEFO(int medicineId, int quantityNeeded);
+    }
+}

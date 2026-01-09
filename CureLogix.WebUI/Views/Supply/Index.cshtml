@@ -1,0 +1,45 @@
+﻿@using CureLogix.Entity.Concrete
+@model List<SupplyRequest>
+@{
+    ViewData["Title"] = "Gelen Talepler";
+}
+
+<div class="content-header"><div class="container-fluid"><h1>📋 Talep Havuzu (Merkez)</h1></div></div>
+
+<!-- Uyarı Mesajları -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<section class="content">
+    <div class="card card-teal card-outline">
+        <div class="card-header text-right">
+            <a href="/Supply/Create" class="btn btn-teal"><i class="fas fa-plus"></i> Talep Simülasyonu</a>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover">
+                <thead><tr><th>Tarih</th><th>İlaç ID</th><th>Miktar</th><th>İşlem</th></tr></thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.RequestDate?.ToShortDateString()</td>
+                            <td>@item.MedicineId</td> <!-- Include olmadığı için ID -->
+                            <td class="font-weight-bold">@item.RequestQuantity</td>
+                            <td>
+                                <a href="/Supply/Approve/@item.Id" class="btn btn-success btn-sm" onclick="return confirm('Onaylarsanız FEFO algoritması çalışacak ve stoktan düşülecek. Emin misiniz?');">
+                                    <i class="fas fa-check"></i> Onayla & Dağıt
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

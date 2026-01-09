@@ -54,6 +54,9 @@ builder.Services.AddScoped<ICouncilVoteService, CouncilVoteManager>();
 
 // Central Warehouse Service
 builder.Services.AddScoped<ICentralWarehouseService, CentralWarehouseManager>();
+
+// FEFE Algoritması Modülü için
+builder.Services.AddScoped<ISupplyRequestService, SupplyRequestManager>();
 // ============================================================
 
 // MVC Servislerini ekle
