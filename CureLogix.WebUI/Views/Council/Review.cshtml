@@ -1,0 +1,84 @@
+﻿@using CureLogix.Entity.DTOs.CouncilDTOs
+@model VoteOperationDto
+
+@{
+    var detail = ViewBag.ProtocolDetail as ProtocolDetailDto;
+    ViewData["Title"] = "Protokol İnceleme";
+}
+
+<div class="content-header">
+    <div class="container-fluid"><h1>🔍 Detaylı İnceleme</h1></div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- SOL: DETAYLAR -->
+            <div class="col-md-8">
+                <div class="card card-primary">
+                    <div class="card-header"><h3 class="card-title">@detail.Title</h3></div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-3">Hastalık:</dt>
+                            <dd class="col-sm-9">@detail.DiseaseName</dd>
+
+                            <dt class="col-sm-3">Öneren:</dt>
+                            <dd class="col-sm-9">@detail.DoctorName</dd>
+
+                            <dt class="col-sm-3">Açıklama:</dt>
+                            <dd class="col-sm-9">@detail.Description</dd>
+                        </dl>
+
+                        <h5>💊 Reçete İçeriği</h5>
+                        <table class="table table-sm table-bordered">
+                            <thead><tr><th>İlaç</th><th>Miktar</th><th>Talimat</th></tr></thead>
+                            <tbody>
+                                @if (detail.Medicines != null)
+                                {
+                                    @foreach (var drug in detail.Medicines)
+                                    {
+                                        <tr>
+                                            <td>@drug.MedicineName</td>
+                                            <td>@drug.Quantity</td>
+                                            <td>@drug.Instructions</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SAĞ: OYLAMA KUTUSU -->
+            <div class="col-md-4">
+                <div class="card card-purple">
+                    <div class="card-header"><h3 class="card-title">Hakem Kararı</h3></div>
+                    <form method="post">
+                        <input type="hidden" asp-for="ProtocolId" />
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Kararınız</label>
+                                <div class="custom-control custom-radio">
+                                    <input class="custom-control-input" type="radio" id="voteYes" asp-for="VoteResult" value="true">
+                                    <label for="voteYes" class="custom-control-label text-success font-weight-bold">KABUL (Onayla)</label>
+                                </div>
+                                <div class="custom-control custom-radio">
+                                    <input class="custom-control-input" type="radio" id="voteNo" asp-for="VoteResult" value="false">
+                                    <label for="voteNo" class="custom-control-label text-danger font-weight-bold">RED (Geri Çevir)</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Konsey Şerhi / Gerekçe</label>
+                                <textarea asp-for="Comment" class="form-control" rows="4" placeholder="Red gerekçesini veya onay notunu buraya yazınız..."></textarea>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-purple btn-block">Oyu Kaydet</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,49 @@
+﻿@using CureLogix.Entity.Concrete
+@model List<TreatmentProtocol>
+
+@{
+    ViewData["Title"] = "Konsey Onay Bekleyenler";
+}
+
+<div class="content-header">
+    <div class="container-fluid"><h1>⚖️ Konsey Karar Masası</h1></div>
+</div>
+
+<section class="content">
+    <div class="card card-purple card-outline">
+        <div class="card-body p-0">
+            <table class="table table-striped projects">
+                <thead>
+                    <tr>
+                        <th>Protokol</th>
+                        <th>Öneren</th>
+                        <th>Tarih</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a>@item.Title</a>
+                                <br />
+                                <small>Kayıt: @item.CreatedDate?.ToShortDateString()</small>
+                            </td>
+                            <td>
+                                <!-- İlişkili veri null gelebilir, şimdilik ID basalım veya boş geçelim -->
+                                Dr. ID: @item.DoctorId
+                            </td>
+                            <td><span class="badge badge-warning">Onay Bekliyor</span></td>
+                            <td>
+                                <a href="/Council/Review/@item.Id" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-gavel"></i> İncele ve Oyla
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

@@ -50,6 +50,7 @@ builder.Services.AddScoped<IDiseaseService, DiseaseManager>();
 // AutoMapper Konfigürasyonu
 // Business katmanındaki GeneralMapping sınıfını referans alarak tarama yapar
 builder.Services.AddAutoMapper(typeof(CureLogix.Business.Mappings.AutoMapper.GeneralMapping));
+builder.Services.AddScoped<ICouncilVoteService, CouncilVoteManager>();
 // ============================================================
 
 // MVC Servislerini ekle

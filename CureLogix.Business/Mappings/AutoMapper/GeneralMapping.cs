@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CureLogix.Entity.Concrete;
+using CureLogix.Entity.DTOs.CouncilDTOs;
 using CureLogix.Entity.DTOs.DiseaseDTOs;
 using CureLogix.Entity.DTOs.HospitalDTOs;
 using CureLogix.Entity.DTOs.MedicineDTOs;
@@ -34,6 +35,22 @@ namespace CureLogix.Business.Mappings.AutoMapper
 
             // İlaç Ekleme
             CreateMap<MedicineAddDto, Medicine>();
+
+            // 1. Protokol Detay Dönüşümü (Zor kısım burası)
+            CreateMap<TreatmentProtocol, ProtocolDetailDto>()
+                .ForMember(dest => dest.DiseaseName, opt => opt.MapFrom(src => src.Disease.Name))
+                .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.Doctor.FullName))
+                .ForMember(dest => dest.Medicines, opt => opt.MapFrom(src => src.ProtocolMedicines));
+
+            // İlaç detay dönüşümü
+            CreateMap<ProtocolMedicine, ProtocolMedicineViewDto>()
+                .ForMember(dest => dest.MedicineName, opt => opt.MapFrom(src => src.Medicine.Name))
+                .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.RequiredQuantity))
+                .ForMember(dest => dest.Instructions, opt => opt.MapFrom(src => src.DosageInstructions));
+
+            // 2. Oy Verme Dönüşümü
+            CreateMap<VoteOperationDto, CouncilVote>()
+                .ForMember(dest => dest.Vote, opt => opt.MapFrom(src => src.VoteResult));
         }
     }
 }
