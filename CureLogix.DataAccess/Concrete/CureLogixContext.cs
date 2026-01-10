@@ -27,7 +27,7 @@ namespace CureLogix.DataAccess.Concrete
         public virtual DbSet<CentralWarehouse> CentralWarehouses { get; set; }
         public virtual DbSet<HospitalInventory> HospitalInventories { get; set; }
         public virtual DbSet<SupplyRequest> SupplyRequests { get; set; }
-
+        public virtual DbSet<Vehicle> Vehicles { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

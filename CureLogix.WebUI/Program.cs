@@ -57,6 +57,12 @@ builder.Services.AddScoped<ICentralWarehouseService, CentralWarehouseManager>();
 
 // FEFE Algoritması Modülü için
 builder.Services.AddScoped<ISupplyRequestService, SupplyRequestManager>();
+
+// Soğuk Zincir Takip Modülü için
+builder.Services.AddScoped<IVehicleService, VehicleManager>();
+
+// QRCoder için
+builder.Services.AddScoped<IQrCodeService, QrCodeManager>();
 // ============================================================
 
 // MVC Servislerini ekle

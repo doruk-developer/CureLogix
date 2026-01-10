@@ -14,5 +14,9 @@
         public virtual Hospital Hospital { get; set; }
         public virtual Doctor RequestingDoctor { get; set; }
         public virtual Medicine Medicine { get; set; }
+
+        // Soğuk zincir araçları için
+        public int? AssignedVehicleId { get; set; }
+        public virtual Vehicle AssignedVehicle { get; set; }
     }
 }

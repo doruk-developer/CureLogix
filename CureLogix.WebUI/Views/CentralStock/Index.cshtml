@@ -1,17 +1,25 @@
 ﻿@using CureLogix.Entity.DTOs.WarehouseDTOs
 @model List<CentralStockListDto>
 
-@{
-    ViewData["Title"] = "Merkez Stok";
-}
+@{ ViewData["Title"] = "Merkez Stok"; }
 
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6"><h1>📦 Merkez Depo Yönetimi</h1></div>
+
             <div class="col-sm-6 text-right">
-                <a href="/CentralStock/Entry" class="btn btn-indigo"><i class="fas fa-boxes"></i> Mal Kabul / Stok Girişi</a>
+                <!-- Hızlı Çıkış Terminali Butonu (Yeni) -->
+                <a href="/CentralStock/Scan" class="btn btn-dark">
+                    <i class="fas fa-barcode"></i> Hızlı Çıkış Terminali
+                </a>
+
+                <!-- Mal Kabul Butonu (Mevcut) -->
+                <a href="/CentralStock/Entry" class="btn btn-indigo ml-2">
+                    <i class="fas fa-boxes"></i> Mal Kabul / Stok Girişi
+                </a>
             </div>
+
         </div>
     </div>
 </div>
@@ -27,8 +35,10 @@
                         <th>Parti No (Batch)</th>
                         <th>Son Kullanma Tarihi</th>
                         <th>Durum</th>
+                        <th>Barkod</th> <!-- 1. BAŞLIĞI BURAYA EKLEDİK -->
                     </tr>
                 </thead>
+
                 <tbody>
                     @foreach (var item in Model)
                     {
@@ -40,16 +50,55 @@
                         <tr>
                             <td><strong>@item.MedicineName</strong></td>
                             <td>
-                                <span class="text-indigo font-weight-bold">@item.Quantity.ToString("N0")</span>
+                                <span class="text-indigo font-weight-bold">@item.Quantity.ToString("N0")</span> 
                                 <small class="text-muted">@item.MedicineUnit</small>
                             </td>
                             <td><code>@item.BatchNo</code></td>
                             <td>@item.ExpiryDate.ToShortDateString()</td>
                             <td><span class="badge @badgeClass">@statusText</span></td>
+                            
+                            <!-- 2. BUTONU FOREACH DÖNGÜSÜNÜN İÇİNE, SATIRIN SONUNA KOYDUK -->
+                            <td>
+                                <button type="button" class="btn btn-outline-dark btn-sm" 
+                                        data-bs-toggle="modal" data-bs-target="#qrModal" 
+                                        onclick="showQr(@item.Id, '@item.BatchNo')">
+                                    <i class="fas fa-qrcode"></i>
+                                </button>
+                            </td>
                         </tr>
                     }
                 </tbody>
+
             </table>
         </div>
     </div>
 </section>
+
+<!-- 3. MODAL VE SCRIPT SAYFANIN EN ALTINDA OLMALI -->
+<div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">📦 Stok Etiketi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="qrImage" src="" class="img-fluid border p-2" />
+                <p id="qrBatch" class="mt-2 font-weight-bold text-indigo"></p>
+                <small class="text-muted">Bu kodu el terminali ile okutunuz.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showQr(id, batch) {
+        // 1. Karekod resmini getir
+        document.getElementById('qrImage').src = "/CentralStock/GetQrImage/" + id;
+
+        // 2. Altındaki yazıyı "Tam Kod" haline getir (STOK-ID-BATCH formatında)
+        // Böylece test ederken buradan kopyalayabilirsin.
+        var fullCode = "STOK-" + id + "-" + batch;
+        document.getElementById('qrBatch').innerText = fullCode;
+    }
+</script>

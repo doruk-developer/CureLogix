@@ -16,14 +16,23 @@ namespace CureLogix.WebUI.Controllers
         private readonly IHospitalService _hospitalService;
         private readonly IMedicineService _medicineService;
         private readonly IMapper _mapper;
+        private readonly IVehicleService _vehicleService; // Yeni eklenen servis
 
-        public SupplyController(ISupplyRequestService supplyService, ICentralWarehouseService warehouseService, IHospitalService hospitalService, IMedicineService medicineService, IMapper mapper)
+        // TEK VE TAM CONSTRUCTOR
+        public SupplyController(
+            ISupplyRequestService supplyService,
+            ICentralWarehouseService warehouseService,
+            IHospitalService hospitalService,
+            IMedicineService medicineService,
+            IMapper mapper,
+            IVehicleService vehicleService) // Parametre eklendi
         {
             _supplyService = supplyService;
             _warehouseService = warehouseService;
             _hospitalService = hospitalService;
             _medicineService = medicineService;
             _mapper = mapper;
+            _vehicleService = vehicleService; // Atama yapıldı
         }
 
         // 1. Talepleri Listele
@@ -55,33 +64,45 @@ namespace CureLogix.WebUI.Controllers
                 var request = _mapper.Map<SupplyRequest>(p);
                 request.Status = 0; // Bekliyor
                 request.RequestDate = DateTime.Now;
-                request.RequestingDoctorId = 1; // Şimdilik 1 nolu doktor (Ahmet Mehmet) istiyor varsayalım
+                request.RequestingDoctorId = 1; // Simülasyon ID
 
                 _supplyService.TAdd(request);
                 return RedirectToAction("Index");
             }
-            // Hata varsa ViewBag'leri doldur
+
             ViewBag.Hospitals = new SelectList(_hospitalService.TGetList(), "Id", "Name");
             ViewBag.Medicines = new SelectList(_medicineService.TGetList(), "Id", "Name");
             return View(p);
         }
 
-        // 4. KRİTİK NOKTA: ONAYLA VE FEFO'YU ÇALIŞTIR
-        public IActionResult Approve(int id)
+        // 4. KRİTİK METOT: ONAYLA, ARAÇ KONTROLÜ VE FEFO
+        [HttpPost]
+        public IActionResult Approve(int id, int vehicleId)
         {
             var request = _supplyService.TGetById(id);
+            var medicine = _medicineService.TGetById(request.MedicineId);
+            var vehicle = _vehicleService.TGetById(vehicleId);
 
             try
             {
-                // FEFO Algoritmasını Çalıştır (Stoktan Düş)
+                // A) SOĞUK ZİNCİR KONTROLÜ (IOT SİMÜLASYONU)
+                if (medicine.RequiresColdChain == true && vehicle.HasCoolingSystem == false)
+                {
+                    TempData["Error"] = $"⛔ GÜVENLİK İHLALİ: '{medicine.Name}' ilacı soğuk zincir gerektirir! '{vehicle.PlateNumber}' plakalı araçta soğutucu sistem yok.";
+                    return RedirectToAction("Index");
+                }
+
+                // B) FEFO ALGORİTMASI (STOK DÜŞÜMÜ)
                 _warehouseService.DistributeStockByFEFO(request.MedicineId, request.RequestQuantity);
 
-                // Talep Durumunu Güncelle
+                // C) DURUM GÜNCELLEME VE ARAÇ ATAMA
                 request.Status = 1; // Onaylandı
                 request.ApprovedQuantity = request.RequestQuantity;
+                request.AssignedVehicleId = vehicleId;
+
                 _supplyService.TUpdate(request);
 
-                TempData["Success"] = "Talep onaylandı ve stoktan FEFO kuralına göre düşüldü.";
+                TempData["Success"] = $"✅ İşlem Başarılı! İlaçlar '{vehicle.PlateNumber}' plakalı araca yüklendi ve yola çıktı.";
             }
             catch (Exception ex)
             {
