@@ -6,5 +6,8 @@ namespace CureLogix.Business.Abstract
     {
         // Yeni Metot: Akıllı Stok Düşümü
         void DistributeStockByFEFO(int medicineId, int quantityNeeded);
+
+        // Arkaplan görevleri için
+        void CheckExpiriesAndCreateOrder();
     }
 }

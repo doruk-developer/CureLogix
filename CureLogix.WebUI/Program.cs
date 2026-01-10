@@ -4,6 +4,8 @@ using CureLogix.DataAccess.Abstract;     // IGenericRepository için
 using CureLogix.DataAccess.Concrete;     // Context için
 using CureLogix.DataAccess.Repositories; // GenericRepository için (*)
 using CureLogix.WebUI.Hubs;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -67,6 +69,21 @@ builder.Services.AddScoped<IQrCodeService, QrCodeManager>();
 
 // Atık Yönetimi için
 builder.Services.AddScoped<IWasteReportService, WasteReportManager>();
+
+// ==================================================================
+// HANGFIRE KURULUMU (ARKA PLAN GÖREVLERİ)
+// ==================================================================
+
+// 1. Hangfire Servisini SQL Server ile Bağla
+// Not: 'connectionString' değişkeni yukarıdaki Akıllı Bağlantı'dan geliyor.
+builder.Services.AddHangfire(config => config
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(connectionString));
+
+// 2. Hangfire Server'ı Ekle (İşleri işleyen motor)
+builder.Services.AddHangfireServer();
 // ============================================================
 
 // Anlık İletişim ve Otomasyon Modülü için
@@ -92,6 +109,28 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapHub<GeneralHub>("/generalHub");
+
+// ==================================================================
+// HANGFIRE DASHBOARD VE ZAMANLAMA
+// ==================================================================
+
+// 1. Dashboard'u Aktif Et (Panel Adresi: /hangfire)
+app.UseHangfireDashboard("/hangfire");
+
+// 2. Tekrarlayan Görevi Tanımla (Recurring Job)
+// Cron.Daily(3) -> Her gün saat 03:00'te çalışır.
+using (var scope = app.Services.CreateScope())
+{
+    var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+    var warehouseService = scope.ServiceProvider.GetRequiredService<ICentralWarehouseService>();
+
+    // Görevi Ekle
+    recurringJobManager.AddOrUpdate(
+        "Otomatik-Siparis-Olusturma",
+        () => warehouseService.CheckExpiriesAndCreateOrder(),
+        Cron.Daily(3) // Saat 03:00
+    );
+}
 
 app.MapControllerRoute(
     name: "default",

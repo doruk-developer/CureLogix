@@ -49,5 +49,21 @@ namespace CureLogix.Business.Concrete
                 }
             }
         }
+
+        public void CheckExpiriesAndCreateOrder()
+        {
+            // 1. Kritik Eşik: Bugünden itibaren 90 gün (3 ay)
+            var criticalDate = DateTime.Now.AddDays(90);
+
+            // 2. SKT'si yaklaşan ve stoğu bitmemiş ürünleri bul
+            var riskyItems = _repository.GetListByFilter(x => x.ExpiryDate < criticalDate && x.Quantity > 0);
+
+            // 3. Simülasyon: Her biri için konsola veya loga yaz (Gerçekte Sipariş tablosuna yazılır)
+            foreach (var item in riskyItems)
+            {
+                // Konsola yaz ki çalıştığını görelim (Output penceresinde görünür)
+                System.Diagnostics.Debug.WriteLine($"[OTOMATİK SİPARİŞ]: {item.Id} ID'li ürünün SKT'si yaklaşıyor ({item.ExpiryDate.ToShortDateString()}). Sipariş taslağı oluşturuldu.");
+            }
+        }
     }
 }
