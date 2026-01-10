@@ -80,5 +80,17 @@ namespace CureLogix.WebUI.Controllers
 
             return RedirectToAction("Index");
         }
+
+        [HttpGet]
+        public IActionResult ChatRoom()
+        {
+            // Şimdilik kullanıcı adı simülasyonu yapıyoruz
+            // Gerçekte Identity'den gelir. Burada rastgele bir Doktor adı atayalım.
+            var randomDoctors = new List<string> { "Prof. Dr. Hikmet Vural", "Doç. Dr. Selim Arca", "Dr. Ayşe Yılmaz", "Uzm. Dr. Kemal Sayar" };
+            Random rnd = new Random();
+            ViewBag.UserName = randomDoctors[rnd.Next(randomDoctors.Count)]; // Rastgele bir isim seç
+
+            return View();
+        }
     }
 }

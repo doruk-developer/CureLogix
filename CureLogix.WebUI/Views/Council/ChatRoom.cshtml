@@ -1,0 +1,144 @@
+﻿@{
+    ViewData["Title"] = "Konsey Toplantı Odası";
+}
+
+<!-- SignalR Kütüphanesi (Layout'ta varsa buraya gerek yok ama garanti olsun) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>💬 Konsey Canlı Tartışma Odası</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+
+                <!-- CHAT KARTI -->
+                <div class="card card-primary card-outline direct-chat direct-chat-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Genel Kurul</h3>
+                        <div class="card-tools">
+                            <span title="Katılımcı" class="badge badge-primary">Canlı</span>
+                        </div>
+                    </div>
+
+                    <!-- MESAJLAŞMA ALANI -->
+                    <div class="card-body">
+                        <div class="direct-chat-messages" id="chatWindow" style="height: 400px;">
+
+                            <!-- Sistem Mesajı -->
+                            <div class="text-center text-muted small my-2">
+                                <em>Konsey odasına bağlandınız. Sohbet şifreli ve güvenlidir.</em>
+                            </div>
+
+                            <!-- Mesajlar buraya JavaScript ile eklenecek -->
+
+                        </div>
+                    </div>
+
+                    <!-- GÖNDERME ALANI -->
+                    <div class="card-footer">
+                        <div class="input-group">
+                            <input type="text" id="messageInput" placeholder="Mesajınızı yazın..." class="form-control" autocomplete="off">
+                            <span class="input-group-append">
+                                <button type="button" id="sendButton" class="btn btn-primary">Gönder</button>
+                            </span>
+                        </div>
+                        <input type="hidden" id="userInput" value="@ViewBag.UserName" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SIGNALR CLIENT KODLARI -->
+<script>
+    // 1. Bağlantıyı Kur (Layout'taki bağlantıdan bağımsız yeni bir instance alabiliriz veya varolanı kullanabiliriz)
+    // Burası için özel bir bağlantı kuralım.
+    var chatConnection = new signalR.HubConnectionBuilder().withUrl("/generalHub").build();
+
+    // Gönder butonu başlangıçta pasif olsun (Bağlantı kurulana kadar)
+    document.getElementById("sendButton").disabled = true;
+
+    // 2. Mesaj GELİRSE ne yapayım? (Listener)
+    chatConnection.on("ReceiveMessage", function (user, message, time) {
+        var currentUser = document.getElementById("userInput").value;
+        var msgHtml = "";
+
+        // Mesajı ben mi attım başkası mı?
+        if (user === currentUser) {
+            // BENİM MESAJIM (SAĞDA)
+            msgHtml = `
+                <div class="direct-chat-msg right">
+                    <div class="direct-chat-infos clearfix">
+                        <span class="direct-chat-name float-right">${user}</span>
+                        <span class="direct-chat-timestamp float-left">${time}</span>
+                    </div>
+                    <img class="direct-chat-img" src="https://adminlte.io/themes/v3/dist/img/user1-128x128.jpg" alt="User">
+                    <div class="direct-chat-text bg-primary border-primary">
+                        ${message}
+                    </div>
+                </div>`;
+        } else {
+            // BAŞKASININ MESAJI (SOLDA)
+            msgHtml = `
+                <div class="direct-chat-msg">
+                    <div class="direct-chat-infos clearfix">
+                        <span class="direct-chat-name float-left">${user}</span>
+                        <span class="direct-chat-timestamp float-right">${time}</span>
+                    </div>
+                    <img class="direct-chat-img" src="https://adminlte.io/themes/v3/dist/img/user3-128x128.jpg" alt="User">
+                    <div class="direct-chat-text">
+                        ${message}
+                    </div>
+                </div>`;
+        }
+
+        // Mesajı ekle ve en alta kaydır
+        var chatBox = document.getElementById("chatWindow");
+        chatBox.insertAdjacentHTML('beforeend', msgHtml);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
+    // 3. Bağlantıyı Başlat
+    chatConnection.start().then(function () {
+        document.getElementById("sendButton").disabled = false;
+        console.log("Chat Bağlantısı Hazır!");
+    }).catch(function (err) {
+        return console.error(err.toString());
+    });
+
+    // 4. Mesaj GÖNDERME İşlemi
+    document.getElementById("sendButton").addEventListener("click", function (event) {
+        var user = document.getElementById("userInput").value;
+        var message = document.getElementById("messageInput").value;
+
+        if (message.trim() !== "") {
+            // Server'daki "SendMessage" metodunu tetikle
+            chatConnection.invoke("SendMessage", user, message).catch(function (err) {
+                return console.error(err.toString());
+            });
+
+            // Inputu temizle
+            document.getElementById("messageInput").value = "";
+            document.getElementById("messageInput").focus();
+        }
+        event.preventDefault();
+    });
+
+    // Enter tuşuna basınca da göndersin
+    document.getElementById("messageInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            document.getElementById("sendButton").click();
+        }
+    });
+</script>
