@@ -1,0 +1,69 @@
+﻿@{
+    ViewData["Title"] = "Pandemi Isı Haritası";
+}
+
+<!-- Leaflet CSS (Harita Stili) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<div class="content-header">
+    <div class="container-fluid">
+        <h1>🌍 Ulusal Doluluk ve Risk Haritası</h1>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">Türkiye Geneli Hastane Durumları</h3>
+            </div>
+            <div class="card-body p-0">
+                <!-- Haritanın oturacağı alan (Yükseklik vermek zorunlu) -->
+                <div id="pandemicMap" style="height: 600px; width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Leaflet JS (Harita Motoru) -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    // 1. Haritayı Başlat (Merkez: Türkiye, Zoom: 6)
+    var map = L.map('pandemicMap').setView([39.0, 35.5], 6);
+
+    // 2. Harita Katmanını Ekle (OpenStreetMap kullanıyoruz - Ücretsiz)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; CureLogix GIS'
+    }).addTo(map);
+
+    // 3. Verileri Çek ve İşaretle
+    $.ajax({
+        url: '/Map/GetMapData',
+        method: 'GET',
+        success: function (data) {
+            data.forEach(function (point) {
+
+                // A) Daire (Heatmap etkisi için)
+                L.circle([point.latitude, point.longitude], {
+                    color: point.levelColor,       // Çerçeve rengi
+                    fillColor: point.levelColor,   // Dolgu rengi
+                    fillOpacity: 0.5,              // Saydamlık
+                    radius: 40000                  // Yarıçap (40km - Büyük görünsün diye)
+                }).addTo(map);
+
+                // B) Marker (Pin) ve Popup Bilgisi
+                var popupContent = `
+                    <b>${point.hospitalName}</b><br/>
+                    Şehir: ${point.city}<br/>
+                    Doluluk: <b>%${point.occupancyRate}</b>
+                `;
+
+                L.marker([point.latitude, point.longitude])
+                    .addTo(map)
+                    .bindPopup(popupContent);
+            });
+        }
+    });
+</script>

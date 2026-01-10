@@ -1,5 +1,7 @@
-using CureLogix.Business.Abstract;  // Servis Interface'leri burada (IHospitalService vb.)
-using CureLogix.WebUI.Models;       // ViewModel burada
+using AutoMapper;
+using CureLogix.Business.Abstract;
+using CureLogix.Entity.DTOs.WarehouseDTOs;
+using CureLogix.WebUI.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CureLogix.WebUI.Controllers
@@ -9,52 +11,72 @@ namespace CureLogix.WebUI.Controllers
         private readonly IHospitalService _hospitalService;
         private readonly IDoctorService _doctorService;
         private readonly IMedicineService _medicineService;
-        private readonly ITreatmentProtocolService _protocolService; // Yeni
-        private readonly IDiseaseService _diseaseService; // Yeni
+        private readonly ITreatmentProtocolService _protocolService;
+        private readonly ISupplyRequestService _supplyService;
+        private readonly ICentralWarehouseService _warehouseService;
+        private readonly IMapper _mapper;
 
         public HomeController(
             IHospitalService hospitalService,
             IDoctorService doctorService,
             IMedicineService medicineService,
             ITreatmentProtocolService protocolService,
-            IDiseaseService diseaseService)
+            ISupplyRequestService supplyService,
+            ICentralWarehouseService warehouseService,
+            IMapper mapper)
         {
             _hospitalService = hospitalService;
             _doctorService = doctorService;
             _medicineService = medicineService;
             _protocolService = protocolService;
-            _diseaseService = diseaseService;
+            _supplyService = supplyService;
+            _warehouseService = warehouseService;
+            _mapper = mapper;
         }
 
         public IActionResult Index()
         {
-            // Tüm verileri çek
+            var model = new AdvancedDashboardViewModel();
+
+            // 1. KPI Verileri
+            model.TotalHospitals = _hospitalService.TGetList().Count;
+            model.TotalDoctors = _doctorService.TGetList().Count;
+
+            var requests = _supplyService.TGetList();
+            model.PendingRequests = requests.Count(x => x.Status == 0); // Bekleyenler
+
+            var stocks = _warehouseService.TGetList();
+            // Kritik seviye: 1000 adetin altý (Simülasyon kuralý)
+            model.CriticalStockCount = stocks.Count(x => x.Quantity < 1000);
+
+            // 2. Grafikler
+            // A) Hastane Doluluk
             var hospitals = _hospitalService.TGetList();
-            var doctors = _doctorService.TGetList();
-            var protocols = _protocolService.TGetList();
+            model.HospitalNames = hospitals.Select(x => x.Name).ToList();
+            model.OccupancyRates = hospitals.Select(x => x.OccupancyRate ?? 0).ToList();
 
-            var model = new DashboardViewModel
+            // B) Talep Durumlarý
+            model.WaitingReq = model.PendingRequests;
+            model.ApprovedReq = requests.Count(x => x.Status == 1);
+            model.RejectedReq = 5; // Simülasyon (DB'de red sütunu yoksa)
+
+            // C) Radar Chart (Kategori Analizi - Simülasyon)
+            model.MedicineCategories = new List<string> { "Antibiyotik", "Antiviral", "Aþý", "Analjezik", "Solunum", "Kardiyak" };
+            model.CategoryStockLevels = new List<int> { 85, 40, 90, 65, 30, 75 }; // Rastgele simülasyon verileri
+
+            // 3. Tablolar
+            // Kritik Stoklar (Ýlk 5)
+            var criticals = stocks.Where(x => x.Quantity < 5000).OrderBy(x => x.Quantity).Take(5).ToList();
+            model.CriticalMedicines = _mapper.Map<List<CentralStockListDto>>(criticals);
+
+            // Son Aktiviteler (Simülasyon - Normalde Audit tablosundan gelir)
+            model.RecentActivities = new List<string>
             {
-                // 1. Kart Verileri
-                TotalHospitals = hospitals.Count,
-                TotalDoctors = doctors.Count,
-                TotalMedicines = _medicineService.TGetList().Count,
-                TotalProtocols = protocols.Count,
-
-                // 2. Grafik: Hastane Doluluk Oranlarý
-                HospitalNames = hospitals.Select(x => x.Name).ToList(),
-                OccupancyRates = hospitals.Select(x => x.OccupancyRate ?? 0).ToList(), // Null ise 0 al
-
-                // 3. Grafik: Protokol Durumlarý (0:Bekleyen, 1:Onay, 2:Red)
-                PendingProtocols = protocols.Count(x => x.Status == 0),
-                ApprovedProtocols = protocols.Count(x => x.Status == 1),
-                RejectedProtocols = protocols.Count(x => x.Status == 2),
-
-                // 4. Grafik: Doktor Branþ Daðýlýmý (Gruplama)
-                DoctorSpecialties = doctors.GroupBy(d => d.Specialty)
-                                           .Select(g => g.Key).ToList(),
-                DoctorSpecialtyCounts = doctors.GroupBy(d => d.Specialty)
-                                               .Select(g => g.Count()).ToList()
+                "Dr. Kemal Sayar sisteme giriþ yaptý.",
+                "Merkez Depo'ya 10.000 adet ViruGuard giriþi yapýldý.",
+                "Acil Durum: Ankara Þehir Hastanesi oksijen tüpü talep etti.",
+                "Konsey, RS-24 protokolünü onayladý.",
+                "Sistem yedeklemesi baþarýyla tamamlandý."
             };
 
             return View(model);
