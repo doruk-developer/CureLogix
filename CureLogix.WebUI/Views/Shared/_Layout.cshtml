@@ -153,5 +153,50 @@
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
+
+    <!-- ... Önceki scriptler (jQuery, Bootstrap vs.) ... -->
+    <!-- 1. SignalR Kütüphanesi (CDN'den çekiyoruz, en kolayı) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+
+    <!-- 2. SweetAlert2 (Güzel Popup için) -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- 3. Bizim Bağlantı Kodumuz -->
+    <script>
+        // Bağlantıyı oluştur
+        var connection = new signalR.HubConnectionBuilder().withUrl("/generalHub").build();
+
+        // Bağlantıyı başlat
+        connection.start().then(function () {
+            console.log("🟢 SignalR Bağlantısı Başarılı!");
+        }).catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        // "ReceiveCriticalStock" sinyalini DİNLE
+        connection.on("ReceiveCriticalStock", function (message) {
+
+            // Sinyal gelince SweetAlert ile Kırmızı Alarm ver
+            Swal.fire({
+                icon: 'error',
+                title: 'KRİTİK STOK ALARMI!',
+                text: message,
+                background: '#fff',
+                color: '#d33',
+                iconColor: '#d33',
+                showConfirmButton: true,
+                confirmButtonText: 'Müdahale Et',
+                backdrop: `
+                    rgba(255,0,0,0.4)
+                    left top
+                    no-repeat
+                `
+            });
+
+            // Opsiyonel: Sesli uyarı da çaldırılabilir.
+        });
+    </script>
+
 </body>
 </html>

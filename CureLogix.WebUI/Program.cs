@@ -3,6 +3,7 @@ using CureLogix.Business.Concrete;       // HospitalManager vb. için
 using CureLogix.DataAccess.Abstract;     // IGenericRepository için
 using CureLogix.DataAccess.Concrete;     // Context için
 using CureLogix.DataAccess.Repositories; // GenericRepository için (*)
+using CureLogix.WebUI.Hubs;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -68,6 +69,9 @@ builder.Services.AddScoped<IQrCodeService, QrCodeManager>();
 builder.Services.AddScoped<IWasteReportService, WasteReportManager>();
 // ============================================================
 
+// Anlık İletişim ve Otomasyon Modülü için
+builder.Services.AddSignalR();
+
 // MVC Servislerini ekle
 builder.Services.AddControllersWithViews();
 
@@ -86,6 +90,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.MapHub<GeneralHub>("/generalHub");
 
 app.MapControllerRoute(
     name: "default",

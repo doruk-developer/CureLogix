@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "Alarm Simülasyonu";
+}
+
+<div class="content-header"><div class="container-fluid"><h1>🚨 Acil Durum Simülatörü</h1></div></div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card card-danger">
+            <div class="card-header"><h3 class="card-title">Kriz Tetikleyici</h3></div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Hangi Hastane?</label>
+                    <input type="text" id="txtHospital" class="form-control" value="Anadolu Şehir Hastanesi">
+                </div>
+                <div class="form-group">
+                    <label>Hangi İlaç Bitti?</label>
+                    <input type="text" id="txtMedicine" class="form-control" value="Adrenalin 1mg">
+                </div>
+                <button class="btn btn-danger btn-block btn-lg" onclick="sendAlarm()">
+                    <i class="fas fa-bullhorn"></i> ALARMI ÇALDIR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function sendAlarm() {
+        var hospital = $("#txtHospital").val();
+        var medicine = $("#txtMedicine").val();
+
+        // Controller'a AJAX isteği at (Sayfa yenilenmesin diye)
+        $.post("/Notification/TriggerAlarm", { hospital: hospital, medicine: medicine });
+    }
+</script>
