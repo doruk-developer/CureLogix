@@ -63,6 +63,9 @@ builder.Services.AddScoped<IVehicleService, VehicleManager>();
 
 // QRCoder için
 builder.Services.AddScoped<IQrCodeService, QrCodeManager>();
+
+// Atık Yönetimi için
+builder.Services.AddScoped<IWasteReportService, WasteReportManager>();
 // ============================================================
 
 // MVC Servislerini ekle

@@ -28,13 +28,18 @@ namespace CureLogix.DataAccess.Concrete
         public virtual DbSet<HospitalInventory> HospitalInventories { get; set; }
         public virtual DbSet<SupplyRequest> SupplyRequests { get; set; }
         public virtual DbSet<Vehicle> Vehicles { get; set; }
+        public virtual DbSet<WasteReport> WasteReports { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // EF Core'a diyoruz ki: "Senin CentralWarehouses dediğin tablo, SQL'de 'CentralWarehouse' adıyla kayıtlı."
+            // 1. Merkez Depo Tablo Adı Düzeltmesi (Çoğul eki sorunu)
             modelBuilder.Entity<CentralWarehouse>().ToTable("CentralWarehouse");
 
+            // 2. Hastane Envanteri Tablo Adı Düzeltmesi
+            modelBuilder.Entity<HospitalInventory>().ToTable("HospitalInventory");
+
+            // Base metodun çağrılması (Önemli)
             base.OnModelCreating(modelBuilder);
         }
     }

@@ -1,0 +1,66 @@
+﻿@using CureLogix.Entity.DTOs.WasteDTOs
+@model List<WasteReportListDto>
+
+@{
+    ViewData["Title"] = "Atık Yönetimi";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6"><h1>☣️ Tıbbi Atık ve İmha Yönetimi</h1></div>
+            <div class="col-sm-6 text-right">
+                <a href="/Waste/ScanAndMove" class="btn btn-warning">
+                    <i class="fas fa-search"></i> Miad Kontrolü Yap (Otomatik Tarama)
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-info alert-dismissible">
+        <button type="button" class="close" data-bs-dismiss="alert" aria-hidden="true">&times;</button>
+        <h5><i class="icon fas fa-check"></i> Sistem Bilgisi!</h5>
+        @TempData["Success"]
+    </div>
+}
+
+<section class="content">
+    <div class="card card-dark card-outline">
+        <div class="card-header"><h3 class="card-title">Geçmiş İmha Tutanakları</h3></div>
+        <div class="card-body table-responsive p-0">
+            <table class="table table-hover text-nowrap">
+                <thead>
+                    <tr>
+                        <th>Tarih</th>
+                        <th>Hastane</th>
+                        <th>İmha Edilen Ürün</th>
+                        <th>Miktar</th>
+                        <th>Gerekçe</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.DisposalDate.ToShortDateString()</td>
+                                <td>@item.HospitalName</td>
+                                <td><span class="text-danger">@item.MedicineName</span></td>
+                                <td><strong>@item.Quantity</strong></td>
+                                <td><span class="badge badge-secondary">@item.Reason</span></td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="5" class="text-center text-muted">Henüz oluşturulmuş bir imha tutanağı bulunmuyor.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

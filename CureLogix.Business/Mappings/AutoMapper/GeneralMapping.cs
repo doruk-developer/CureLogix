@@ -8,6 +8,7 @@ using CureLogix.Entity.DTOs.MedicineDTOs;
 using CureLogix.Entity.DTOs.ProtocolDTOs;
 using CureLogix.Entity.DTOs.SupplyDTOs;
 using CureLogix.Entity.DTOs.WarehouseDTOs;
+using CureLogix.Entity.DTOs.WasteDTOs;
 
 namespace CureLogix.Business.Mappings.AutoMapper
 {
@@ -69,8 +70,11 @@ namespace CureLogix.Business.Mappings.AutoMapper
             // Merkez Depo Yönetimi için
             CreateMap<CentralStockAddDto, CentralWarehouse>();
 
-            // Talep Yönetimi
+            // Talep Yönetimi için
             CreateMap<SupplyRequestAddDto, SupplyRequest>();
+
+            // Atık Yönetimi için
+            CreateMap<WasteReport, WasteReportListDto>().ForMember(x => x.HospitalName, o => o.MapFrom(s => s.Hospital.Name)).ForMember(x => x.MedicineName, o => o.MapFrom(s => s.Medicine.Name));
         }
     }
 }
