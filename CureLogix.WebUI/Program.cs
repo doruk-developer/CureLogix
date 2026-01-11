@@ -1,100 +1,128 @@
-﻿using CureLogix.Business.Abstract;       // IHospitalService vb. için
-using CureLogix.Business.Concrete;       // HospitalManager vb. için
-using CureLogix.DataAccess.Abstract;     // IGenericRepository için
-using CureLogix.DataAccess.Concrete;     // Context için
-using CureLogix.DataAccess.Repositories; // GenericRepository için (*)
+﻿using CureLogix.Business.Abstract;
+using CureLogix.Business.Concrete;
+using CureLogix.Business.ValidationRules; // Validatorlar için gerekebilir
+using CureLogix.DataAccess.Abstract;
+using CureLogix.DataAccess.Concrete;
+using CureLogix.DataAccess.Repositories;
+using CureLogix.Entity.Concrete;
 using CureLogix.WebUI.Hubs;
 using Hangfire;
 using Hangfire.SqlServer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ==================================================================
-// AKILLI VERITABANI BAGLANTISI (MULTI-MACHINE SETUP)
+// 1. AKILLI VERITABANI BAGLANTISI (SMART CONNECTION)
 // ==================================================================
 
-// 1. Bilgisayarin adini aliyoruz
 var machineName = Environment.MachineName;
 string connectionStringName;
 
-// 2. Hangi bilgisayardaysak o ConnectionString ismini seciyoruz
 if (machineName == "N56VZ-DORUK")
 {
     connectionStringName = "HomeConnection";
 }
 else
 {
-    // Is bilgisayari veya diger herhangi bir ortam icin varsayilan
-    connectionStringName = "WorkConnection";
+    connectionStringName = "WorkConnection"; // Varsayılan İş Bilgisayarı
 }
 
-// 3. appsettings.json dosyasindan baglanti cumlesini cekiyoruz
 var connectionString = builder.Configuration.GetConnectionString(connectionStringName)
-                       ?? throw new InvalidOperationException($"HATA: '{connectionStringName}' isimli baglanti cumlesi appsettings.json dosyasinda bulunamadi!");
+                       ?? throw new InvalidOperationException($"HATA: '{connectionStringName}' bulunamadı!");
 
-// 4. Context servisini bu baglanti ile ayaga kaldiriyoruz
+// DbContext Kurulumu
 builder.Services.AddDbContext<CureLogixContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString, b => b.MigrationsAssembly("CureLogix.DataAccess")));
 
-// ============================================================
-// 2. DEPENDENCY INJECTION (SERVİS BAĞLANTILARI)
-// ============================================================
+// ==================================================================
+// 2. IDENTITY (KİMLİK) VE GÜVENLİK YAPILANDIRMASI
+// ==================================================================
 
-// Repository'ler
+builder.Services.AddIdentity<AppUser, AppRole>()
+    .AddEntityFrameworkStores<CureLogixContext>();
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    // Şifre Politikası
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 6;
+
+    // Kilitleme (Brute Force Koruması)
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(3);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+});
+
+// Çerez Ayarları
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Login/Index";
+    options.AccessDeniedPath = "/Login/Index";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+});
+
+// GLOBAL AUTHORIZATION (Tüm Sistemi Kilitleme)
+builder.Services.AddControllersWithViews(config =>
+{
+    var policy = new AuthorizationPolicyBuilder()
+                     .RequireAuthenticatedUser()
+                     .Build();
+    config.Filters.Add(new AuthorizeFilter(policy));
+});
+
+// ==================================================================
+// 3. DEPENDENCY INJECTION (SERVİS KAYITLARI)
+// ==================================================================
+
+// Generic Repository
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
-// Business Manager'lar
+// Business Services (Managerlar)
 builder.Services.AddScoped<IHospitalService, HospitalManager>();
 builder.Services.AddScoped<IDoctorService, DoctorManager>();
 builder.Services.AddScoped<IMedicineService, MedicineManager>();
 builder.Services.AddScoped<ITreatmentProtocolService, TreatmentProtocolManager>();
 builder.Services.AddScoped<IDiseaseService, DiseaseManager>();
-// AutoMapper Konfigürasyonu
-// Business katmanındaki GeneralMapping sınıfını referans alarak tarama yapar
-builder.Services.AddAutoMapper(typeof(CureLogix.Business.Mappings.AutoMapper.GeneralMapping));
 builder.Services.AddScoped<ICouncilVoteService, CouncilVoteManager>();
-
-// Central Warehouse Service
 builder.Services.AddScoped<ICentralWarehouseService, CentralWarehouseManager>();
-
-// FEFE Algoritması Modülü için
 builder.Services.AddScoped<ISupplyRequestService, SupplyRequestManager>();
-
-// Soğuk Zincir Takip Modülü için
 builder.Services.AddScoped<IVehicleService, VehicleManager>();
-
-// QRCoder için
 builder.Services.AddScoped<IQrCodeService, QrCodeManager>();
-
-// Atık Yönetimi için
 builder.Services.AddScoped<IWasteReportService, WasteReportManager>();
 
+// AI Servisi (Singleton)
+builder.Services.AddSingleton<IAiForecastService, AiForecastManager>();
+
+// AutoMapper
+builder.Services.AddAutoMapper(typeof(CureLogix.Business.Mappings.AutoMapper.GeneralMapping));
+
+// SignalR
+builder.Services.AddSignalR();
+
 // ==================================================================
-// HANGFIRE KURULUMU (ARKA PLAN GÖREVLERİ)
+// 4. HANGFIRE KURULUMU (ARKA PLAN İŞLERİ)
 // ==================================================================
 
-// 1. Hangfire Servisini SQL Server ile Bağla
-// Not: 'connectionString' değişkeni yukarıdaki Akıllı Bağlantı'dan geliyor.
 builder.Services.AddHangfire(config => config
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
     .UseSimpleAssemblyNameTypeSerializer()
     .UseRecommendedSerializerSettings()
     .UseSqlServerStorage(connectionString));
 
-// 2. Hangfire Server'ı Ekle (İşleri işleyen motor)
 builder.Services.AddHangfireServer();
-// ============================================================
 
-// Anlık İletişim ve Otomasyon Modülü için
-builder.Services.AddSignalR();
-
-// MVC Servislerini ekle
-builder.Services.AddControllersWithViews();
+// ==================================================================
+// 5. UYGULAMA PIPELINE (MIDDLEWARE)
+// ==================================================================
 
 var app = builder.Build();
 
-// HTTP Pipeline (Standart Ayarlar)
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -104,33 +132,30 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseRouting();
+app.UseRouting(); // Routing bir kere tanımlanır
 
+// Güvenlik Sıralaması Önemlidir: Önce Kimlik Doğrulama, Sonra Yetkilendirme
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapHub<GeneralHub>("/generalHub");
-
-// ==================================================================
-// HANGFIRE DASHBOARD VE ZAMANLAMA
-// ==================================================================
-
-// 1. Dashboard'u Aktif Et (Panel Adresi: /hangfire)
+// Hangfire Dashboard
 app.UseHangfireDashboard("/hangfire");
 
-// 2. Tekrarlayan Görevi Tanımla (Recurring Job)
-// Cron.Daily(3) -> Her gün saat 03:00'te çalışır.
+// Hangfire Zamanlanmış Görevler (Cron Jobs)
 using (var scope = app.Services.CreateScope())
 {
     var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
     var warehouseService = scope.ServiceProvider.GetRequiredService<ICentralWarehouseService>();
 
-    // Görevi Ekle
     recurringJobManager.AddOrUpdate(
         "Otomatik-Siparis-Olusturma",
         () => warehouseService.CheckExpiriesAndCreateOrder(),
-        Cron.Daily(3) // Saat 03:00
+        Cron.Daily(3) // Her gece 03:00
     );
 }
+
+// Endpoint Tanımları
+app.MapHub<GeneralHub>("/generalHub"); // SignalR
 
 app.MapControllerRoute(
     name: "default",

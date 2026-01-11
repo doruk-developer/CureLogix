@@ -1,22 +1,25 @@
 ﻿using CureLogix.Entity.Concrete;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore; // Identity kütüphanesi
 using Microsoft.EntityFrameworkCore;
 
 namespace CureLogix.DataAccess.Concrete
 {
-    public partial class CureLogixContext : DbContext
+    // DİKKAT: Artık DbContext'ten değil, IdentityDbContext'ten miras alıyoruz.
+    // <AppUser, AppRole, int>: Kullanıcı sınıfımız, Rol sınıfımız ve ID tipimiz (int).
+    public partial class CureLogixContext : IdentityDbContext<AppUser, AppRole, int>
     {
         public CureLogixContext()
         {
         }
 
-        // Program.cs tarafından ayarların gönderildiği yer
         public CureLogixContext(DbContextOptions<CureLogixContext> options)
             : base(options)
         {
         }
 
-        // TABLO TANIMLARI (DbSet)
-        // Veritabanındaki tabloların C# karşılıkları
+        // ==========================================
+        // PROJE TABLOLARI (DbSet)
+        // ==========================================
         public virtual DbSet<Hospital> Hospitals { get; set; }
         public virtual DbSet<Doctor> Doctors { get; set; }
         public virtual DbSet<Medicine> Medicines { get; set; }
@@ -30,17 +33,19 @@ namespace CureLogix.DataAccess.Concrete
         public virtual DbSet<Vehicle> Vehicles { get; set; }
         public virtual DbSet<WasteReport> WasteReports { get; set; }
 
-
+        // ==========================================
+        // KONFİGÜRASYONLAR
+        // ==========================================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // 1. Merkez Depo Tablo Adı Düzeltmesi (Çoğul eki sorunu)
-            modelBuilder.Entity<CentralWarehouse>().ToTable("CentralWarehouse");
-
-            // 2. Hastane Envanteri Tablo Adı Düzeltmesi
-            modelBuilder.Entity<HospitalInventory>().ToTable("HospitalInventory");
-
-            // Base metodun çağrılması (Önemli)
+            // ÖNEMLİ: Identity tablolarının (AspNetUsers, AspNetRoles) düzgün çalışması için
+            // base.OnModelCreating(modelBuilder); satırı MUTLAKA EN BAŞTA olmalıdır.
             base.OnModelCreating(modelBuilder);
+
+            // Tablo Adı Eşleştirmeleri (Manuel Düzeltmeler)
+            modelBuilder.Entity<CentralWarehouse>().ToTable("CentralWarehouse");
+            modelBuilder.Entity<HospitalInventory>().ToTable("HospitalInventory");
+            modelBuilder.Entity<WasteReport>().ToTable("WasteReports");
         }
     }
 }

@@ -54,8 +54,8 @@
         </nav>
 
         <!-- B. SOL MENÜ (SIDEBAR) -->
-        <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
-            <div class="sidebar-brand">
+        <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark" d-flex flex-column">
+            <div class="sidebar-brand" flex-grow-1>
                 <a href="/" class="brand-link">
                     <i class="fa-solid fa-heart-pulse fa-lg me-2"></i>
                     <span class="brand-text fw-light">CureLogix</span>
@@ -67,6 +67,14 @@
                     <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
 
                         <li class="nav-header">GENEL</li>
+
+                        <li class="nav-item">
+                            <a href="/Ai/Index" class="nav-link">
+                                <i class="nav-icon fas fa-brain"></i>
+                                <p>Yapay Zeka (AI)</p>
+                            </a>
+                        </li>
+
                         <li class="nav-item">
                             <a href="/" class="nav-link active">
                                 <i class="nav-icon bi bi-speedometer"></i>
@@ -123,9 +131,40 @@
                         <li class="nav-item">
                             <a href="/Waste/Index" class="nav-link"><i class="nav-icon fas fa-biohazard"></i><p>Atık Yönetimi</p></a>
                         </li>
+
+                        <li class="nav-header border-top mt-3 pt-2">OTURUM</li>
+
+                        <li class="nav-item">
+                            <a href="/Login/Logout" class="nav-link bg-danger">
+                                <i class="nav-icon fas fa-power-off"></i>
+                                <p>
+                                    Güvenli Çıkış
+                                </p>
+                            </a>
+                        </li>
+
                     </ul>
                 </nav>
             </div>
+
+            <!-- LOGO (Dokunma) -->
+            <a href="/" class="brand-link">
+                <img src="~/theme/dist/img/AdminLTELogo.png" alt="Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+                <span class="brand-text font-weight-light">CureLogix</span>
+            </a>
+
+            <!-- MENÜ ALANI -->
+            <!-- 'flex-grow-1' ekledik ki tüm boşluğu burası yesin, butonu aşağı itsin -->
+            <div class="sidebar flex-grow-1">
+                <nav class="mt-2" style="height: calc(100vh - 150px); overflow-y: auto;">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
+                        <!-- ... SENİN MEVCUT MENÜ LİNKLERİN BURADA ... -->
+
+                    </ul>
+                </nav>
+            </div>
+           
         </aside>
 
         <!-- C. İÇERİK ALANI -->

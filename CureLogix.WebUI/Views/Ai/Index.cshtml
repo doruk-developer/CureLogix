@@ -1,0 +1,111 @@
+﻿@{
+    ViewData["Title"] = "AI Tahmin Simülasyonu";
+}
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="content-header"><div class="container-fluid"><h1>🤖 Yapay Zeka Destekli Talep Tahmini</h1></div></div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- PARAMETRELER -->
+            <div class="col-md-4">
+                <div class="card card-purple">
+                    <div class="card-header"><h3 class="card-title">Simülasyon Ayarları</h3></div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Hedef Şehir</label>
+                            <select id="citySelect" class="form-control">
+                                <option value="İstanbul">İstanbul</option>
+                                <option value="Ankara">Ankara</option>
+                                <option value="Antalya">Antalya (Turizm Etkisi)</option>
+                                <option value="Erzurum">Erzurum (Soğuk Etkisi)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Analiz Edilecek İlaç</label>
+                            <select id="medSelect" class="form-control">
+                                <option value="ViruGuard 500mg">ViruGuard (Grip)</option>
+                                <option value="ImmunoZinc Komplex">ImmunoZinc (Takviye)</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-purple btn-block" onclick="runAi()">
+                            <i class="fas fa-brain"></i> Analizi Başlat
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SONUÇ KUTUSU -->
+                <div class="info-box bg-gradient-success mt-3" id="resultBox" style="display:none;">
+                    <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Öngörülen Ortalama Artış</span>
+                        <span class="info-box-number" id="avgIncrease">Calculating...</span>
+                        <div class="progress"><div class="progress-bar" style="width: 70%"></div></div>
+                        <span class="progress-description">ML.NET Güven Skoru: %92</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRAFİK -->
+            <div class="col-md-8">
+                <div class="card card-primary card-outline">
+                    <div class="card-header"><h3 class="card-title">6 Aylık Talep Öngörüsü (Regression Model)</h3></div>
+                    <div class="card-body">
+                        <canvas id="aiChart" style="height: 300px;"></canvas>
+                    </div>
+                    <div class="card-footer small text-muted">
+                        * Bu veriler FastTree Regresyon algoritması kullanılarak, geçmiş 3 yıllık sentetik veri setinden türetilmiştir.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    var aiChartInstance = null;
+
+    function runAi() {
+        var city = $("#citySelect").val();
+        var med = $("#medSelect").val();
+
+        $.post("/Ai/Predict", { city: city, medicine: med }, function (data) {
+
+            // Veriyi Parçala
+            var labels = data.map(x => x.month);
+            var values = data.map(x => x.value);
+
+            // Kutuyu Göster
+            $("#resultBox").slideDown();
+            $("#avgIncrease").text(values[0] + " Kutu -> " + values[5] + " Kutu");
+
+            // Grafiği Çiz
+            var ctx = document.getElementById('aiChart').getContext('2d');
+
+            if(aiChartInstance) aiChartInstance.destroy(); // Eskiyi sil
+
+            aiChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Tahmini Talep Miktarı',
+                        data: values,
+                        borderColor: '#6f42c1', // Mor
+                        backgroundColor: 'rgba(111, 66, 193, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        });
+    }
+</script>
