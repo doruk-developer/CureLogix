@@ -123,11 +123,22 @@ builder.Services.AddHangfireServer();
 
 var app = builder.Build();
 
+// HATA YÖNETİMİ
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    // Canlı ortamda (Production) hata olursa 500 sayfasına git
+    app.UseExceptionHandler("/Error/Page500");
     app.UseHsts();
 }
+else
+{
+    // Geliştirme ortamında (Development) hata olursa yine 500 sayfasına git (Test için)
+    // Normalde DeveloperPage kullanılır ama biz kendi sayfamızı görmek istiyoruz.
+    app.UseExceptionHandler("/Error/Page500");
+}
+
+// Olmayan sayfa (404) yönetimi
+app.UseStatusCodePagesWithReExecute("/Error/Page404");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

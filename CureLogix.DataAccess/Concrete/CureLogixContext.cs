@@ -32,6 +32,7 @@ namespace CureLogix.DataAccess.Concrete
         public virtual DbSet<SupplyRequest> SupplyRequests { get; set; }
         public virtual DbSet<Vehicle> Vehicles { get; set; }
         public virtual DbSet<WasteReport> WasteReports { get; set; }
+        public virtual DbSet<ErrorLog> ErrorLogs { get; set; }
 
         // ==========================================
         // KONFİGÜRASYONLAR
@@ -46,6 +47,7 @@ namespace CureLogix.DataAccess.Concrete
             modelBuilder.Entity<CentralWarehouse>().ToTable("CentralWarehouse");
             modelBuilder.Entity<HospitalInventory>().ToTable("HospitalInventory");
             modelBuilder.Entity<WasteReport>().ToTable("WasteReports");
+            modelBuilder.Entity<ErrorLog>().ToTable("ErrorLogs");
         }
     }
 }
