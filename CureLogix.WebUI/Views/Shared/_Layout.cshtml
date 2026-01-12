@@ -5,35 +5,42 @@
     <title>CureLogix | Sağlık Lojistik Sistemi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- 1. FONTLAR VE İKONLAR (CDN'den çekiyoruz, hızlı olsun) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@fontsource/source-sans-3@5.0.12/index.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.3.0/styles/overlayscrollbars.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.min.css">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- 2. ADMINLTE 4 TEMASI (Senin Bilgisayarından) -->
-    <!-- Dikkat: Yolu 'theme/css' olarak verdik -->
     <link rel="stylesheet" href="~/theme/css/adminlte.min.css">
 
     <style>
-        /* CureLogix Kurumsal Mavisi */
-        .app-sidebar-brand { background-color: #0d6efd !important; color: white !important; }
-        .nav-link.active { background-color: #0d6efd !important; color: white !important; }
+        .app-sidebar-brand {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+
+        .nav-link.active {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
     </style>
 </head>
 
-<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+@{
+        // --- YENİ EKLENEN KISIM: TEMA KONTROLÜ ---
+        var themePref = Context.Request.Cookies["ThemePreference"] ?? "light";
+        var themeAttr = themePref == "dark" ? "dark" : "light";
+        // AdminLTE 4 için body class ayarı
+        var bodyClass = themePref == "dark" ? "bg-body" : "bg-body-tertiary";
+}
+
+<!-- Body sınıfını ve data-bs-theme özelliğini dinamik yaptık -->
+<body class="layout-fixed sidebar-expand-lg @bodyClass" data-bs-theme="@themeAttr">
     <div class="app-wrapper">
 
-        <!-- A. ÜST MENÜ -->
         <nav class="app-header navbar navbar-expand bg-body">
             <div class="container-fluid">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
-                            <i class="bi bi-list"></i>
-                        </a>
+                        <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button"><i class="bi bi-list"></i></a>
                     </li>
                     <li class="nav-item d-none d-md-block">
                         <span class="nav-link fw-bold">CureLogix Yönetim Paneli</span>
@@ -53,7 +60,6 @@
             </div>
         </nav>
 
-        <!-- B. SOL MENÜ (SIDEBAR) -->
         <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark" d-flex flex-column">
             <div class="sidebar-brand" flex-grow-1>
                 <a href="/" class="brand-link">
@@ -67,107 +73,47 @@
                     <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
 
                         <li class="nav-header">GENEL</li>
-
-                        <li class="nav-item">
-                            <a href="/Ai/Index" class="nav-link">
-                                <i class="nav-icon fas fa-brain"></i>
-                                <p>Yapay Zeka (AI)</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="/" class="nav-link active">
-                                <i class="nav-icon bi bi-speedometer"></i>
-                                <p>Dashboard</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="/Map/Index" class="nav-link">
-                                <i class="nav-icon fas fa-map-marked-alt"></i>
-                                <p>Salgın Haritası</p>
-                            </a>
-
-                            <a href="/Report/Index" class="nav-link">
-                                <i class="nav-icon fas fa-chart-pie"></i>
-                                <p>Raporlar</p>
-                            </a>
-                        </li>
+                        <li class="nav-item"><a href="/Ai/Index" class="nav-link"><i class="nav-icon fas fa-brain"></i><p>Yapay Zeka (AI)</p></a></li>
+                        <li class="nav-item"><a href="/" class="nav-link active"><i class="nav-icon bi bi-speedometer"></i><p>Dashboard</p></a></li>
+                        <li class="nav-item"><a href="/Map/Index" class="nav-link"><i class="nav-icon fas fa-map-marked-alt"></i><p>Salgın Haritası</p></a></li>
+                        <li class="nav-item"><a href="/Report/Index" class="nav-link"><i class="nav-icon fas fa-chart-pie"></i><p>Raporlar</p></a></li>
 
                         <li class="nav-header">OPERASYON</li>
-                        <li class="nav-item">
-                            <a href="/Hospital/Index" class="nav-link"><i class="nav-icon fa-solid fa-hospital"></i> <p>Hastaneler</p></a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/Disease/Index" class="nav-link"><i class="nav-icon fa-solid fa-user-doctor"></i> <p>Hastalıklar</p></a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/Doctor/Index" class="nav-link"><i class="nav-icon fa-solid fa-user-doctor"></i> <p>Doktorlar</p></a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/Medicine/Index" class="nav-link"><i class="nav-icon fas fa-pills"></i><p>İlaçlar</p></a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/Council/Index" class="nav-link"><i class="nav-icon fas fa-balance-scale"></i><p>Konsey Kararları</p></a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/Council/ChatRoom" class="nav-link">
-                                <i class="nav-icon fas fa-comments"></i>
-                                <p>Canlı Konsey Odası</p>
-                            </a>
-                        </li>
-                        
+                        <li class="nav-item"><a href="/Hospital/Index" class="nav-link"><i class="nav-icon fa-solid fa-hospital"></i><p>Hastaneler</p></a></li>
+                        <li class="nav-item"><a href="/Disease/Index" class="nav-link"><i class="nav-icon fa-solid fa-user-doctor"></i><p>Hastalıklar</p></a></li>
+                        <li class="nav-item"><a href="/Doctor/Index" class="nav-link"><i class="nav-icon fa-solid fa-user-doctor"></i><p>Doktorlar</p></a></li>
+                        <li class="nav-item"><a href="/Medicine/Index" class="nav-link"><i class="nav-icon fas fa-pills"></i><p>İlaçlar</p></a></li>
+                        <li class="nav-item"><a href="/Council/Index" class="nav-link"><i class="nav-icon fas fa-balance-scale"></i><p>Konsey Kararları</p></a></li>
+                        <li class="nav-item"><a href="/Council/ChatRoom" class="nav-link"><i class="nav-icon fas fa-comments"></i><p>Canlı Konsey Odası</p></a></li>
 
                         <li class="nav-header">LOJİSTİK</li>
-                        <li class="nav-item">
-                            <a href="/CentralStock/Index" class="nav-link"><i class="nav-icon fas fa-boxes-stacked"></i><p>Merkez Depo</p></a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/Supply/Index" class="nav-link"><i class="nav-icon fas fa-truck-medical"></i><p>Talepler</p></a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/CentralStock/Scan" class="nav-link"><i class="nav-icon fas fa-barcode"></i><p>Hızlı Stok Çıkış</p></a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/Waste/Index" class="nav-link"><i class="nav-icon fas fa-biohazard"></i><p>Atık Yönetimi</p></a>
-                        </li>
+                        <li class="nav-item"><a href="/CentralStock/Index" class="nav-link"><i class="nav-icon fas fa-boxes-stacked"></i><p>Merkez Depo</p></a></li>
+                        <li class="nav-item"><a href="/Supply/Index" class="nav-link"><i class="nav-icon fas fa-truck-medical"></i><p>Talepler</p></a></li>
+                        <li class="nav-item"><a href="/CentralStock/Scan" class="nav-link"><i class="nav-icon fas fa-barcode"></i><p>Hızlı Stok Çıkış</p></a></li>
+                        <li class="nav-item"><a href="/Waste/Index" class="nav-link"><i class="nav-icon fas fa-biohazard"></i><p>Atık Yönetimi</p></a></li>
 
                         <li class="nav-header border-top mt-3 pt-2">OTURUM</li>
+
+                        <!-- --- YENİ EKLENEN HESAP AYARLARI LİNKİ --- -->
+                        <li class="nav-item">
+                            <a href="/Settings/Index" class="nav-link bg-secondary mb-2">
+                                <i class="nav-icon fas fa-user-cog"></i>
+                                <p>Hesap Ayarları</p>
+                            </a>
+                        </li>
 
                         <li class="nav-item">
                             <a href="/Login/Logout" class="nav-link bg-danger">
                                 <i class="nav-icon fas fa-power-off"></i>
-                                <p>
-                                    Güvenli Çıkış
-                                </p>
+                                <p>Güvenli Çıkış</p>
                             </a>
                         </li>
 
                     </ul>
                 </nav>
             </div>
-
-            <!-- LOGO (Dokunma) -->
-            <a href="/" class="brand-link">
-                <img src="~/theme/dist/img/AdminLTELogo.png" alt="Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-                <span class="brand-text font-weight-light">CureLogix</span>
-            </a>
-
-            <!-- MENÜ ALANI -->
-            <!-- 'flex-grow-1' ekledik ki tüm boşluğu burası yesin, butonu aşağı itsin -->
-            <div class="sidebar flex-grow-1">
-                <nav class="mt-2" style="height: calc(100vh - 150px); overflow-y: auto;">
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-
-                        <!-- ... SENİN MEVCUT MENÜ LİNKLERİN BURADA ... -->
-
-                    </ul>
-                </nav>
-            </div>
-           
         </aside>
 
-        <!-- C. İÇERİK ALANI -->
         <main class="app-main">
             <div class="app-content-header">
                 <div class="container-fluid">
@@ -183,22 +129,22 @@
             </div>
         </main>
 
-        <!-- D. FOOTER -->
         <footer class="app-footer">
             <div class="float-end d-none d-sm-inline">v1.0</div>
             <strong>Copyright &copy; @DateTime.Now.Year CureLogix.</strong>
         </footer>
     </div>
 
-    <!-- 3. SCRIPTS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.3.0/browser/overlayscrollbars.browser.es6.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
-
-    <!-- AdminLTE JS (Yerel Dosya) -->
     <script src="~/theme/js/adminlte.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        // Scrollbar ve SignalR kodların (Senin mevcut kodların)
         const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
         const Default = { scrollbarTheme: "os-theme-light", scrollbarAutoHide: "leave", scrollbarClickScroll: true };
         document.addEventListener("DOMContentLoaded", function() {
@@ -207,53 +153,13 @@
                 OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, { scrollbars: { theme: Default.scrollbarTheme, autoHide: Default.scrollbarAutoHide, clickScroll: Default.scrollbarClickScroll } });
             }
         });
-    </script>
 
-    @await RenderSectionAsync("Scripts", required: false)
-
-
-    <!-- ... Önceki scriptler (jQuery, Bootstrap vs.) ... -->
-    <!-- 1. SignalR Kütüphanesi (CDN'den çekiyoruz, en kolayı) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
-
-    <!-- 2. SweetAlert2 (Güzel Popup için) -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <!-- 3. Bizim Bağlantı Kodumuz -->
-    <script>
-        // Bağlantıyı oluştur
         var connection = new signalR.HubConnectionBuilder().withUrl("/generalHub").build();
-
-        // Bağlantıyı başlat
-        connection.start().then(function () {
-            console.log("🟢 SignalR Bağlantısı Başarılı!");
-        }).catch(function (err) {
-            return console.error(err.toString());
-        });
-
-        // "ReceiveCriticalStock" sinyalini DİNLE
+        connection.start().then(function () { console.log("🟢 SignalR Bağlantısı Başarılı!"); }).catch(function (err) { return console.error(err.toString()); });
         connection.on("ReceiveCriticalStock", function (message) {
-
-            // Sinyal gelince SweetAlert ile Kırmızı Alarm ver
-            Swal.fire({
-                icon: 'error',
-                title: 'KRİTİK STOK ALARMI!',
-                text: message,
-                background: '#fff',
-                color: '#d33',
-                iconColor: '#d33',
-                showConfirmButton: true,
-                confirmButtonText: 'Müdahale Et',
-                backdrop: `
-                    rgba(255,0,0,0.4)
-                    left top
-                    no-repeat
-                `
-            });
-
-            // Opsiyonel: Sesli uyarı da çaldırılabilir.
+            Swal.fire({ icon: 'error', title: 'KRİTİK STOK ALARMI!', text: message, background: '#fff', color: '#d33', iconColor: '#d33', showConfirmButton: true, confirmButtonText: 'Müdahale Et', backdrop: `rgba(255,0,0,0.4) left top no-repeat` });
         });
     </script>
-
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

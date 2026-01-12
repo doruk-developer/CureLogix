@@ -152,13 +152,16 @@
 
 <!-- SCRIPTS: GRAFİK ÇİZİMLERİ -->
 <script>
-    // 1. BAR CHART (DOLULUK)
+    // 1. GRAFİK TİPİNİ DİNAMİK OKUMA (YENİ EKLENEN)
+    var userChartType = '@(Context.Request.Cookies["ChartPreference"] ?? "bar")';
+
+    // 2. BAR CHART (DOLULUK)
     var ctxBar = document.getElementById('occupancyChart').getContext('2d');
     var labelsBar = JSON.parse('@Html.Raw(Json.Serialize(Model.HospitalNames))');
     var dataBar = JSON.parse('@Html.Raw(Json.Serialize(Model.OccupancyRates))');
 
     new Chart(ctxBar, {
-        type: 'bar',
+        type: userChartType, // Burası artık dinamik!
         data: {
             labels: labelsBar,
             datasets: [{
