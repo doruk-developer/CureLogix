@@ -10,5 +10,7 @@ namespace CureLogix.DataAccess.Abstract
         List<T> GetList();
         T? GetById(int id);
         List<T> GetListByFilter(Expression<Func<T, bool>> filter);
+        // Server-Side Datatables Modülü için
+        IQueryable<T> GetQuery();
     }
 }

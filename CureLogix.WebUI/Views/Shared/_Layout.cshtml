@@ -25,11 +25,11 @@
 </head>
 
 @{
-        // --- YENİ EKLENEN KISIM: TEMA KONTROLÜ ---
-        var themePref = Context.Request.Cookies["ThemePreference"] ?? "light";
-        var themeAttr = themePref == "dark" ? "dark" : "light";
-        // AdminLTE 4 için body class ayarı
-        var bodyClass = themePref == "dark" ? "bg-body" : "bg-body-tertiary";
+            // --- YENİ EKLENEN KISIM: TEMA KONTROLÜ ---
+            var themePref = Context.Request.Cookies["ThemePreference"] ?? "light";
+            var themeAttr = themePref == "dark" ? "dark" : "light";
+            // AdminLTE 4 için body class ayarı
+            var bodyClass = themePref == "dark" ? "bg-body" : "bg-body-tertiary";
 }
 
 <!-- Body sınıfını ve data-bs-theme özelliğini dinamik yaptık -->
@@ -78,6 +78,13 @@
                         <li class="nav-item"><a href="/Map/Index" class="nav-link"><i class="nav-icon fas fa-map-marked-alt"></i><p>Salgın Haritası</p></a></li>
                         <li class="nav-item"><a href="/Report/Index" class="nav-link"><i class="nav-icon fas fa-chart-pie"></i><p>Raporlar</p></a></li>
 
+                        <li class="nav-item">
+                            <a href="/Audit/Index" class="nav-link">
+                                <i class="nav-icon fas fa-user-secret"></i>
+                                <p>Denetim Günlüğü</p>
+                            </a>
+                        </li>
+
                         <li class="nav-header">OPERASYON</li>
                         <li class="nav-item"><a href="/Hospital/Index" class="nav-link"><i class="nav-icon fa-solid fa-hospital"></i><p>Hastaneler</p></a></li>
                         <li class="nav-item"><a href="/Disease/Index" class="nav-link"><i class="nav-icon fa-solid fa-user-doctor"></i><p>Hastalıklar</p></a></li>
@@ -85,6 +92,13 @@
                         <li class="nav-item"><a href="/Medicine/Index" class="nav-link"><i class="nav-icon fas fa-pills"></i><p>İlaçlar</p></a></li>
                         <li class="nav-item"><a href="/Council/Index" class="nav-link"><i class="nav-icon fas fa-balance-scale"></i><p>Konsey Kararları</p></a></li>
                         <li class="nav-item"><a href="/Council/ChatRoom" class="nav-link"><i class="nav-icon fas fa-comments"></i><p>Canlı Konsey Odası</p></a></li>
+
+                        <li class="nav-item">
+                            <a href="/Document/Index" class="nav-link">
+                                <i class="nav-icon fas fa-folder-open"></i>
+                                <p>Doküman Yönetimi</p>
+                            </a>
+                        </li>
 
                         <li class="nav-header">LOJİSTİK</li>
                         <li class="nav-item"><a href="/CentralStock/Index" class="nav-link"><i class="nav-icon fas fa-boxes-stacked"></i><p>Merkez Depo</p></a></li>

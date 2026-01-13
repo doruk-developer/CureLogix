@@ -2,6 +2,7 @@
 using CureLogix.Business.Abstract;
 using CureLogix.Business.ValidationRules;
 using CureLogix.Entity.Concrete;
+using CureLogix.WebUI.Filters;
 using CureLogix.WebUI.Models;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
@@ -54,6 +55,7 @@ namespace CureLogix.WebUI.Controllers
         }
 
         [HttpPost]
+        [AuditLog("Yeni Tedavi Protokolü Oluşturuldu")]
         public IActionResult Create(ProtocolCreateViewModel model)
         {
             // Validasyon işlemini DTO üzerinden yapıyoruz (model.FormData)

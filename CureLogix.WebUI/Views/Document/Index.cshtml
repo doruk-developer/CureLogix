@@ -1,0 +1,159 @@
+﻿@model List<string>
+
+@{
+    ViewData["Title"] = "Doküman Yönetimi";
+}
+
+<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
+
+<style>
+    .dropzone {
+        border: 2px dashed #007bff;
+        border-radius: 5px;
+        background: #f4f6f9;
+        min-height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .dropzone .dz-message {
+            font-weight: bold;
+            color: #495057;
+        }
+    /* TABLO BAŞLIĞINI SABİTLEME (Sticky Header) */
+    .table-fixed-head thead th {
+        position: sticky;
+        top: 0;
+        background-color: #343a40; /* Koyu Gri */
+        color: white;
+        z-index: 1;
+        vertical-align: middle;
+    }
+    /* Tablo kapsayıcısına kaydırma özelliği veriyoruz */
+    .table-responsive {
+        max-height: 500px; /* 500px'den sonra kaydırma çubuğu çıkar */
+        overflow-y: auto;
+    }
+</style>
+
+<div class="content-header">
+    <div class="container-fluid">
+        <h1>📁 Dijital Doküman Arşivi</h1>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+
+            <!-- YÜKLEME ALANI -->
+            <div class="col-md-12">
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-cloud-upload-alt"></i> Dosya Yükle</h3>
+                    </div>
+                    <div class="card-body">
+                        <form action="/Document/Upload" class="dropzone" id="myDropzone">
+                            <div class="dz-message" data-dz-message>
+                                <span>Dosyaları buraya sürükleyin veya tıklayın</span><br>
+                                <small class="text-muted">(PDF, JPG, PNG)</small>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DOSYA LİSTESİ -->
+            <div class="col-md-12 mt-3">
+                <div class="card">
+                    <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+                        <h3 class="card-title">Yüklü Dosyalar</h3>
+
+                        <!-- SWITCH BUTONU BURADA (Header'a sabitledik) -->
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="toggleGuid">
+                            <label class="custom-control-label text-white" for="toggleGuid">Sistem Kodlarını Göster</label>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-0 table-responsive">
+                        <table class="table table-striped table-hover table-fixed-head mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Dosya Adı</th>
+                                    <th style="width: 150px">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Count > 0)
+                                {
+                                    @foreach (var file in Model)
+                                    {
+                                        // C# ile kısa ve uzun ismi hazırla
+                                        var shortName = file.Contains("_") ? file.Substring(file.IndexOf('_') + 1) : file;
+
+                                        <tr>
+                                            <td>
+                                                <i class="fas fa-file-alt mr-2 text-secondary"></i>
+
+                                                <!-- İki versiyonu da yazıyoruz, JS ile gizleyip açacağız -->
+                                                <span class="file-name-text" data-full="@file" data-short="@shortName">
+                                                    @shortName
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="~/uploads/documents/@file" target="_blank" class="btn btn-xs btn-info">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="/Document/Delete?fileName=@file" class="btn btn-xs btn-danger" onclick="return confirm('Silmek istiyor musunuz?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr><td colspan="2" class="text-center text-muted p-4">Henüz dosya yüklenmedi.</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+
+<script>
+    // 1. Dropzone Ayarları
+    Dropzone.options.myDropzone = {
+        paramName: "file",
+        maxFilesize: 5,
+        acceptedFiles: ".jpeg,.jpg,.png,.pdf",
+        dictDefaultMessage: "Yüklemek için sürükleyin",
+        queuecomplete: function () { setTimeout(function() { location.reload(); }, 1000); }
+    };
+
+    // 2. İsim Değiştirme Scripti (Switch)
+    document.getElementById('toggleGuid').addEventListener('change', function() {
+        var isChecked = this.checked;
+        var spans = document.querySelectorAll('.file-name-text');
+
+        spans.forEach(function(span) {
+            if(isChecked) {
+                // Açık: Uzun ismi (data-full) göster
+                span.innerText = span.getAttribute('data-full');
+                span.classList.add('text-muted', 'small'); // Biraz silik yapalım ki göze batmasın
+            } else {
+                // Kapalı: Kısa ismi (data-short) göster
+                span.innerText = span.getAttribute('data-short');
+                span.classList.remove('text-muted', 'small');
+            }
+        });
+    });
+</script>

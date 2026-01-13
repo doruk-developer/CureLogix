@@ -45,5 +45,11 @@ namespace CureLogix.DataAccess.Repositories
             _context.Update(t);
             _context.SaveChanges();
         }
+
+        // Server-Side Datatables Modülü için
+        public IQueryable<T> GetQuery()
+        {
+            return _context.Set<T>().AsQueryable();
+        }
     }
 }

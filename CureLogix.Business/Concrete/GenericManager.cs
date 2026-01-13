@@ -36,5 +36,12 @@ namespace CureLogix.Business.Concrete
         {
             _repository.Update(t);
         }
+
+        // Server-Side Datatables Modülü için
+        public IQueryable<T> GetQuery()
+        {
+            // Business katmanı, işi Repository'e devreder
+            return _repository.GetQuery();
+        }
     }
 }

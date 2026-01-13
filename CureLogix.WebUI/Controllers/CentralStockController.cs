@@ -3,6 +3,7 @@ using CureLogix.Business.Abstract;
 using CureLogix.Business.ValidationRules;
 using CureLogix.Entity.Concrete;
 using CureLogix.Entity.DTOs.WarehouseDTOs;
+using CureLogix.WebUI.Filters;
 using CureLogix.WebUI.Models;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
@@ -57,6 +58,7 @@ namespace CureLogix.WebUI.Controllers
 
         // 3. STOK GİRİŞ İŞLEMİ (POST)
         [HttpPost]
+        [AuditLog("Merkez Depo Stok Girişi")]
         public IActionResult Entry(CentralStockViewModel model)
         {
             CentralStockValidator validator = new CentralStockValidator();
@@ -107,6 +109,7 @@ namespace CureLogix.WebUI.Controllers
 
         // 6. YENİ: OKUTULAN KODU İŞLEME (POST)
         [HttpPost]
+        [AuditLog("QR ile Hızlı Stok Çıkışı")]
         public IActionResult Scan(string qrData, int quantity)
         {
             try

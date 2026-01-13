@@ -1,0 +1,74 @@
+﻿@using CureLogix.Entity.Concrete
+@model List<AuditLog>
+
+@{
+    ViewData["Title"] = "Denetim Günlüğü";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>🕵️‍♂️ Sistem Hareketleri ve İz Sürme</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-dark card-outline">
+            <div class="card-header">
+                <h3 class="card-title">Audit Logs (Kara Kutu)</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover text-nowrap table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width: 150px">Tarih / Saat</th>
+                            <th>Kullanıcı</th>
+                            <th>Modül</th>
+                            <th>İşlem Detayı</th>
+                            <th>IP Adresi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Count > 0)
+                        {
+                            @foreach (var log in Model)
+                            {
+                                <tr>
+                                    <td>@log.ProcessDate.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                                    <td>
+                                        <span class="badge bg-primary">@log.UserName</span>
+                                    </td>
+                                    <td>
+                                        <span class="font-weight-bold">@log.ControllerName</span>
+                                        <small class="text-muted">(@log.ActionType)</small>
+                                    </td>
+                                    <td>@log.Description</td>
+                                    <td><code>@log.IpAddress</code></td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">Henüz kayıtlı bir işlem hareketi yok.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer clearfix">
+                <small class="text-muted">* Bu kayıtlar değiştirilemez ve silinemez.</small>
+            </div>
+        </div>
+    </div>
+</section>

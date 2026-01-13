@@ -2,6 +2,7 @@
 using CureLogix.Business.Abstract;
 using CureLogix.Entity.Concrete;
 using CureLogix.Entity.DTOs.CouncilDTOs;
+using CureLogix.WebUI.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CureLogix.WebUI.Controllers
@@ -55,6 +56,7 @@ namespace CureLogix.WebUI.Controllers
 
         // 3. Oyu Kaydet (POST)
         [HttpPost]
+        [AuditLog("Konsey Oylaması Yapıldı")]
         public IActionResult Review(VoteOperationDto p)
         {
             p.RefereeDoctorId = 5; // Simülasyon: Şimdilik "Ord. Prof. Hikmet Vural" (ID=5) oy veriyor varsayalım.

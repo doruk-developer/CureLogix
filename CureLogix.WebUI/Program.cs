@@ -6,6 +6,7 @@ using CureLogix.DataAccess.Concrete;
 using CureLogix.DataAccess.Repositories;
 using CureLogix.Entity.Concrete;
 using CureLogix.WebUI.Hubs;
+using CureLogix.WebUI.Middlewares;
 using Hangfire;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Authorization;
@@ -67,13 +68,20 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
 });
 
-// GLOBAL AUTHORIZATION (Tüm Sistemi Kilitleme)
+// GLOBAL AUTHORIZATION ve JSON AYARLARI (Birleştirilmiş)
 builder.Services.AddControllersWithViews(config =>
 {
+    // 1. Global Kilit (Authorization)
     var policy = new AuthorizationPolicyBuilder()
                      .RequireAuthenticatedUser()
                      .Build();
+
     config.Filters.Add(new AuthorizeFilter(policy));
+})
+.AddJsonOptions(options =>
+{
+    // 2. JSON Format Ayarı (Büyük/Küçük Harf Değiştirme)
+    options.JsonSerializerOptions.PropertyNamingPolicy = null;
 });
 
 // ==================================================================
@@ -95,6 +103,7 @@ builder.Services.AddScoped<ISupplyRequestService, SupplyRequestManager>();
 builder.Services.AddScoped<IVehicleService, VehicleManager>();
 builder.Services.AddScoped<IQrCodeService, QrCodeManager>();
 builder.Services.AddScoped<IWasteReportService, WasteReportManager>();
+builder.Services.AddScoped<IAuditLogService, AuditLogManager>();
 
 // AI Servisi (Singleton)
 builder.Services.AddSingleton<IAiForecastService, AiForecastManager>();
@@ -144,6 +153,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting(); // Routing bir kere tanımlanır
+
+// ÖZEL IP KISITLAMA MODÜLÜ (GÜVENLİK DUVARI)
+// using CureLogix.WebUI.Middlewares; eklemeyi unutma
+app.UseMiddleware<IpSafeListMiddleware>();
 
 // Güvenlik Sıralaması Önemlidir: Önce Kimlik Doğrulama, Sonra Yetkilendirme
 app.UseAuthentication();

@@ -1,21 +1,21 @@
-﻿@using CureLogix.Entity.DTOs.MedicineDTOs
-@model List<MedicineListDto>
-
-@{
-    ViewData["Title"] = "İlaç Envanteri";
+﻿@{
+    ViewData["Title"] = "İlaç Envanteri (Server-Side)";
 }
+
+<!-- DataTables CSS (Sadece CSS'i buraya koyuyoruz) -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0 text-dark">💊 İlaç & Medikal Malzeme</h1>
+                <h1>💊 İlaç Kataloğu (Yüksek Performans)</h1>
             </div>
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
-                    <li class="breadcrumb-item active">İlaçlar</li>
-                </ol>
+            <div class="col-sm-6 text-right">
+                <a href="/Medicine/Add" class="btn btn-warning btn-sm">
+                    <i class="fas fa-plus"></i> Yeni İlaç Tanımla
+                </a>
             </div>
         </div>
     </div>
@@ -24,56 +24,82 @@
 <section class="content">
     <div class="container-fluid">
         <div class="card card-warning card-outline">
-            <div class="card-header">
-                <h3 class="card-title">Katalog Listesi</h3>
-                <div class="card-tools">
-                    
-                    <a href="/Medicine/Add" class="btn btn-warning btn-sm">
-                        <i class="fas fa-plus"></i> Yeni İlaç Tanımla
-                    </a>
+            <div class="card-body">
 
-                </div>
-            </div>
-
-            <div class="card-body table-responsive p-0">
-                <table class="table table-hover text-nowrap">
+                <table id="medicineTable" class="table table-hover table-striped w-100">
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th>İlaç Adı</th>
                             <th>Etken Madde</th>
                             <th>Birim</th>
-                            <th>Özellikler</th>
-                            <th>Kritik Stok Sınırı</th>
-                            <th style="width: 10%">İşlem</th>
+                            <th>Kritik Stok</th>
+                            <th>Özellik</th>
+                            <th>İşlemler</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td class="font-weight-bold">@item.Name</td>
-                                <td>@item.ActiveIngredient</td>
-                                <td><span class="badge badge-secondary">@item.Unit</span></td>
-                                <td>
-                                    <!-- Soğuk Zincir Kontrolü -->
-                                    @if (item.RequiresColdChain == true)
-                                    {
-                                        <span class="badge badge-info"><i class="fas fa-snowflake"></i> Soğuk Zincir</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted small">-</span>
-                                    }
-                                </td>
-                                <td>@item.CriticalStockLevel</td>
-                                <td>
-                                    <a href="#" class="btn btn-xs btn-outline-primary"><i class="fas fa-edit"></i></a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
+                    <tbody></tbody>
                 </table>
+
             </div>
         </div>
     </div>
 </section>
+
+<!-- SCRIPTS BÖLÜMÜ (Layout'un en altına gömülür, çakışmayı önler) -->
+@section Scripts {
+    <!-- Sadece DataTables kütüphanelerini ekliyoruz (jQuery zaten Layout'ta var) -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#medicineTable').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "ajax": {
+                    "url": "/Medicine/GetAllMedicinesAjax",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "columnDefs": [{
+                    "targets": [6],
+                    "orderable": false
+                }],
+                "columns": [
+                    // Program.cs'de JSON ayarını yaptığımız için Büyük Harf (PascalCase) kullanıyoruz
+                    { "data": "Id", "name": "Id", "autoWidth": true },
+                    { "data": "Name", "name": "Name", "autoWidth": true },
+                    { "data": "ActiveIngredient", "name": "ActiveIngredient", "autoWidth": true },
+                    {
+                        "data": "Unit", "name": "Unit", "autoWidth": true,
+                        "render": function (data) {
+                            return '<span class="badge bg-secondary">' + data + '</span>';
+                        }
+                    },
+                    { "data": "CriticalStockLevel", "name": "CriticalStockLevel", "autoWidth": true },
+                    {
+                        "data": "RequiresColdChain", "name": "RequiresColdChain",
+                        "render": function (data) {
+                            if (data === true) return '<span class="badge bg-info"><i class="fas fa-snowflake"></i> Soğuk Zincir</span>';
+                            else return '-';
+                        }
+                    },
+                    {
+                        "data": "Id",
+                        "render": function (data) {
+                            return `
+                                <a href='/Medicine/Delete/${data}' class='btn btn-xs btn-outline-danger' onclick='return confirm("Silmek istediğinize emin misiniz?")'>
+                                    <i class='fas fa-trash'></i>
+                                </a>`;
+                        }
+                    }
+                ],
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json"
+                }
+            });
+        });
+    </script>
+}
