@@ -19,7 +19,8 @@ namespace CureLogix.WebUI.Models
         public string ConfirmPassword { get; set; }
 
         // Görünüm Tercihleri (View'a taşımak için)
-        public string? ActiveTheme { get; set; }
-        public string? ActiveChart { get; set; }
+        public string? ActiveTheme { get; set; }        // Dark / Light
+        public string? ActiveChart { get; set; }        // Bar / Line
+        public string? ActiveSidebarColor { get; set; } // Primary, Danger, Success vb.
     }
 }

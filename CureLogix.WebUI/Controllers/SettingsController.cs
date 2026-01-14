@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CureLogix.WebUI.Controllers
 {
-    [Authorize] // Sadece giriş yapanlar erişebilir
+    [Authorize] // Bu sayfaya sadece giriş yapmış personel erişebilir
     public class SettingsController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
@@ -18,69 +18,93 @@ namespace CureLogix.WebUI.Controllers
             _signInManager = signInManager;
         }
 
+        // SAYFA YÜKLENDİĞİNDE (GET)
         [HttpGet]
         public IActionResult Index()
         {
-            // Cookie'den mevcut tercihleri okuyoruz, yoksa varsayılan atıyoruz
+            // Model oluştur ve Cookie'deki tercihleri oku
+            // Eğer Cookie yoksa varsayılan değerleri ata
             var model = new SettingsViewModel
             {
                 ActiveTheme = Request.Cookies["ThemePreference"] ?? "light",
-                ActiveChart = Request.Cookies["ChartPreference"] ?? "bar"
+                ActiveChart = Request.Cookies["ChartPreference"] ?? "bar",
+                ActiveSidebarColor = Request.Cookies["SidebarColorPreference"] ?? "primary"
             };
+
             return View(model);
         }
 
+        // ŞİFRE DEĞİŞTİRME İŞLEMİ (POST)
         [HttpPost]
         public async Task<IActionResult> ChangePassword(SettingsViewModel model)
         {
-            // 1. Model Validasyonu (Boş alan kontrolü)
+            // 1. Form Validasyonu (Boş alan var mı?)
             if (!ModelState.IsValid)
             {
-                TempData["Error"] = "Lütfen tüm alanları kurallara uygun doldurunuz.";
-                return View("Index", model);
+                TempData["Error"] = "Lütfen form alanlarını eksiksiz ve doğru doldurunuz.";
+                // Hata durumunda ayarları kaybetmemek için modeli onarıyoruz
+                return View("Index", BuildModelWithCookies(model));
             }
 
+            // 2. Kullanıcıyı Bul
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Index", "Login");
 
-            // 2. Identity ile Şifre Değiştirme
+            // 3. Identity ile Şifre Değiştirme
             var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
 
             if (result.Succeeded)
             {
-                // 3. Başarılıysa: Oturumu Tazele ve Bilgi Ver
+                // Kritik: Şifre değişince "SecurityStamp" değişir, oturum düşer.
+                // Bu satır oturumu tazeler ve kullanıcının çıkış yapmasını engeller.
                 await _signInManager.RefreshSignInAsync(user);
+
                 TempData["Success"] = "Şifreniz başarıyla güncellendi.";
                 return RedirectToAction("Index");
             }
             else
             {
-                // 4. Başarısızsa: Hataları Topla ve Göster
+                // Identity'den gelen hataları (Örn: Eski şifre yanlış) ekrana bas
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError("", error.Description);
-                    // Hataları ekranda kırmızı kutuda göstermek için:
                     TempData["Error"] = error.Description;
                 }
 
-                // Ayarları tekrar yükle ki sayfa bozuk görünmesin
-                ViewBag.CurrentTheme = Request.Cookies["ThemePreference"] ?? "light";
-                ViewBag.ChartType = Request.Cookies["ChartPreference"] ?? "bar";
-
-                return View("Index", model);
+                return View("Index", BuildModelWithCookies(model));
             }
         }
 
+        // TERCİHLERİ KAYDETME (AJAX POST)
+        // Bu metot sayfa yenilenmeden JavaScript tarafından çağrılır.
         [HttpPost]
-        public IActionResult SetPreference(string theme, string chart)
+        public IActionResult SetPreference(string theme, string chart, string sidebarColor)
         {
-            // Tercihleri Cookie'ye yazıyoruz (1 Yıl Geçerli)
+            // Çerez ayarları (1 Yıl geçerli, tüm sitede erişilebilir)
             var options = new CookieOptions { Expires = DateTime.Now.AddYears(1), Path = "/" };
 
-            if (!string.IsNullOrEmpty(theme)) Response.Cookies.Append("ThemePreference", theme, options);
-            if (!string.IsNullOrEmpty(chart)) Response.Cookies.Append("ChartPreference", chart, options);
+            // Hangi veri geldiyse onu kaydet
+            if (!string.IsNullOrEmpty(theme))
+                Response.Cookies.Append("ThemePreference", theme, options);
+
+            if (!string.IsNullOrEmpty(chart))
+                Response.Cookies.Append("ChartPreference", chart, options);
+
+            if (!string.IsNullOrEmpty(sidebarColor))
+                Response.Cookies.Append("SidebarColorPreference", sidebarColor, options);
 
             return Ok();
+        }
+
+        // YARDIMCI METOT (HELPER)
+        // Hata durumunda sayfa geri dönerken, kullanıcının renk ayarlarının
+        // sıfırlanmasını (null gelmesini) engeller.
+        private SettingsViewModel BuildModelWithCookies(SettingsViewModel model)
+        {
+            model.ActiveTheme = Request.Cookies["ThemePreference"] ?? "light";
+            model.ActiveChart = Request.Cookies["ChartPreference"] ?? "bar";
+            model.ActiveSidebarColor = Request.Cookies["SidebarColorPreference"] ?? "primary";
+            return model;
         }
     }
 }

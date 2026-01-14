@@ -9,89 +9,123 @@
 
 <section class="content">
     <div class="container-fluid">
-        <div class="row">
 
-            <!-- SOL KOLON: ŞİFRE DEĞİŞTİRME -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert">&times;</button><i class="fas fa-check"></i> @TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert">&times;</button><i class="fas fa-ban"></i> @TempData["Error"]</div>
+        }
+
+        <div class="row">
+            <!-- 1. GÜVENLİK (ŞİFRE) -->
             <div class="col-md-6">
                 <div class="card card-primary card-outline">
-                    <div class="card-header"><h3 class="card-title"><i class="fas fa-key"></i> Güvenlik</h3></div>
+                    <div class="card-header"><h3 class="card-title"><i class="fas fa-shield-alt"></i> Şifre Değiştir</h3></div>
                     <form asp-action="ChangePassword" method="post">
                         <div class="card-body">
-                            @if (TempData["Success"] != null)
-                            {
-                                <div class="alert alert-success alert-dismissible">
-                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                                    <h5><i class="icon fas fa-check"></i> Başarılı!</h5>
-                                    @TempData["Success"]
-                                </div>
-                            }
-
-                            @if (TempData["Error"] != null)
-                            {
-                                <div class="alert alert-danger alert-dismissible">
-                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                                    <h5><i class="icon fas fa-ban"></i> Hata!</h5>
-                                    @TempData["Error"]
-                                </div>
-                            }
-                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-                            <div class="form-group mb-3">
-                                <label>Mevcut Şifre</label>
-                                <input asp-for="CurrentPassword" class="form-control" />
-                                <span asp-validation-for="CurrentPassword" class="text-danger"></span>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label>Yeni Şifre</label>
-                                <input asp-for="NewPassword" class="form-control" />
-                                <span asp-validation-for="NewPassword" class="text-danger"></span>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Yeni Şifre (Tekrar)</label>
-                                <input asp-for="ConfirmPassword" class="form-control" />
-                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                            </div>
+                            <div asp-validation-summary="All" class="text-danger fw-bold mb-3"></div>
+                            <div class="form-group mb-3"><label>Mevcut Şifre</label><input asp-for="CurrentPassword" class="form-control" /></div>
+                            <div class="form-group mb-3"><label>Yeni Şifre</label><input asp-for="NewPassword" class="form-control" /></div>
+                            <div class="form-group mb-3"><label>Yeni Şifre Tekrar</label><input asp-for="ConfirmPassword" class="form-control" /></div>
                         </div>
-                        <div class="card-footer text-right">
-                            <button type="submit" class="btn btn-primary">Şifreyi Güncelle</button>
-                        </div>
+                        <div class="card-footer text-end"><button type="submit" class="btn btn-primary">Kaydet</button></div>
                     </form>
                 </div>
             </div>
 
-            <!-- SAĞ KOLON: KİŞİSELLEŞTİRME -->
+            <!-- 2. GÖRÜNÜM TERCİHLERİ -->
             <div class="col-md-6">
-                <div class="card card-info card-outline">
-                    <div class="card-header"><h3 class="card-title"><i class="fas fa-palette"></i> Görünüm</h3></div>
+                <div class="card card-purple card-outline">
+                    <div class="card-header"><h3 class="card-title"><i class="fas fa-paint-brush"></i> Kişiselleştirme</h3></div>
                     <div class="card-body">
 
+                        <!-- TEMA -->
                         <div class="form-group mb-4">
                             <label class="d-block">Arayüz Teması</label>
                             <div class="btn-group w-100">
-                                <button onclick="savePref('theme','light')" class="btn btn-outline-secondary @(Model.ActiveTheme == "light" ? "active" : "")">
-                                    <i class="fas fa-sun"></i> Açık Mod
-                                </button>
-                                <button onclick="savePref('theme','dark')" class="btn btn-outline-dark @(Model.ActiveTheme == "dark" ? "active" : "")">
-                                    <i class="fas fa-moon"></i> Koyu Mod
-                                </button>
+                                <button onclick="savePref('theme','light')" class="btn btn-outline-secondary @(Model.ActiveTheme == "light" ? "active" : "")"><i class="fas fa-sun"></i> Açık</button>
+                                <button onclick="savePref('theme','dark')" class="btn btn-outline-dark @(Model.ActiveTheme == "dark" ? "active" : "")"><i class="fas fa-moon"></i> Koyu</button>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label>Dashboard Grafik Tipi</label>
-                            <select id="chartType" class="form-control" onchange="savePref('chart', this.value)">
-                                <!option value="bar" @(Model.ActiveChart == "bar" ? "selected" : "")>Çubuk Grafik (Bar)</!option>
-                                <!option value="line" @(Model.ActiveChart == "line" ? "selected" : "")>Çizgi Grafik (Line)</!option>
-                            </select>
-                            <small class="text-muted">Ana sayfadaki doluluk grafiğinin görünümünü değiştirir.</small>
+                        <!-- MENÜ RENGİ (YENİ - 8 RENK) -->
+                        <div class="form-group mb-4">
+                            <label class="d-block">Menü Vurgu Rengi</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <!-- Mavi -->
+                                <button onclick="savePref('sidebarColor', 'primary')" class="btn btn-primary rounded-circle shadow-sm" style="width:40px;height:40px;">
+                                    @if (Model.ActiveSidebarColor == "primary")
+                                    {
+                                        <i class="fas fa-check"></i>
+                                    }
+                                </button>
+                                <!-- Yeşil -->
+                                <button onclick="savePref('sidebarColor', 'success')" class="btn btn-success rounded-circle shadow-sm" style="width:40px;height:40px;">
+                                    @if (Model.ActiveSidebarColor == "success")
+                                    {
+                                        <i class="fas fa-check"></i>
+                                    }
+                                </button>
+                                <!-- Kırmızı -->
+                                <button onclick="savePref('sidebarColor', 'danger')" class="btn btn-danger rounded-circle shadow-sm" style="width:40px;height:40px;">
+                                    @if (Model.ActiveSidebarColor == "danger")
+                                    {
+                                        <i class="fas fa-check"></i>
+                                    }
+                                </button>
+                                <!-- Sarı -->
+                                <button onclick="savePref('sidebarColor', 'warning')" class="btn btn-warning rounded-circle shadow-sm text-white" style="width:40px;height:40px;">
+                                    @if (Model.ActiveSidebarColor == "warning")
+                                    {
+                                        <i class="fas fa-check text-white"></i>
+                                    }
+                                </button>
+                                <!-- Turkuaz -->
+                                <button onclick="savePref('sidebarColor', 'info')" class="btn btn-info rounded-circle shadow-sm text-white" style="width:40px;height:40px;">
+                                    @if (Model.ActiveSidebarColor == "info")
+                                    {
+                                        <i class="fas fa-check text-white"></i>
+                                    }
+                                </button>
+                                <!-- Mor -->
+                                <button onclick="savePref('sidebarColor', 'indigo')" class="btn rounded-circle shadow-sm text-white" style="width:40px;height:40px; background-color:#6610f2;">
+                                    @if (Model.ActiveSidebarColor == "indigo")
+                                    {
+                                        <i class="fas fa-check"></i>
+                                    }
+                                </button>
+                                <!-- Pembe -->
+                                <button onclick="savePref('sidebarColor', 'pink')" class="btn rounded-circle shadow-sm text-white" style="width:40px;height:40px; background-color:#d63384;">
+                                    @if (Model.ActiveSidebarColor == "pink")
+                                    {
+                                        <i class="fas fa-check"></i>
+                                    }
+                                </button>
+                                <!-- Gri -->
+                                <button onclick="savePref('sidebarColor', 'secondary')" class="btn btn-secondary rounded-circle shadow-sm" style="width:40px;height:40px;">
+                                    @if (Model.ActiveSidebarColor == "secondary")
+                                    {
+                                        <i class="fas fa-check"></i>
+                                    }
+                                </button>
+                            </div>
+                            <small class="text-muted mt-2 d-block">Logonun ve seçili menü öğesinin rengini değiştirir.</small>
                         </div>
 
+                        <!-- GRAFİK -->
+                        <div class="form-group">
+                            <label>Dashboard Grafik Tipi</label>
+                            <select class="form-control" onchange="savePref('chart', this.value)">
+                                <!option value="bar" @(Model.ActiveChart == "bar" ? "selected" : "")>Çubuk Grafik</!option>
+                                <!option value="line" @(Model.ActiveChart == "line" ? "selected" : "")>Çizgi Grafik</!option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </section>
@@ -99,13 +133,9 @@
 <script>
     function savePref(type, value) {
         let payload = {};
-
-        // Hangi ayarı değiştiriyorsak onu gönderiyoruz
-        if(type === 'theme') payload.theme = value;
-        else payload.chart = value;
+        payload[type] = value; // Dinamik atama
 
         $.post('/Settings/SetPreference', payload, function () {
-            // Ayarların anında yansıması için sayfayı yeniliyoruz
             window.location.reload();
         });
     }
