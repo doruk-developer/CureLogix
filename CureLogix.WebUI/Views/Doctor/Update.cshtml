@@ -1,0 +1,77 @@
+﻿@model CureLogix.WebUI.Models.DoctorUpdateViewModel
+@{
+    ViewData["Title"] = "Doktor Düzenle";
+}
+
+<div class="content-header">
+    <div class="container-fluid"><h1>✏️ Personel Bilgilerini Düzenle</h1></div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card card-warning">
+                    <!-- Düzenleme olduğu için Sarı yaptık -->
+                    <div class="card-header"><h3 class="card-title">Kişisel Bilgiler</h3></div>
+
+                    <form method="post">
+                        <!-- GİZLİ ID (ZORUNLU) -->
+                        <input type="hidden" asp-for="Data.Id" />
+
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Ünvan</label>
+                                <select class="form-control" asp-for="Data.Title">
+                                    <option value="Dr.">Dr.</option>
+                                    <option value="Uzm. Dr.">Uzm. Dr.</option>
+                                    <option value="Doç. Dr.">Doç. Dr.</option>
+                                    <option value="Prof. Dr.">Prof. Dr.</option>
+                                    <option value="Ord. Prof. Dr.">Ord. Prof. Dr.</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Ad Soyad</label>
+                                <input type="text" class="form-control" asp-for="Data.FullName">
+                                <span asp-validation-for="Data.FullName" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Branş</label>
+                                <input type="text" class="form-control" asp-for="Data.Specialty">
+                                <span asp-validation-for="Data.Specialty" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Görevli Olduğu Hastane</label>
+                                <select asp-for="Data.HospitalId" asp-items="Model.HospitalList" class="form-control">
+                                    <option value="">Bağımsız (Konsey Üyesi)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Sistem Rolü (Yetki)</label>
+                                <!-- asp-items ile listeyi bağlıyoruz -->
+                                <select asp-for="Data.RoleType" asp-items="Model.RoleList" class="form-control">
+                                    <option value="">Lütfen Rol Seçiniz...</option>
+                                </select>
+                                <span asp-validation-for="Data.RoleType" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>E-Posta</label>
+                                <input type="email" class="form-control" asp-for="Data.Email">
+                            </div>
+                        </div>
+
+                        <div class="card-footer text-right">
+                            <a href="/Doctor/Index" class="btn btn-secondary">Vazgeç</a>
+                            <button type="submit" class="btn btn-warning">Değişiklikleri Kaydet</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

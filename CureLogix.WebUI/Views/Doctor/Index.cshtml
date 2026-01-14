@@ -75,7 +75,19 @@
                                             <span class="badge badge-success">🩺 Saha Doktoru</span>
                                         }
                                     </td>
-                                    <td><a href="#" class="btn btn-xs btn-outline-info">Düzenle</a></td>
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                            <!-- Düzenle Butonu -->
+                                            <a href="/Doctor/Update/@item.Id" class="btn btn-xs btn-outline-info">
+                                                <i class="fas fa-pencil-alt"></i> Düzenle
+                                            </a>
+
+                                            <!-- Sil Butonu -->
+                                            <a href="/Doctor/Delete/@item.Id" class="btn btn-xs btn-outline-danger" onclick="return confirm('Bu doktoru silmek istediğinize emin misiniz?');">
+                                                <i class="fas fa-trash"></i> Sil
+                                            </a>
+                                        </div>
+                                    </td>
                                 </tr>
                             }
                         }

@@ -78,6 +78,9 @@ namespace CureLogix.Business.Mappings.AutoMapper
 
             // Hospital/Update Mappingi
             CreateMap<HospitalUpdateDto, Hospital>().ReverseMap();
+
+            // Doktor Güncelleme Mappingi
+            CreateMap<DoctorUpdateDto, Doctor>().ReverseMap();
         }
     }
 }
