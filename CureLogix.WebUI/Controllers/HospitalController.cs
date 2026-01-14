@@ -76,5 +76,58 @@ namespace CureLogix.WebUI.Controllers
             // Hata varsa sayfayı tekrar göster (kullanıcı girdiği verileri kaybetmesin)
             return View(p);
         }
+
+        // 1. Hastane Güncelleme Sayfasını Getir (GET)
+        [HttpGet]
+        public IActionResult Update(int id)
+        {
+            var value = _hospitalService.TGetById(id);
+            if (value == null) return RedirectToAction("Index");
+
+            // Entity'den UpdateDto'ya çevir
+            var updateDto = _mapper.Map<HospitalUpdateDto>(value);
+            return View(updateDto);
+        }
+
+        // 2. Hastane Güncelleme İşlemini Kaydet (POST)
+        [HttpPost]
+        public IActionResult Update(HospitalUpdateDto p)
+        {
+            HospitalUpdateValidator validator = new HospitalUpdateValidator();
+            ValidationResult results = validator.Validate(p);
+
+            if (results.IsValid)
+            {
+                var hospital = _mapper.Map<Hospital>(p);
+                _hospitalService.TUpdate(hospital);
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                foreach (var item in results.Errors)
+                {
+                    ModelState.AddModelError(item.PropertyName, item.ErrorMessage);
+                }
+            }
+            return View(p);
+        }
+
+        // Hastane Silme İşlemi
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+            // 1. Silinecek kaydı bul
+            var value = _hospitalService.TGetById(id);
+
+            // 2. Kayıt varsa sil
+            if (value != null)
+            {
+                // (İleride buraya "Bu hastanede doktor var mı?" kontrolü eklenebilir)
+                _hospitalService.TDelete(value);
+            }
+
+            // 3. Listeye geri dön
+            return RedirectToAction("Index");
+        }
     }
 }

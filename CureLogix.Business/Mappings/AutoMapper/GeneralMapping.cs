@@ -75,6 +75,9 @@ namespace CureLogix.Business.Mappings.AutoMapper
 
             // Atık Yönetimi için
             CreateMap<WasteReport, WasteReportListDto>().ForMember(x => x.HospitalName, o => o.MapFrom(s => s.Hospital.Name)).ForMember(x => x.MedicineName, o => o.MapFrom(s => s.Medicine.Name));
+
+            // Hospital/Update Mappingi
+            CreateMap<HospitalUpdateDto, Hospital>().ReverseMap();
         }
     }
 }

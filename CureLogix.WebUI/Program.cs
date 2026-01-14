@@ -145,6 +145,7 @@ else
     // Normalde DeveloperPage kullanılır ama biz kendi sayfamızı görmek istiyoruz.
     app.UseExceptionHandler("/Error/Page500");
 }
+//app.UseDeveloperExceptionPage();
 
 // Olmayan sayfa (404) yönetimi
 app.UseStatusCodePagesWithReExecute("/Error/Page404");

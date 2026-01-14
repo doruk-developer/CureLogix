@@ -1,0 +1,73 @@
+﻿@model CureLogix.Entity.DTOs.HospitalDTOs.HospitalUpdateDto
+
+@{
+    ViewData["Title"] = "Hastane Düzenle";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">✏️ Hastane Bilgilerini Güncelle</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card card-warning">
+                    <div class="card-header"><h3 class="card-title">Kurum Detayları</h3></div>
+
+                    <form method="post">
+                        <!-- KRİTİK: Güncellenecek kaydın ID'si gizli olarak gitmeli -->
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Hastane Adı</label>
+                                <input type="text" class="form-control" asp-for="Name">
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Şehir</label>
+                                <input type="text" class="form-control" asp-for="City">
+                                <span asp-validation-for="City" class="text-danger"></span>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Ana Depo Kapasitesi</label>
+                                        <input type="number" class="form-control" asp-for="MainStorageCapacity">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Doluluk Oranı (%)</label>
+                                        <input type="text" class="form-control" asp-for="OccupancyRate">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="activeSwitch" asp-for="IsActive">
+                                    <label class="custom-control-label" for="activeSwitch">Hastane Aktif Durumda</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer text-right">
+                            <a href="/Hospital/Index" class="btn btn-secondary">Vazgeç</a>
+                            <button type="submit" class="btn btn-warning">Güncellemeyi Kaydet</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
