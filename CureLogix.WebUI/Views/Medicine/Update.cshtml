@@ -1,0 +1,85 @@
+﻿@model CureLogix.Entity.DTOs.MedicineDTOs.MedicineUpdateDto
+@{
+    ViewData["Title"] = "İlaç Düzenle";
+}
+
+<div class="content-header">
+    <div class="container-fluid"><h1>✏️ İlaç Bilgilerini Güncelle</h1></div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card card-warning">
+                    <div class="card-header"><h3 class="card-title">İlaç Detayları</h3></div>
+
+                    <form method="post">
+                        <!-- GİZLİ ID (UNUTMA!) -->
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>İlaç Adı</label>
+                                        <input type="text" class="form-control" asp-for="Name">
+                                        <span asp-validation-for="Name" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Etken Madde</label>
+                                        <input type="text" class="form-control" asp-for="ActiveIngredient">
+                                        <span asp-validation-for="ActiveIngredient" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Birim</label>
+                                        <select class="form-control" asp-for="Unit">
+                                            <option value="Kutu">Kutu</option>
+                                            <option value="Şişe">Şişe</option>
+                                            <option value="Ampul">Ampul</option>
+                                            <option value="Flakon">Flakon</option>
+                                            <option value="Adet">Adet</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Raf Ömrü (Gün)</label>
+                                        <input type="number" class="form-control" asp-for="ShelfLifeDays">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Kritik Stok Uyarısı</label>
+                                        <input type="number" class="form-control" asp-for="CriticalStockLevel">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" type="checkbox" id="coldChainCheck" asp-for="RequiresColdChain">
+                                    <label for="coldChainCheck" class="custom-control-label font-weight-bold text-info">
+                                        ❄️ Bu ilaç Soğuk Zincir gerektirir
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer text-right">
+                            <a href="/Medicine/Index" class="btn btn-secondary">Vazgeç</a>
+                            <button type="submit" class="btn btn-warning">Değişiklikleri Kaydet</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

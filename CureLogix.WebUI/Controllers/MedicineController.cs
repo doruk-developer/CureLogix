@@ -130,7 +130,57 @@ namespace CureLogix.WebUI.Controllers
             return View(p);
         }
 
-        // 4. SİLME İŞLEMİ (Mevcut Kodun)
+
+        // 4. İlaç Güncelleme Bilgilerini(Formunu) Getir
+        [HttpGet]
+        public IActionResult Update(int id)
+        {
+            var value = _medicineService.TGetById(id);
+            if (value == null) return RedirectToAction("Index");
+
+            var updateDto = _mapper.Map<MedicineUpdateDto>(value);
+            return View(updateDto);
+        }
+
+        // 5. İlaç Güncelleme bilgilerini Sisteme Gönder(Kaydet)
+        [HttpPost]
+        public IActionResult Update(MedicineUpdateDto p)
+        {
+            // 1. Validasyon
+            MedicineUpdateValidator validator = new MedicineUpdateValidator();
+            ValidationResult results = validator.Validate(p);
+
+            if (!results.IsValid)
+            {
+                foreach (var item in results.Errors)
+                {
+                    ModelState.AddModelError(item.PropertyName, item.ErrorMessage);
+                }
+                return View(p);
+            }
+
+            // 2. GÜVENLİ GÜNCELLEME (Fetch-Map-Save)
+            var existingMedicine = _medicineService.TGetById(p.Id);
+
+            if (existingMedicine != null)
+            {
+                existingMedicine.Name = p.Name;
+                existingMedicine.ActiveIngredient = p.ActiveIngredient;
+                existingMedicine.Unit = p.Unit;
+                existingMedicine.ShelfLifeDays = p.ShelfLifeDays;
+                existingMedicine.CriticalStockLevel = p.CriticalStockLevel;
+                existingMedicine.RequiresColdChain = p.RequiresColdChain;
+
+                _medicineService.TUpdate(existingMedicine);
+                return RedirectToAction("Index");
+            }
+
+            return NotFound();
+        }
+
+
+
+        // 6. SİLME İŞLEMİ (Mevcut Kodun)
         [HttpGet]
         [AuditLog("İlaç Kaydı Silindi")]
         public IActionResult Delete(int id)
