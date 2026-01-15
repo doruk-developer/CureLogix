@@ -11,26 +11,46 @@ namespace CureLogix.WebUI.Controllers
     {
         private readonly ITreatmentProtocolService _protocolService;
         private readonly ICouncilVoteService _voteService;
+        private readonly IDoctorService _doctorService; // <--- 1. BU SATIRI EKLE
         private readonly IMapper _mapper;
 
-        public CouncilController(ITreatmentProtocolService protocolService, ICouncilVoteService voteService, IMapper mapper)
+        // Constructor'ı Güncelliyoruz
+        public CouncilController(
+            ITreatmentProtocolService protocolService,
+            ICouncilVoteService voteService,
+            IDoctorService doctorService, // <--- 2. BURAYA PARAMETRE OLARAK EKLE
+            IMapper mapper)
         {
             _protocolService = protocolService;
             _voteService = voteService;
+            _doctorService = doctorService; // <--- 3. BURADA ATAMA YAP
             _mapper = mapper;
         }
 
         // 1. Bekleyen Protokolleri Listele
         public IActionResult Index()
         {
-            // Status == 0 (Bekleyenler)
-            // NOT: Burada normalde "Include" ile ilişkili tabloları çekmek gerekir.
-            // Şimdilik bütün listeyi çekip filtreliyoruz (Performans için ileride Repository güncellenmeli)
-            var allProtocols = _protocolService.TGetList();
-            var pendingProtocols = allProtocols.Where(x => x.Status == 0).ToList();
+            // 1. Bekleyen Protokolleri Çek
+            var pendingProtocols = _protocolService.TGetList().Where(x => x.Status == 0).ToList();
 
-            // Listeleme için basit bir DTO veya direkt Entity kullanabiliriz şimdilik
-            return View(pendingProtocols);
+            // 2. DTO Listesi Hazırla
+            var dtoList = new List<CouncilListDto>();
+
+            foreach (var item in pendingProtocols)
+            {
+                // Doktorun ismini bul
+                var doctor = _doctorService.TGetById(item.DoctorId);
+
+                dtoList.Add(new CouncilListDto
+                {
+                    Id = item.Id,
+                    Title = item.Title,
+                    CreatedDate = item.CreatedDate,
+                    DoctorName = doctor != null ? doctor.FullName : "Bilinmiyor" // İsim Ataması
+                });
+            }
+
+            return View(dtoList);
         }
 
         // 2. Detay ve Oylama Sayfası (GET)

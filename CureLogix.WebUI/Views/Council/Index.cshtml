@@ -1,5 +1,5 @@
 ﻿@using CureLogix.Entity.Concrete
-@model List<TreatmentProtocol>
+@model List<CureLogix.Entity.DTOs.CouncilDTOs.CouncilListDto>
 
 @{
     ViewData["Title"] = "Konsey Onay Bekleyenler";
@@ -31,8 +31,8 @@
                                 <small>Kayıt: @item.CreatedDate?.ToShortDateString()</small>
                             </td>
                             <td>
-                                <!-- İlişkili veri null gelebilir, şimdilik ID basalım veya boş geçelim -->
-                                Dr. ID: @item.DoctorId
+                                <!-- Sadece ikon ve isim kalsın -->
+                                <i class="fas fa-user-md text-muted"></i> @item.DoctorName
                             </td>
                             <td><span class="badge badge-warning">Onay Bekliyor</span></td>
                             <td>

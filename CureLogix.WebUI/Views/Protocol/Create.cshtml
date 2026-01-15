@@ -113,8 +113,10 @@
     function addMedicineRow() {
         // Dropdown seçeneklerini hazırla
         var options = '<option value="">İlaç Seçiniz...</option>';
+        
         medicineList.forEach(function(item) {
-            options += `<option value="${item.id}">${item.name} (${item.unit})</option>`;
+        // Değişkenlerin baş harfini büyüttük: Id, Name, Unit
+        options += `<option value="${item.Id}">${item.Name} (${item.Unit})</option>`;
         });
 
         // Yeni Satır HTML'i
