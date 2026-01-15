@@ -51,8 +51,18 @@
                                     }
                                 </td>
                                 <td>
-                                    <a href="#" class="btn btn-xs btn-outline-primary">Düzenle</a>
-                                    <a href="#" class="btn btn-xs btn-outline-danger">Sil</a>
+                                    <div class="d-flex gap-1">
+                                        <!-- Düzenle -->
+                                        <a href="/Disease/Update/@item.Id" class="btn btn-xs btn-outline-primary">
+                                            <i class="fas fa-pencil-alt"></i> Düzenle
+                                        </a>
+
+                                        <!-- Sil -->
+                                        <a href="/Disease/Delete/@item.Id" class="btn btn-xs btn-outline-danger"
+                                           onclick="return confirm('@item.Name kaydını silmek istediğinize emin misiniz?');">
+                                            <i class="fas fa-trash"></i> Sil
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         }

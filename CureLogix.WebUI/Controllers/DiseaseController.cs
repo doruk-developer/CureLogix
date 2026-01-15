@@ -26,6 +26,7 @@ namespace CureLogix.WebUI.Controllers
             return View(list);
         }
 
+        // --- EKLEME (ADD) ---
         [HttpGet]
         public IActionResult Add()
         {
@@ -52,6 +53,65 @@ namespace CureLogix.WebUI.Controllers
                 }
             }
             return View(p);
+        }
+
+        // Hastalık güncelleme bilgilerini(formunu) getir
+        [HttpGet]
+        public IActionResult Update(int id)
+        {
+            var value = _diseaseService.TGetById(id);
+            if (value == null) return RedirectToAction("Index");
+
+            // Formu doldurmak için Entity -> DTO dönüşümü
+            var updateDto = _mapper.Map<DiseaseUpdateDto>(value);
+            return View(updateDto);
+        }
+
+        // Hastalık güncelleme verilerini sisteme gönder(kaydet)
+        [HttpPost]
+        public IActionResult Update(DiseaseUpdateDto p)
+        {
+            // 1. Validasyon
+            DiseaseUpdateValidator validator = new DiseaseUpdateValidator();
+            ValidationResult results = validator.Validate(p);
+
+            if (!results.IsValid)
+            {
+                foreach (var item in results.Errors)
+                {
+                    ModelState.AddModelError(item.PropertyName, item.ErrorMessage);
+                }
+                return View(p);
+            }
+
+            // 2. GÜVENLİ GÜNCELLEME (Fetch-Map-Save)
+            var existingDisease = _diseaseService.TGetById(p.Id);
+
+            if (existingDisease != null)
+            {
+                // Manuel Eşleme (Hata riskini sıfırlar)
+                existingDisease.Name = p.Name;
+                existingDisease.Code = p.Code;
+                existingDisease.Description = p.Description;
+                existingDisease.RiskLevel = p.RiskLevel;
+
+                _diseaseService.TUpdate(existingDisease);
+                return RedirectToAction("Index");
+            }
+
+            return NotFound();
+        }
+
+        // --- SİLME (DELETE) ---
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+            var value = _diseaseService.TGetById(id);
+            if (value != null)
+            {
+                _diseaseService.TDelete(value);
+            }
+            return RedirectToAction("Index");
         }
     }
 }
