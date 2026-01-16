@@ -1,0 +1,58 @@
+﻿@using CureLogix.Entity.Concrete
+@model List<AppUser>
+@{
+    ViewData["Title"] = "Kullanıcı Listesi";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6"><h1>👥 Sistem Kullanıcıları</h1></div>
+            <div class="col-sm-6 text-right">
+                <a href="/User/Add" class="btn btn-primary"><i class="fas fa-user-plus"></i> Yeni Kullanıcı</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="card card-primary card-outline">
+        <div class="card-body table-responsive p-0">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Avatar</th>
+                        <th>Ad Soyad</th>
+                        <th>Kullanıcı Adı</th>
+                        <th>Email</th>
+                        <th>İşlem</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.ProfilePicture))
+                                {
+                                    <img src="/uploads/profiles/@item.ProfilePicture" class="img-circle elevation-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                }
+                                else
+                                {
+                                    // Varsayılan resim (AdminLTE içinden veya placeholder)
+                                    <img src="https://adminlte.io/themes/v3/dist/img/user2-160x160.jpg" class="img-circle elevation-2" style="width: 40px; height: 40px;">
+                                }
+                            </td>
+                            <td><strong>@item.NameSurname</strong></td>
+                            <td>@item.UserName</td>
+                            <td>@item.Email</td>
+                            <td>
+                                <a href="#" class="btn btn-xs btn-outline-danger" onclick="return confirm('Silmek istediğinize emin misiniz?');"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

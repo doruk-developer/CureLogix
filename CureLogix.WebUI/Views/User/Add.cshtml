@@ -1,0 +1,100 @@
+﻿@model CureLogix.WebUI.Models.UserAddViewModel
+@{
+    ViewData["Title"] = "Yeni Kullanıcı Ekle";
+}
+
+<div class="content-header"><div class="container-fluid"><h1>👤 Yeni Personel Tanımla</h1></div></div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card card-primary">
+                    <div class="card-header"><h3 class="card-title">Giriş Bilgileri</h3></div>
+
+                    <form method="post" enctype="multipart/form-data">
+                        <div class="card-body">
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                            <!-- FOTOĞRAF -->
+                            <div class="text-center mb-4">
+                                <img id="previewImg" src="https://via.placeholder.com/150" class="profile-user-img img-fluid img-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                                <div class="mt-2">
+                                    <label class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-camera"></i> Fotoğraf Seç
+                                        <input type="file" asp-for="Data.Photo" style="display: none;" onchange="previewFile(this)" accept="image/*">
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- ÜNVAN VE AD SOYAD YAN YANA -->
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Ünvan</label>
+                                        <select asp-for="Data.Title" asp-items="Model.TitleList" class="form-control">
+                                            <option value="">Seçiniz...</option>
+                                        </select>
+                                        <span asp-validation-for="Data.Title" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label>Ad Soyad</label>
+                                        <input type="text" class="form-control" asp-for="Data.NameSurname" placeholder="Örn: Ahmet Yılmaz">
+                                        <span asp-validation-for="Data.NameSurname" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Kullanıcı Adı</label>
+                                <input type="text" class="form-control" asp-for="Data.Username">
+                                <span asp-validation-for="Data.Username" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>E-Posta</label>
+                                <input type="email" class="form-control" asp-for="Data.Email">
+                                <span asp-validation-for="Data.Email" class="text-danger"></span>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Şifre</label>
+                                        <input type="password" class="form-control" asp-for="Data.Password">
+                                        <span asp-validation-for="Data.Password" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Şifre Tekrar</label>
+                                        <input type="password" class="form-control" asp-for="Data.ConfirmPassword">
+                                        <span asp-validation-for="Data.ConfirmPassword" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer text-right">
+                            <a href="/User/Index" class="btn btn-secondary">Vazgeç</a>
+                            <button type="submit" class="btn btn-primary">Kullanıcıyı Oluştur</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function previewFile(input){
+        var file = input.files[0];
+        if(file){
+            var reader = new FileReader();
+            reader.onload = function(){ document.getElementById("previewImg").src = reader.result; }
+            reader.readAsDataURL(file);
+        }
+    }
+</script>

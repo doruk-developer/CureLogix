@@ -149,18 +149,33 @@
                         <li class="nav-item"><a href="/Waste/Index" class="nav-link"><i class="nav-icon fas fa-biohazard"></i><p>Atık Yönetimi</p></a></li>
 
                         <li class="nav-header border-top mt-3 pt-2">OTURUM</li>
+
+                        <!-- SADECE ADMIN GÖRÜR -->
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a href="/User/Index" class="nav-link bg-info mb-2">
+                                    <i class="nav-icon fas fa-users-cog"></i>
+                                    <p>Kullanıcı Yönetimi</p>
+                                </a>
+                            </li>
+                        }
+
+                        <!-- HERKES GÖRÜR -->
                         <li class="nav-item">
                             <a href="/Settings/Index" class="nav-link bg-secondary mb-2">
                                 <i class="nav-icon fas fa-user-cog"></i>
                                 <p>Hesap Ayarları</p>
                             </a>
                         </li>
+
                         <li class="nav-item">
                             <a href="/Login/Logout" class="nav-link bg-danger">
                                 <i class="nav-icon fas fa-power-off"></i>
                                 <p>Güvenli Çıkış</p>
                             </a>
                         </li>
+
                     </ul>
                 </nav>
             </div>

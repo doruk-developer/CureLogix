@@ -6,5 +6,11 @@ namespace CureLogix.Entity.Concrete
     public class AppUser : IdentityUser<int>
     {
         public string NameSurname { get; set; }
+
+        // SQL'e eklediğimiz kullanıcı profil kolonun karşılığı
+        public string? ProfilePicture { get; set; }
+
+        // YENİ EKLENEN: Ünvan
+        public string? Title { get; set; }
     }
 }

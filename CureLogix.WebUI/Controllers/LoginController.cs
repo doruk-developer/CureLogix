@@ -1,4 +1,4 @@
-﻿using CureLogix.Business.Abstract; // AuditLogService için
+﻿using CureLogix.Business.Abstract;
 using CureLogix.Entity.Concrete;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,15 +11,18 @@ namespace CureLogix.WebUI.Controllers
     {
         private readonly SignInManager<AppUser> _signInManager;
         private readonly UserManager<AppUser> _userManager;
-        private readonly IAuditLogService _auditService; // 1. Servisi Ekledik
+        private readonly RoleManager<AppRole> _roleManager; // ROL YÖNETİCİSİ
+        private readonly IAuditLogService _auditService;    // LOGLAMA SERVİSİ
 
         public LoginController(
             SignInManager<AppUser> signInManager,
             UserManager<AppUser> userManager,
-            IAuditLogService auditService) // 2. Constructor'a ekledik
+            RoleManager<AppRole> roleManager, // <--- EKLENDİ
+            IAuditLogService auditService)    // <--- EKLENDİ
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _roleManager = roleManager;
             _auditService = auditService;
         }
 
@@ -32,19 +35,41 @@ namespace CureLogix.WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(string username, string password)
         {
-            // Otomatik Admin Oluşturma (Seed Data)
+            // --- 1. OTOMATİK ADMİN KURULUMU (SEED DATA) ---
             var adminUser = await _userManager.FindByNameAsync("Admin");
+
             if (adminUser == null)
             {
-                var newAdmin = new AppUser { UserName = "Admin", Email = "admin@curelogix.com", NameSurname = "Sistem Yöneticisi" };
-                await _userManager.CreateAsync(newAdmin, "CureLogix123!");
-            }
+                // A) Rol Yoksa Oluştur
+                if (await _roleManager.FindByNameAsync("Admin") == null)
+                {
+                    await _roleManager.CreateAsync(new AppRole { Name = "Admin" });
+                }
 
+                // B) Kullanıcıyı Oluştur
+                var newAdmin = new AppUser
+                {
+                    UserName = "Admin",
+                    Email = "admin@curelogix.com",
+                    NameSurname = "Sistem Yöneticisi"
+                };
+
+                var createResult = await _userManager.CreateAsync(newAdmin, "CureLogix123!");
+
+                // C) Kullanıcıyı Role Ata
+                if (createResult.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(newAdmin, "Admin");
+                }
+            }
+            // -----------------------------------------------
+
+            // --- 2. GİRİŞ İŞLEMİ ---
             var result = await _signInManager.PasswordSignInAsync(username, password, false, false);
 
             if (result.Succeeded)
             {
-                // 3. GİRİŞ LOGU (Burada kaydediyoruz)
+                // GİRİŞ LOGU (BAŞARILI)
                 _auditService.TAdd(new AuditLog
                 {
                     UserName = username,
@@ -59,10 +84,10 @@ namespace CureLogix.WebUI.Controllers
             }
             else
             {
-                // İstersen "Hatalı Giriş Denemesi"ni de loglayabilirsin (Güvenlik için süper olur)
+                // GİRİŞ LOGU (BAŞARISIZ)
                 _auditService.TAdd(new AuditLog
                 {
-                    UserName = username, // Denenen kullanıcı adı
+                    UserName = username,
                     ActionType = "Login Failed",
                     ControllerName = "LoginController",
                     Description = "Hatalı şifre veya kullanıcı adı denemesi.",
@@ -77,7 +102,7 @@ namespace CureLogix.WebUI.Controllers
 
         public async Task<IActionResult> Logout()
         {
-            // 4. ÇIKIŞ LOGU (Çıkış yapmadan hemen önce kaydediyoruz)
+            // ÇIKIŞ LOGU
             var currentUser = User.Identity?.Name ?? "Bilinmeyen";
 
             _auditService.TAdd(new AuditLog

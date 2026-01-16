@@ -7,6 +7,7 @@ using CureLogix.Entity.DTOs.HospitalDTOs;
 using CureLogix.Entity.DTOs.MedicineDTOs;
 using CureLogix.Entity.DTOs.ProtocolDTOs;
 using CureLogix.Entity.DTOs.SupplyDTOs;
+using CureLogix.Entity.DTOs.UserDTOs;
 using CureLogix.Entity.DTOs.WarehouseDTOs;
 using CureLogix.Entity.DTOs.WasteDTOs;
 
@@ -87,6 +88,9 @@ namespace CureLogix.Business.Mappings.AutoMapper
 
             // İlaç Güncelleme Mappingi
             CreateMap<MedicineUpdateDto, Medicine>().ReverseMap();
+
+            // Yeni kullanıcı ekleme mappingi
+            CreateMap<UserAddDto, AppUser>();
         }
     }
 }
