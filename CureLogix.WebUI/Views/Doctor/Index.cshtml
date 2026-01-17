@@ -75,19 +75,24 @@
                                             <span class="badge badge-success">🩺 Saha Doktoru</span>
                                         }
                                     </td>
+
+                                    <!-- Düzenle ve Sil Butonları -->
                                     <td>
-                                        <div class="d-flex gap-1">
-                                            <!-- Düzenle Butonu -->
-                                            <a href="/Doctor/Update/@item.Id" class="btn btn-xs btn-outline-info">
+                                        <div class="d-flex gap-2">
+                                            <!-- Düzenle (Mavi Kalem + Yazı) -->
+                                            <a href="/Doctor/Update/@item.Id" class="btn btn-sm btn-outline-info">
                                                 <i class="fas fa-pencil-alt"></i> Düzenle
                                             </a>
 
-                                            <!-- Sil Butonu -->
-                                            <a href="/Doctor/Delete/@item.Id" class="btn btn-xs btn-outline-danger" onclick="return confirm('Bu doktoru silmek istediğinize emin misiniz?');">
+                                            <!-- Sil (Kırmızı Çöp + Yazı) -->
+                                            <a href="/Doctor/Delete/@item.Id"
+                                               class="btn btn-sm btn-outline-danger"
+                                               onclick="return confirm('@item.FullName kaydını silmek istediğinize emin misiniz?');">
                                                 <i class="fas fa-trash"></i> Sil
                                             </a>
                                         </div>
                                     </td>
+
                                 </tr>
                             }
                         }

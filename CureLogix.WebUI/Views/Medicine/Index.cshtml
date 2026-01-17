@@ -87,22 +87,24 @@
                         }
                     },
 
+
                     {
                     "data": "Id",
                     "render": function (data) {
                         return `
-                            <div class="d-flex gap-1">
-                                <!-- DÜZENLE BUTONU (YENİ EKLENDİ) -->
+                            <div class="d-flex gap-1 justify-content-center">
+                                <!-- DÜZENLE: Mavi, İkon+Yazı -->
                                 <a href='/Medicine/Update/${data}' class='btn btn-xs btn-outline-info' title='Düzenle'>
-                                    <i class='fas fa-pencil-alt'></i>
+                                    <i class='fas fa-pencil-alt'></i> Düzenle
                                 </a>
 
-                                <!-- SİL BUTONU (MEVCUT) -->
-                                <a href='/Medicine/Delete/${data}' class='btn btn-xs btn-outline-danger' title='Sil' onclick='return confirm("Bu ilacı silmek istediğinize emin misiniz?")'>
-                                    <i class='fas fa-trash'></i>
+                                <!-- SİL: Kırmızı, İkon+Yazı -->
+                                <a href='/Medicine/Delete/${data}' class='btn btn-xs btn-outline-danger' title='Sil'
+                                   onclick='return confirm("Bu ilacı silmek istediğinize emin misiniz?")'>
+                                    <i class='fas fa-trash'></i> Sil
                                 </a>
                             </div>`;
-                        }
+                                              }
                     }
 
 

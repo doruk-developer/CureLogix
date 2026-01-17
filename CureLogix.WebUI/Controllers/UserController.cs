@@ -97,6 +97,104 @@ namespace CureLogix.WebUI.Controllers
             return View(model);
         }
 
+        // -----------------------------------------------------------
+        // GÜNCELLEME VE SÜRÜKLE-BIRAK (DROPZONE) İŞLEMLERİ
+        // -----------------------------------------------------------
+
+        [HttpGet]
+        public async Task<IActionResult> Update(int id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+
+            // Admin kendini buradan düzenleyemez (Güvenlik)
+            if (user == null || user.UserName == "Admin") return RedirectToAction("Index");
+
+            var updateDto = _mapper.Map<UserUpdateDto>(user);
+
+            // Ünvan listesi için ViewBag veya ViewModel kullanabiliriz.
+            // Pratik olsun diye ViewBag ile gönderiyoruz (veya UserAddViewModel benzeri bir UpdateViewModel yapabilirsin)
+            ViewBag.Titles = GetTitles();
+
+            return View(updateDto);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Update(UserUpdateDto p)
+        {
+            // Validasyon (Manual Validator çağrısı)
+            UserUpdateValidator validator = new UserUpdateValidator();
+            ValidationResult results = validator.Validate(p);
+
+            if (!results.IsValid)
+            {
+                foreach (var item in results.Errors) ModelState.AddModelError(item.PropertyName, item.ErrorMessage);
+                ViewBag.Titles = GetTitles();
+                return View(p);
+            }
+
+            var user = await _userManager.FindByIdAsync(p.Id.ToString());
+            if (user != null)
+            {
+                user.Title = p.Title;
+                user.NameSurname = p.NameSurname;
+                user.UserName = p.Username;
+                user.Email = p.Email;
+
+                // Eğer yeni resim yüklendiyse güncelle
+                if (!string.IsNullOrEmpty(p.ProfilePicture))
+                {
+                    user.ProfilePicture = p.ProfilePicture;
+                }
+
+                await _userManager.UpdateAsync(user);
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        // DROPZONE İÇİN AJAX RESİM YÜKLEME METODU
+        [HttpPost]
+        public async Task<IActionResult> UploadProfilePhoto(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return Json(new { success = false, message = "Dosya yok" });
+
+            var resource = Directory.GetCurrentDirectory();
+            var extension = Path.GetExtension(file.FileName);
+            var imageName = Guid.NewGuid() + extension;
+            var saveLocation = Path.Combine(resource, "wwwroot/uploads/profiles", imageName);
+
+            using (var stream = new FileStream(saveLocation, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Geriye sadece dosya adını dönüyoruz, formdaki hidden input'a yazacağız.
+            return Json(new { success = true, filename = imageName });
+        }
+
+        // Kullanıcı silme bloku
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+
+            if (user != null)
+            {
+                // GÜVENLİK KONTROLÜ: Admin silinemez!
+                if (user.UserName == "Admin")
+                {
+                    // Hata mesajı ile listeye dön (TempData ile uyarı verilebilir)
+                    return RedirectToAction("Index");
+                }
+
+                // Kullanıcıyı ve ilişkili verileri siler
+                await _userManager.DeleteAsync(user);
+            }
+
+            return RedirectToAction("Index");
+        }
+
         private List<SelectListItem> GetTitles()
         {
             return new List<SelectListItem>

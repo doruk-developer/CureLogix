@@ -63,14 +63,24 @@
                                         <!-- Kapasiteyi görselleştirelim -->
                                         @item.MainStorageCapacity <small>birim</small>
                                     </td>
+
+                                    <!--Düzenle ve Sil Butonu-->
                                     <td>
-                                        <a href="/Hospital/Update/@item.Id" class="btn btn-warning btn-sm" title="Düzenle">
-                                            <i class="fas fa-pencil-alt"></i>
-                                        </a>
-                                        <a href="/Hospital/Delete/@item.Id" class="btn btn-danger btn-sm ml-1" title="Sil" onclick="return confirm('Bu hastaneyi silmek istediğinize emin misiniz?');">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
+                                        <div class="d-flex gap-2">
+                                            <!-- Düzenle Butonu -->
+                                            <a href="/Hospital/Update/@item.Id" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-pencil-alt"></i> Düzenle
+                                            </a>
+
+                                            <!-- Sil Butonu -->
+                                            <a href="/Hospital/Delete/@item.Id"
+                                               class="btn btn-sm btn-outline-danger"
+                                               onclick="return confirm('@item.Name hastanesini silmek istediğinize emin misiniz?');">
+                                                <i class="fas fa-trash"></i> Sil
+                                            </a>
+                                        </div>
                                     </td>
+
                                 </tr>
                             }
                         }

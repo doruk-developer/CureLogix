@@ -4,10 +4,9 @@
 
 @{
     // -----------------------------------------------------------
-    // 1. TEMA VE RENK AYARLARI (TEK BİR YERDE TANIMLANIYOR)
+    // 1. TEMA VE RENK AYARLARI (Cookie'den Okuma)
     // -----------------------------------------------------------
 
-    // Cookie'den okuma işlemleri
     var themePref = Context.Request.Cookies["ThemePreference"] ?? "light";
     var themeAttr = themePref == "dark" ? "dark" : "light";
     var bodyClass = themePref == "dark" ? "bg-body" : "bg-body-tertiary";
@@ -18,7 +17,7 @@
     string hexColor = "#0d6efd";  // Varsayılan: Mavi
     string textColor = "#ffffff"; // Varsayılan Yazı: Beyaz
 
-    // Renk Seçimi (Switch Case)
+    // Renk Seçimi
     switch (sidebarColor)
     {
         case "success": hexColor = "#198754"; break; // Yeşil
@@ -31,7 +30,7 @@
         default: hexColor = "#0d6efd"; break;        // Mavi
     }
 
-    // Açık renkli arka planlarda (Sarı, Turkuaz) yazı rengini SİYAH yap
+    // Açık renkli arka planlarda yazı rengini SİYAH yap
     if (sidebarColor == "warning" || sidebarColor == "info")
     {
         textColor = "#000000";
@@ -54,17 +53,16 @@
     <!-- 2. ADMINLTE 4 TEMASI -->
     <link rel="stylesheet" href="~/theme/css/adminlte.min.css">
 
-    <!-- Driver.js CSS (Sanal Tur) -->
+    <!-- 3. DRIVER.JS CSS (Sanal Tur) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.css" />
 
     <!-- DİNAMİK RENK CSS -->
     <style>
-        /* Logo Arka Planı */
         .app-sidebar-brand {
             background-color: @hexColor !important;
             color: @textColor !important;
         }
-        /* Aktif Link Rengi */
+
         .sidebar-menu .nav-link.active {
             background-color: @hexColor !important;
             color: @textColor !important;
@@ -99,13 +97,28 @@
                         </a>
                     </li>
 
+                    <!-- TAM EKRAN -->
                     <li class="nav-item">
                         <a class="nav-link" href="#" data-lte-toggle="fullscreen"><i class="bi bi-arrows-fullscreen"></i></a>
                     </li>
+
+                    <!-- KULLANICI PROFİLİ (RESİMLİ) -->
                     <li class="nav-item">
-                        <a class="nav-link" href="/Settings/Index">
-                            <i class="bi bi-person-circle me-1"></i>
-                            <span class="d-none d-md-inline">@User.Identity?.Name</span>
+                        <a class="nav-link d-flex align-items-center" href="/Settings/Index">
+                            @{
+                                var currentUser = await UserManager.GetUserAsync(User);
+                            }
+                            @if (currentUser != null && !string.IsNullOrEmpty(currentUser.ProfilePicture))
+                            {
+                                <img src="/uploads/profiles/@currentUser.ProfilePicture" class="rounded-circle shadow-sm" style="width: 30px; height: 30px; object-fit: cover; border: 1px solid #ccc;" alt="User">
+                            }
+                            else
+                            {
+                                <div class="rounded-circle shadow-sm d-flex justify-content-center align-items-center" style="width: 30px; height: 30px; background-color: #6610f2; color: white;">
+                                    <i class="fas fa-user-md small"></i>
+                                </div>
+                            }
+                            <span class="d-none d-md-inline ms-2 fw-bold small">@(currentUser?.NameSurname ?? User.Identity?.Name)</span>
                         </a>
                     </li>
                 </ul>
@@ -138,7 +151,7 @@
                         <li class="nav-item"><a href="/Doctor/Index" class="nav-link"><i class="nav-icon fa-solid fa-user-doctor"></i><p>Doktorlar</p></a></li>
                         <li class="nav-item"><a href="/Medicine/Index" class="nav-link"><i class="nav-icon fas fa-pills"></i><p>İlaçlar</p></a></li>
                         <li class="nav-item"><a href="/Protocol/Create" class="nav-link"><i class="nav-icon fas fa-file-medical"></i><p>Reçete Oluştur</p></a></li>
-                        <li class="nav-item"><a href="/Council/Index" class="nav-link"><i class="nav-icon fas fa-balance-scale"></i><p>Konsey Kararları</p></a></li>
+                        <li class="nav-item"><a href="/Council/Index" class="nav-link"><i class="nav-icon fas fa-gavel"></i><p>Konsey Kararları</p></a></li>
                         <li class="nav-item"><a href="/Council/ChatRoom" class="nav-link"><i class="nav-icon fas fa-comments"></i><p>Canlı Konsey Odası</p></a></li>
                         <li class="nav-item"><a href="/Document/Index" class="nav-link"><i class="nav-icon fas fa-folder-open"></i><p>Doküman Yönetimi</p></a></li>
 
@@ -161,21 +174,18 @@
                             </li>
                         }
 
-                        <!-- HERKES GÖRÜR -->
                         <li class="nav-item">
                             <a href="/Settings/Index" class="nav-link bg-secondary mb-2">
                                 <i class="nav-icon fas fa-user-cog"></i>
                                 <p>Hesap Ayarları</p>
                             </a>
                         </li>
-
                         <li class="nav-item">
                             <a href="/Login/Logout" class="nav-link bg-danger">
                                 <i class="nav-icon fas fa-power-off"></i>
                                 <p>Güvenli Çıkış</p>
                             </a>
                         </li>
-
                     </ul>
                 </nav>
             </div>
@@ -197,6 +207,7 @@
             </div>
         </main>
 
+        <!-- D. FOOTER -->
         <footer class="app-footer">
             <div class="float-end d-none d-sm-inline">v1.0</div>
             <strong>Copyright &copy; @DateTime.Now.Year CureLogix.</strong>
@@ -218,7 +229,7 @@
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.js.iife.js"></script>
 
     <script>
-        // 1. Scrollbar Ayarı
+        // 1. Scrollbar
         const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
         const Default = { scrollbarTheme: "os-theme-light", scrollbarAutoHide: "leave", scrollbarClickScroll: true };
         document.addEventListener("DOMContentLoaded", function() {
@@ -228,24 +239,14 @@
             }
         });
 
-        // 2. SignalR Bağlantısı (Kritik Stok Alarmı)
+        // 2. SignalR
         var connection = new signalR.HubConnectionBuilder().withUrl("/generalHub").build();
-        connection.start().then(function () { console.log("🟢 SignalR Bağlantısı Başarılı!"); }).catch(function (err) { return console.error(err.toString()); });
+        connection.start().then(function () { console.log("🟢 SignalR Bağlantısı Başarılı!"); }).catch(function (err) { console.error(err.toString()); });
         connection.on("ReceiveCriticalStock", function (message) {
-            Swal.fire({
-                icon: 'error',
-                title: 'KRİTİK STOK ALARMI!',
-                text: message,
-                background: '#fff',
-                color: '#d33',
-                iconColor: '#d33',
-                showConfirmButton: true,
-                confirmButtonText: 'Müdahale Et',
-                backdrop: `rgba(255,0,0,0.4) left top no-repeat`
-            });
+            Swal.fire({ icon: 'error', title: 'KRİTİK STOK ALARMI!', text: message, background: '#fff', color: '#d33', iconColor: '#d33', confirmButtonText: 'Müdahale Et', backdrop: `rgba(255,0,0,0.4) left top no-repeat` });
         });
 
-        // 3. Sanal Tur Başlatıcı
+        // 3. Sanal Tur
         function startTour() {
             const driver = window.driver.js.driver;
             const driverObj = driver({
@@ -253,7 +254,7 @@
                 steps: [
                     { element: '.brand-link', popover: { title: 'Hoş Geldiniz! 👋', description: 'CureLogix Sağlık Lojistik Sistemine hoş geldiniz.' } },
                     { element: '.sidebar-wrapper', popover: { title: 'Ana Menü', description: 'Tüm modüllere buradan erişebilirsiniz.' } },
-                    { element: '#kpi-section', popover: { title: 'Durum Özeti', description: 'Sistemin anlık sayısal verileri.' } },
+                    { element: '#kpi-section', popover: { title: 'Durum Özeti', description: 'Anlık sayısal veriler.' } },
                     { element: '#chart-section', popover: { title: 'Analiz', description: 'Doluluk oranları ve grafiksel veriler.' } },
                     { element: '[href="/Settings/Index"]', popover: { title: 'Kişiselleştirme', description: 'Tema rengini ve şifrenizi buradan değiştirebilirsiniz.' } }
                 ]

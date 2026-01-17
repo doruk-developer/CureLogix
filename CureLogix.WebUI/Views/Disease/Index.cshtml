@@ -50,20 +50,24 @@
                                         <span class="badge badge-success">@item.RiskLevel</span>
                                     }
                                 </td>
+
+                                <!--Düzenle ve Sil Butonu-->
                                 <td>
-                                    <div class="d-flex gap-1">
-                                        <!-- Düzenle -->
-                                        <a href="/Disease/Update/@item.Id" class="btn btn-xs btn-outline-primary">
+                                    <div class="d-flex gap-2">
+                                        <!-- Düzenle Butonu -->
+                                        <a href="/Disease/Update/@item.Id" class="btn btn-sm btn-outline-info">
                                             <i class="fas fa-pencil-alt"></i> Düzenle
                                         </a>
 
-                                        <!-- Sil -->
-                                        <a href="/Disease/Delete/@item.Id" class="btn btn-xs btn-outline-danger"
+                                        <!-- Sil Butonu -->
+                                        <a href="/Disease/Delete/@item.Id"
+                                           class="btn btn-sm btn-outline-danger"
                                            onclick="return confirm('@item.Name kaydını silmek istediğinize emin misiniz?');">
                                             <i class="fas fa-trash"></i> Sil
                                         </a>
                                     </div>
                                 </td>
+
                             </tr>
                         }
                     </tbody>

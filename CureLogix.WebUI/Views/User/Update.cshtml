@@ -1,0 +1,140 @@
+﻿@model CureLogix.Entity.DTOs.UserDTOs.UserUpdateDto
+@{
+    ViewData["Title"] = "Kullanıcı Düzenle";
+}
+
+<!-- Dropzone CSS -->
+<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
+
+<style>
+    .dropzone-box {
+        border: 2px dashed #007bff;
+        background: #f8f9fa;
+        border-radius: 10px;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .current-img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border: 3px solid #dee2e6;
+    }
+</style>
+
+<div class="content-header">
+    <div class="container-fluid"><h1>👤 Personel Bilgilerini Güncelle</h1></div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <form method="post" id="updateForm">
+            <input type="hidden" asp-for="Id" />
+            <!-- Dropzone'dan gelen resim adı buraya yazılacak -->
+            <input type="hidden" asp-for="ProfilePicture" id="UploadedImageName" />
+
+            <div class="row">
+                <!-- SOL KOLON: BİLGİLER -->
+                <div class="col-md-7">
+                    <div class="card card-primary card-outline">
+                        <div class="card-header"><h3 class="card-title">Kimlik Bilgileri</h3></div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Ünvan</label>
+                                        <select asp-for="Title" asp-items="ViewBag.Titles" class="form-control"></select>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label>Ad Soyad</label>
+                                        <input type="text" class="form-control" asp-for="NameSurname">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Kullanıcı Adı</label>
+                                <input type="text" class="form-control" asp-for="Username">
+                            </div>
+                            <div class="form-group">
+                                <label>E-Posta</label>
+                                <input type="email" class="form-control" asp-for="Email">
+                            </div>
+                        </div>
+                        <div class="card-footer text-end">
+                            <a href="/User/Index" class="btn btn-secondary">Vazgeç</a>
+                            <button type="submit" class="btn btn-primary">Değişiklikleri Kaydet</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SAĞ KOLON: PROFİL FOTOĞRAFI (DROPZONE) -->
+                <div class="col-md-5">
+                    <div class="card card-info card-outline">
+                        <div class="card-header"><h3 class="card-title">Profil Fotoğrafı</h3></div>
+                        <div class="card-body text-center">
+
+                            <p class="text-muted mb-2">Mevcut Fotoğraf</p>
+                            @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+                            {
+                                <img src="/uploads/profiles/@Model.ProfilePicture" class="rounded-circle current-img shadow-sm mb-4" id="currentDisplay">
+                            }
+                            else
+                            {
+                                <div class="rounded-circle current-img d-flex align-items-center justify-content-center bg-secondary text-white mx-auto mb-4" style="font-size: 2rem;">
+                                    @Model.NameSurname.Substring(0, 1)
+                                </div>
+                            }
+
+                            <p class="font-weight-bold">Fotoğrafı Değiştirmek İçin Sürükleyin</p>
+
+                            <!-- DROPZONE ALANI -->
+                            <!-- 'action' kısmı sadece resim yükleme metoduna gidiyor -->
+                            <div id="profileDropzone" class="dropzone dropzone-box">
+                                <div class="dz-message" data-dz-message>
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-primary"></i><br>
+                                    <span class="mt-2 d-block">Yeni fotoğrafı buraya bırakın</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Dropzone JS -->
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+
+<script>
+    // Dropzone otomatik aramayı kapat (Biz manuel yapılandıracağız)
+    Dropzone.autoDiscover = false;
+
+    var myDropzone = new Dropzone("#profileDropzone", {
+        url: "/User/UploadProfilePhoto", // Controller'daki metoda gider
+        paramName: "file",
+        maxFiles: 1,
+        maxFilesize: 2, // MB
+        acceptedFiles: "image/*",
+        addRemoveLinks: true,
+        dictDefaultMessage: "",
+        success: function (file, response) {
+            if (response.success) {
+                // 1. Dönen dosya adını gizli inputa yaz
+                document.getElementById("UploadedImageName").value = response.filename;
+
+                // 2. Kullanıcıya görsel geri bildirim (Opsiyonel: Mevcut resmi güncelle)
+                // (Burada basitçe success mesajı yeterli, kullanıcı 'Kaydet'e basınca kalıcı olacak)
+                console.log("Resim yüklendi: " + response.filename);
+            }
+        }
+    });
+</script>

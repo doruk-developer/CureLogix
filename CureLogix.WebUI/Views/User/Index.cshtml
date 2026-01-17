@@ -1,5 +1,6 @@
 ﻿@using CureLogix.Entity.Concrete
 @model List<AppUser>
+
 @{
     ViewData["Title"] = "Kullanıcı Listesi";
 }
@@ -7,52 +8,107 @@
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
-            <div class="col-sm-6"><h1>👥 Sistem Kullanıcıları</h1></div>
-            <div class="col-sm-6 text-right">
-                <a href="/User/Add" class="btn btn-primary"><i class="fas fa-user-plus"></i> Yeni Kullanıcı</a>
+            <div class="col-sm-6">
+                <h1 class="m-0">👥 Sistem Kullanıcıları</h1>
+            </div>
+            <div class="col-sm-6 text-end">
+                <a href="/User/Add" class="btn btn-primary">
+                    <i class="fas fa-user-plus me-1"></i> Yeni Kullanıcı
+                </a>
             </div>
         </div>
     </div>
 </div>
 
 <section class="content">
-    <div class="card card-primary card-outline">
-        <div class="card-body table-responsive p-0">
-            <table class="table table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th style="width: 80px;">Avatar</th>
-                        <th>Ad Soyad</th>
-                        <th>Kullanıcı Adı</th>
-                        <th>Email</th>
-                        <th>İşlem</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
+    <div class="container-fluid">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">Personel Listesi</h3>
+            </div>
+
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover align-middle table-striped">
+                    <thead>
                         <tr>
-                            <td>
-                                @if (!string.IsNullOrEmpty(item.ProfilePicture))
-                                {
-                                    <img src="/uploads/profiles/@item.ProfilePicture" class="img-circle elevation-2" style="width: 40px; height: 40px; object-fit: cover;">
-                                }
-                                else
-                                {
-                                    // Varsayılan resim (AdminLTE içinden veya placeholder)
-                                    <img src="https://adminlte.io/themes/v3/dist/img/user2-160x160.jpg" class="img-circle elevation-2" style="width: 40px; height: 40px;">
-                                }
-                            </td>
-                            <td><strong>@item.NameSurname</strong></td>
-                            <td>@item.UserName</td>
-                            <td>@item.Email</td>
-                            <td>
-                                <a href="#" class="btn btn-xs btn-outline-danger" onclick="return confirm('Silmek istediğinize emin misiniz?');"><i class="fas fa-trash"></i></a>
-                            </td>
+                            <th style="width: 80px;" class="text-center">Avatar</th>
+                            <th>Ad Soyad</th>
+                            <th>Kullanıcı Adı</th>
+                            <th>E-Posta</th>
+                            <th style="width: 100px;" class="text-center">İşlem</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @if (Model.Count > 0)
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                        @if (!string.IsNullOrEmpty(item.ProfilePicture))
+                                        {
+                                            <!-- Profil Resmi Varsa -->
+                                            <img src="/uploads/profiles/@item.ProfilePicture"
+                                                 class="rounded-circle shadow-sm border"
+                                                 style="width: 40px; height: 40px; object-fit: cover;"
+                                                 alt="User Image">
+                                        }
+                                        else
+                                        {
+                                            <!-- Yoksa Varsayılan İkon (Mor) -->
+                                            <div class="rounded-circle shadow-sm d-flex justify-content-center align-items-center mx-auto"
+                                                 style="width: 40px; height: 40px; background-color: #6f42c1; color: white;">
+                                                <span class="fw-bold">@item.NameSurname.Substring(0, 1).ToUpper()</span>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">@item.NameSurname</div>
+                                        <small class="text-muted">@item.Title</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">@item.UserName</span>
+                                    </td>
+                                    <td>@item.Email</td>
+                                    <td class="text-center">
+                                        @if (item.UserName == "Admin")
+                                        {
+                                            <!-- Admin ise Kilit Simgesi -->
+                                            <span class="text-secondary" title="Sistem Yöneticisi Düzenlenemez">
+                                                <i class="fas fa-lock"></i>
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <!-- Değilse Butonlar Yan Yana -->
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <!-- DÜZENLE BUTONU (YENİ) -->
+                                                <a href="/User/Update/@item.Id" class="btn btn-sm btn-outline-info" title="Düzenle">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                </a>
+
+                                                <!-- SİL BUTONU -->
+                                                <a href="/User/Delete/@item.Id" class="btn btn-sm btn-outline-danger"
+                                                   onclick="return confirm('@item.NameSurname kullanıcısını silmek istediğinize emin misiniz?');" title="Sil">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted p-4">
+                                    Sistemde kayıtlı kullanıcı bulunamadı.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </section>
