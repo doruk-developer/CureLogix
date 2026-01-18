@@ -1,7 +1,6 @@
 ﻿@{
     Layout = null;
 }
- <!-- Layout kullanmıyoruz, saf HTML -->
 
 <!DOCTYPE html>
 <html lang="tr">
@@ -9,10 +8,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>CureLogix | Güvenli Giriş</title>
-    <!-- AdminLTE CSS -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+
+    <!-- OFFLINE CSS (Local) -->
+    <!-- Sistem Fontu -->
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+        }
+    </style>
+
+    <!-- FontAwesome (Yerel) -->
+    <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css">
+
+    <!-- AdminLTE (Yerel) -->
+    <link rel="stylesheet" href="~/theme/css/adminlte.min.css">
 </head>
 <body class="hold-transition login-page" style="background-color: #e9ecef;">
 
@@ -31,15 +40,11 @@
                 <form method="post">
                     <div class="input-group mb-3">
                         <input type="text" name="username" class="form-control" placeholder="Kullanıcı Adı" required>
-                        <div class="input-group-append">
-                            <div class="input-group-text"><span class="fas fa-user"></span></div>
-                        </div>
+                        <div class="input-group-append"><div class="input-group-text"><span class="fas fa-user"></span></div></div>
                     </div>
                     <div class="input-group mb-3">
                         <input type="password" name="password" class="form-control" placeholder="Şifre" required>
-                        <div class="input-group-append">
-                            <div class="input-group-text"><span class="fas fa-lock"></span></div>
-                        </div>
+                        <div class="input-group-append"><div class="input-group-text"><span class="fas fa-lock"></span></div></div>
                     </div>
 
                     @if (ViewBag.Error != null)
@@ -48,14 +53,12 @@
                     }
 
                     <div class="row">
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary btn-block">Giriş Yap</button>
-                        </div>
+                        <div class="col-12"><button type="submit" class="btn btn-primary btn-block">Giriş Yap</button></div>
                     </div>
                 </form>
             </div>
             <div class="card-footer text-center pt-1 pb-1">
-                <small class="text-muted">CureLogix v1.0 &copy; 2026</small>
+                <small class="text-muted">CureLogix v1.0 &copy; @DateTime.Now.Year</small>
             </div>
         </div>
     </div>

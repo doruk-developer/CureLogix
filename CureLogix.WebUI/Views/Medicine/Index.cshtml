@@ -2,116 +2,48 @@
     ViewData["Title"] = "İlaç Envanteri (Server-Side)";
 }
 
-<!-- DataTables CSS (Sadece CSS'i buraya koyuyoruz) -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+<!-- CSS: Artık 'datatables/css' altında -->
+<link rel="stylesheet" href="~/lib/datatables/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="~/lib/datatables/css/responsive.bootstrap5.min.css">
 
-<div class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1>💊 İlaç Kataloğu (Yüksek Performans)</h1>
-            </div>
-            <div class="col-sm-6 text-right">
-                <a href="/Medicine/Add" class="btn btn-warning btn-sm">
-                    <i class="fas fa-plus"></i> Yeni İlaç Tanımla
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="content-header"><div class="container-fluid"><h1>💊 İlaç Kataloğu (Yüksek Performans)</h1></div></div>
 
 <section class="content">
     <div class="container-fluid">
         <div class="card card-warning card-outline">
             <div class="card-body">
-
                 <table id="medicineTable" class="table table-hover table-striped w-100">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>İlaç Adı</th>
-                            <th>Etken Madde</th>
-                            <th>Birim</th>
-                            <th>Kritik Stok</th>
-                            <th>Özellik</th>
-                            <th>İşlemler</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>ID</th><th>İlaç Adı</th><th>Etken Madde</th><th>Birim</th><th>Kritik Stok</th><th>Özellik</th><th>İşlemler</th></tr></thead>
                     <tbody></tbody>
                 </table>
-
             </div>
         </div>
     </div>
 </section>
 
-<!-- SCRIPTS BÖLÜMÜ (Layout'un en altına gömülür, çakışmayı önler) -->
 @section Scripts {
-    <!-- Sadece DataTables kütüphanelerini ekliyoruz (jQuery zaten Layout'ta var) -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- JS: Artık 'datatables/js' altında -->
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap5.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.responsive.min.js"></script>
 
     <script>
         $(document).ready(function () {
             $('#medicineTable').DataTable({
-                "processing": true,
-                "serverSide": true,
-                "filter": true,
-                "ajax": {
-                    "url": "/Medicine/GetAllMedicinesAjax",
-                    "type": "POST",
-                    "datatype": "json"
-                },
-                "columnDefs": [{
-                    "targets": [6],
-                    "orderable": false
-                }],
+                "processing": true, "serverSide": true, "filter": true,
+                "ajax": { "url": "/Medicine/GetAllMedicinesAjax", "type": "POST", "datatype": "json" },
+                "columnDefs": [{ "targets": [6], "orderable": false }],
                 "columns": [
-                    // Program.cs'de JSON ayarını yaptığımız için Büyük Harf (PascalCase) kullanıyoruz
                     { "data": "Id", "name": "Id", "autoWidth": true },
                     { "data": "Name", "name": "Name", "autoWidth": true },
                     { "data": "ActiveIngredient", "name": "ActiveIngredient", "autoWidth": true },
-                    {
-                        "data": "Unit", "name": "Unit", "autoWidth": true,
-                        "render": function (data) {
-                            return '<span class="badge bg-secondary">' + data + '</span>';
-                        }
-                    },
+                    { "data": "Unit", "name": "Unit", "autoWidth": true, "render": function (data) { return '<span class="badge bg-secondary">' + data + '</span>'; } },
                     { "data": "CriticalStockLevel", "name": "CriticalStockLevel", "autoWidth": true },
-                    {
-                        "data": "RequiresColdChain", "name": "RequiresColdChain",
-                        "render": function (data) {
-                            if (data === true) return '<span class="badge bg-info"><i class="fas fa-snowflake"></i> Soğuk Zincir</span>';
-                            else return '-';
-                        }
-                    },
-
-
-                    {
-                    "data": "Id",
-                    "render": function (data) {
-                        return `
-                            <div class="d-flex gap-1 justify-content-center">
-                                <!-- DÜZENLE: Mavi, İkon+Yazı -->
-                                <a href='/Medicine/Update/${data}' class='btn btn-xs btn-outline-info' title='Düzenle'>
-                                    <i class='fas fa-pencil-alt'></i> Düzenle
-                                </a>
-
-                                <!-- SİL: Kırmızı, İkon+Yazı -->
-                                <a href='/Medicine/Delete/${data}' class='btn btn-xs btn-outline-danger' title='Sil'
-                                   onclick='return confirm("Bu ilacı silmek istediğinize emin misiniz?")'>
-                                    <i class='fas fa-trash'></i> Sil
-                                </a>
-                            </div>`;
-                                              }
-                    }
-
-
+                    { "data": "RequiresColdChain", "name": "RequiresColdChain", "render": function (data) { return data === true ? '<span class="badge bg-info">Soğuk Zincir</span>' : '-'; } },
+                    { "data": "Id", "render": function (data) { return `<a href='/Medicine/Update/${data}' class='btn btn-xs btn-outline-info'>Düzenle</a> <a href='/Medicine/Delete/${data}' class='btn btn-xs btn-outline-danger' onclick='return confirm("Sil?")'>Sil</a>`; } }
                 ],
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json"
-                }
+                // Dil dosyası kökte kalabilir
+                "language": { "url": "/lib/datatables/tr.json" }
             });
         });
     </script>

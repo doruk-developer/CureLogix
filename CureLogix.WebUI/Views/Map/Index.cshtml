@@ -2,78 +2,68 @@
     ViewData["Title"] = "Pandemi Isı Haritası";
 }
 
-<!-- Leaflet CSS (Harita Stili) -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<!-- 1. OFFLINE LEAFLET CSS -->
+<link rel="stylesheet" href="~/lib/leaflet/leaflet.css" />
 
-<div class="content-header">
-    <div class="container-fluid">
-        <h1>🌍 Ulusal Doluluk ve Risk Haritası</h1>
-    </div>
-</div>
+<div class="content-header"><div class="container-fluid"><h1>🌍 Ulusal Doluluk ve Risk Haritası</h1></div></div>
 
 <section class="content">
     <div class="container-fluid">
         <div class="card card-primary card-outline">
-            <div class="card-header">
-                <h3 class="card-title">Türkiye Geneli Hastane Durumları</h3>
-            </div>
+            <div class="card-header"><h3 class="card-title">Türkiye Geneli Hastane Durumları</h3></div>
             <div class="card-body p-0">
-                <!-- Haritanın oturacağı alan (Yükseklik vermek zorunlu) -->
                 <div id="pandemicMap" style="height: 600px; width: 100%;"></div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Leaflet JS (Harita Motoru) -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@section Scripts {
+    <!-- 2. OFFLINE LEAFLET JS -->
+    <script src="~/lib/leaflet/leaflet.js"></script>
 
-<script>
-    // 1. Haritayı Başlat (Merkez: Türkiye, Zoom: 6)
-    var map = L.map('pandemicMap').setView([39.0, 35.5], 6);
+    <script>
+        // Sayfa tamamen yüklendiğinde (jQuery hazır olduğunda) çalıştır
+        $(document).ready(function () {
 
-    // 2. Harita Katmanını Ekle (OpenStreetMap kullanıyoruz - Ücretsiz)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; CureLogix GIS'
-    }).addTo(map);
+            var map = L.map('pandemicMap').setView([39.0, 35.5], 6);
 
-    // 3. Verileri Çek ve İşaretle
-    $.ajax({
-        url: '/Map/GetMapData',
-        method: 'GET',
-        success: function (data) {
-            console.log("Gelen Veri:", data); // Debug için: Console'a bakıp veriyi görebilirsin
+            // Tile Layer (Harita görseli)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; CureLogix GIS'
+            }).addTo(map);
 
-            data.forEach(function (point) {
-                // DÜZELTME: Değişken isimlerinin ilk harfi BÜYÜK yapıldı (C# Property isimleriyle birebir aynı olmalı)
+            // Verileri Çek
+            $.ajax({
+                url: '/Map/GetMapData',
+                method: 'GET',
+                success: function (data) {
+                    console.log("Harita Verisi Geldi:", data); // Debug
 
-                // Veri güvenliği kontrolü (Koordinat 0 veya null gelirse çizme)
-                if(point.Latitude && point.Longitude) {
+                    data.forEach(function (point) {
+                        if(point.Latitude && point.Longitude) {
 
-                    // A) Daire (Heatmap etkisi için)
-                    L.circle([point.Latitude, point.Longitude], {
-                        color: point.LevelColor,       // point.levelColor -> point.LevelColor
-                        fillColor: point.LevelColor,
-                        fillOpacity: 0.5,
-                        radius: 40000
-                    }).addTo(map);
+                            // Daire (Heatmap etkisi)
+                            L.circle([point.Latitude, point.Longitude], {
+                                color: point.LevelColor,
+                                fillColor: point.LevelColor,
+                                fillOpacity: 0.5,
+                                radius: 40000
+                            }).addTo(map);
 
-                    // B) Marker (Pin) ve Popup Bilgisi
-                    var popupContent = `
-                        <b>${point.HospitalName}</b><br/> <!-- point.hospitalName -> point.HospitalName -->
-                        Şehir: ${point.City}<br/>
-                        Doluluk: <b>%${point.OccupancyRate}</b>
-                    `;
+                            // Marker ve Popup
+                            var popupContent = `<b>${point.HospitalName}</b><br/>Şehir: ${point.City}<br/>Doluluk: <b>%${point.OccupancyRate}</b>`;
 
-                    L.marker([point.Latitude, point.Longitude])
-                        .addTo(map)
-                        .bindPopup(popupContent);
+                            L.marker([point.Latitude, point.Longitude])
+                                .addTo(map)
+                                .bindPopup(popupContent);
+                        }
+                    });
+                },
+                error: function(err) {
+                    console.error("Harita verisi çekilemedi:", err);
                 }
             });
-        },
-        error: function(err) {
-            console.error("Harita verisi çekilemedi:", err);
-        }
-    });
-</script>
+        });
+    </script>
+}
