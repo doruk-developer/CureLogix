@@ -43,27 +43,37 @@
         url: '/Map/GetMapData',
         method: 'GET',
         success: function (data) {
+            console.log("Gelen Veri:", data); // Debug için: Console'a bakıp veriyi görebilirsin
+
             data.forEach(function (point) {
+                // DÜZELTME: Değişken isimlerinin ilk harfi BÜYÜK yapıldı (C# Property isimleriyle birebir aynı olmalı)
 
-                // A) Daire (Heatmap etkisi için)
-                L.circle([point.latitude, point.longitude], {
-                    color: point.levelColor,       // Çerçeve rengi
-                    fillColor: point.levelColor,   // Dolgu rengi
-                    fillOpacity: 0.5,              // Saydamlık
-                    radius: 40000                  // Yarıçap (40km - Büyük görünsün diye)
-                }).addTo(map);
+                // Veri güvenliği kontrolü (Koordinat 0 veya null gelirse çizme)
+                if(point.Latitude && point.Longitude) {
 
-                // B) Marker (Pin) ve Popup Bilgisi
-                var popupContent = `
-                    <b>${point.hospitalName}</b><br/>
-                    Şehir: ${point.city}<br/>
-                    Doluluk: <b>%${point.occupancyRate}</b>
-                `;
+                    // A) Daire (Heatmap etkisi için)
+                    L.circle([point.Latitude, point.Longitude], {
+                        color: point.LevelColor,       // point.levelColor -> point.LevelColor
+                        fillColor: point.LevelColor,
+                        fillOpacity: 0.5,
+                        radius: 40000
+                    }).addTo(map);
 
-                L.marker([point.latitude, point.longitude])
-                    .addTo(map)
-                    .bindPopup(popupContent);
+                    // B) Marker (Pin) ve Popup Bilgisi
+                    var popupContent = `
+                        <b>${point.HospitalName}</b><br/> <!-- point.hospitalName -> point.HospitalName -->
+                        Şehir: ${point.City}<br/>
+                        Doluluk: <b>%${point.OccupancyRate}</b>
+                    `;
+
+                    L.marker([point.Latitude, point.Longitude])
+                        .addTo(map)
+                        .bindPopup(popupContent);
+                }
             });
+        },
+        error: function(err) {
+            console.error("Harita verisi çekilemedi:", err);
         }
     });
 </script>
