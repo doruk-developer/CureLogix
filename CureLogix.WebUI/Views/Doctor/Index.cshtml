@@ -10,8 +10,12 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6"><h1>👨‍⚕️ Sağlık Personeli Yönetimi</h1></div>
+
             <div class="col-sm-6 text-right">
-                <a href="/Doctor/Add" class="btn btn-info"><i class="fas fa-user-plus"></i> Yeni Doktor Ekle</a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a href="/Doctor/Add" class="btn btn-info"><i class="fas fa-user-plus"></i> Yeni Doktor Ekle</a>
+                }
             </div>
         </div>
     </div>
@@ -21,14 +25,19 @@
     <div class="container-fluid">
         <div class="card card-info card-outline">
             <div class="card-body table-responsive p-0">
-                <table class="table table-hover text-nowrap">
+                <table class="table table-hover text-nowrap w-100">
                     <thead>
                         <tr>
                             <th>Ad Soyad</th>
                             <th>Branş</th>
                             <th>Hastane</th>
                             <th>Yetki / Rol</th>
-                            <th>İşlem</th>
+
+                            @* DİNAMİK KOLON *@
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <th>İşlemler</th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
@@ -50,6 +59,7 @@
                                         }
                                         else
                                         {
+
                                             <span class="text-muted">- Bağımsız -</span>
                                         }
                                     </td>
@@ -57,50 +67,43 @@
                                         @{
                                             var role = (RoleTypeEnum)item.RoleType;
                                         }
-
                                         @if (role == RoleTypeEnum.KonseyUyesi)
                                         {
                                             <span class="badge bg-purple">⚖️ Konsey Üyesi</span>
                                         }
                                         else if (role == RoleTypeEnum.Bashekim)
                                         {
+
                                             <span class="badge badge-danger">👑 Başhekim</span>
                                         }
                                         else if (role == RoleTypeEnum.BakanlikYetkilisi)
                                         {
+
                                             <span class="badge badge-dark">🏛️ Bakanlık</span>
                                         }
                                         else
                                         {
+
                                             <span class="badge badge-success">🩺 Saha Doktoru</span>
                                         }
                                     </td>
 
-                                    <!-- Düzenle ve Sil Butonları -->
-                                    <td>
-                                        <div class="d-flex gap-2">
-                                            <!-- Düzenle (Mavi Kalem + Yazı) -->
-                                            <a href="/Doctor/Update/@item.Id" class="btn btn-sm btn-outline-info">
-                                                <i class="fas fa-pencil-alt"></i> Düzenle
-                                            </a>
-
-                                            <!-- Sil (Kırmızı Çöp + Yazı) -->
-                                            <a href="/Doctor/Delete/@item.Id"
-                                               class="btn btn-sm btn-outline-danger"
-                                               onclick="return confirm('@item.FullName kaydını silmek istediğinize emin misiniz?');">
-                                                <i class="fas fa-trash"></i> Sil
-                                            </a>
-                                        </div>
-                                    </td>
-
+                                    @* DİNAMİK HÜCRE *@
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a href="/Doctor/Update/@item.Id" class="btn btn-sm btn-outline-info"><i class="fas fa-pencil-alt"></i> Düzenle</a>
+                                                <a href="/Doctor/Delete/@item.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('@item.FullName kaydını silmek istediğinize emin misiniz?');"><i class="fas fa-trash"></i> Sil</a>
+                                            </div>
+                                        </td>
+                                    }
                                 </tr>
                             }
                         }
                         else
                         {
-                            <tr>
-                                <td colspan="5" class="text-center">Kayıtlı doktor bulunamadı.</td>
-                            </tr>
+                            <tr><td colspan="@(User.IsInRole("Admin") ? 5 : 4)" class="text-center">Kayıtlı doktor bulunamadı.</td></tr>
                         }
                     </tbody>
                 </table>

@@ -2,18 +2,68 @@
     ViewData["Title"] = "İlaç Envanteri (Server-Side)";
 }
 
-<!-- CSS: Artık 'datatables/css' altında -->
+<!-- CSS -->
 <link rel="stylesheet" href="~/lib/datatables/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="~/lib/datatables/css/responsive.bootstrap5.min.css">
 
-<div class="content-header"><div class="container-fluid"><h1>💊 İlaç Kataloğu (Yüksek Performans)</h1></div></div>
+<!-- ÖZEL STİL: Sadece sıralama oklarını (üçgenleri) kaldırıyoruz -->
+<style>
+    table.dataTable thead .sorting:before,
+    table.dataTable thead .sorting:after,
+    table.dataTable thead .sorting_asc:before,
+    table.dataTable thead .sorting_asc:after,
+    table.dataTable thead .sorting_desc:before,
+    table.dataTable thead .sorting_desc:after {
+        display: none !important;
+        content: none !important;
+    }
+
+    table.dataTable thead th {
+        cursor: pointer;
+        padding-right: 0.75rem !important;
+    }
+</style>
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">💊 İlaç Kataloğu (Yüksek Performans)</h1>
+            </div>
+            <div class="col-sm-6 text-right" style="text-align: right;">
+                @if (User.IsInRole("Admin"))
+                {
+                    <a href="/Medicine/Add" class="btn btn-warning btn-sm">
+                        <i class="fas fa-plus"></i> Yeni İlaç Tanımla
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
 
 <section class="content">
     <div class="container-fluid">
         <div class="card card-warning card-outline">
             <div class="card-body">
-                <table id="medicineTable" class="table table-hover table-striped w-100">
-                    <thead><tr><th>ID</th><th>İlaç Adı</th><th>Etken Madde</th><th>Birim</th><th>Kritik Stok</th><th>Özellik</th><th>İşlemler</th></tr></thead>
+                <table id="medicineTable" class="table table-hover table-striped w-100 align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>İlaç Adı</th>
+                            <th>Etken Madde</th>
+                            <th>Birim</th>
+                            <th>Kritik Stok</th>
+                            <th>Özellik</th>
+
+                            @* DÜZELTME: Diğer sayfalardaki gibi standart bıraktık. *@
+                            @* width: 15% vererek diğer tablolarla aynı genişliği sağladık *@
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <th style="width: 15%">İşlemler</th>
+                            }
+                        </tr>
+                    </thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -22,28 +72,51 @@
 </section>
 
 @section Scripts {
-    <!-- JS: Artık 'datatables/js' altında -->
     <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
     <script src="~/lib/datatables/js/dataTables.bootstrap5.min.js"></script>
     <script src="~/lib/datatables/js/dataTables.responsive.min.js"></script>
 
     <script>
         $(document).ready(function () {
+            var isAdmin = @User.IsInRole("Admin").ToString().ToLower();
+
+            var columnDefs = [
+                { "data": "Id", "name": "Id", "autoWidth": true },
+                { "data": "Name", "name": "Name", "autoWidth": true, "className": "fw-bold" },
+                { "data": "ActiveIngredient", "name": "ActiveIngredient", "autoWidth": true },
+                { "data": "Unit", "name": "Unit", "autoWidth": true, "render": function (data) { return '<span class="badge bg-secondary">' + data + '</span>'; } },
+                { "data": "CriticalStockLevel", "name": "CriticalStockLevel", "autoWidth": true },
+                { "data": "RequiresColdChain", "name": "RequiresColdChain", "render": function (data) { return data ? '<span class="badge rounded-pill bg-info text-dark"><i class="fas fa-snowflake me-1"></i> Soğuk Zincir</span>' : '-'; } }
+            ];
+
+            if (isAdmin) {
+                columnDefs.push({
+                    "data": "Id",
+                    "orderable": false,
+                    "render": function (data) {
+                        // DÜZELTME: justify-content-end (Sağa yasla) KALDIRILDI.
+                        // Diğer sayfalardaki gibi "d-flex gap-2" kullanarak sola hizalı ve aralıklı yaptık.
+                        // İkonlar da diğer sayfalarla birebir aynı yapıldı (pencil-alt ve trash).
+                        return `<div class="d-flex gap-2">
+                                    <a href='/Medicine/Update/${data}' class='btn btn-sm btn-outline-info'>
+                                        <i class="fas fa-pencil-alt"></i> Düzenle
+                                    </a>
+                                    <a href='/Medicine/Delete/${data}' class='btn btn-sm btn-outline-danger' onclick='return confirm("Silmek istediğinize emin misiniz?")'>
+                                        <i class="fas fa-trash"></i> Sil
+                                    </a>
+                                </div>`;
+                    }
+                });
+            }
+
             $('#medicineTable').DataTable({
-                "processing": true, "serverSide": true, "filter": true,
-                "ajax": { "url": "/Medicine/GetAllMedicinesAjax", "type": "POST", "datatype": "json" },
-                "columnDefs": [{ "targets": [6], "orderable": false }],
-                "columns": [
-                    { "data": "Id", "name": "Id", "autoWidth": true },
-                    { "data": "Name", "name": "Name", "autoWidth": true },
-                    { "data": "ActiveIngredient", "name": "ActiveIngredient", "autoWidth": true },
-                    { "data": "Unit", "name": "Unit", "autoWidth": true, "render": function (data) { return '<span class="badge bg-secondary">' + data + '</span>'; } },
-                    { "data": "CriticalStockLevel", "name": "CriticalStockLevel", "autoWidth": true },
-                    { "data": "RequiresColdChain", "name": "RequiresColdChain", "render": function (data) { return data === true ? '<span class="badge bg-info">Soğuk Zincir</span>' : '-'; } },
-                    { "data": "Id", "render": function (data) { return `<a href='/Medicine/Update/${data}' class='btn btn-xs btn-outline-info'>Düzenle</a> <a href='/Medicine/Delete/${data}' class='btn btn-xs btn-outline-danger' onclick='return confirm("Sil?")'>Sil</a>`; } }
-                ],
-                // Dil dosyası kökte kalabilir
-                "language": { "url": "/lib/datatables/tr.json" }
+                "processing": true,
+                "serverSide": true,
+                "ajax": { "url": "/Medicine/GetAllMedicinesAjax", "type": "POST" },
+                "columns": columnDefs,
+                "language": { "url": "/lib/datatables/tr.json" },
+                "responsive": true,
+                "autoWidth": false
             });
         });
     </script>

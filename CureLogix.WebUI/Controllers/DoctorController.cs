@@ -6,6 +6,7 @@ using CureLogix.Entity.DTOs.DoctorDTOs;
 using CureLogix.Entity.Enums;
 using CureLogix.WebUI.Models;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -32,6 +33,7 @@ namespace CureLogix.WebUI.Controllers
         }
 
         // --- EKLEME İŞLEMLERİ ---
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Add()
         {
@@ -40,6 +42,7 @@ namespace CureLogix.WebUI.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Add(DoctorAddViewModel model)
         {
@@ -65,6 +68,7 @@ namespace CureLogix.WebUI.Controllers
         }
 
         // --- GÜNCELLEME İŞLEMLERİ ---
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Update(int id)
         {
@@ -84,6 +88,7 @@ namespace CureLogix.WebUI.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Update(DoctorUpdateViewModel model)
         {
@@ -126,6 +131,7 @@ namespace CureLogix.WebUI.Controllers
             return NotFound();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Delete(int id)
         {

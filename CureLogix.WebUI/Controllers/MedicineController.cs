@@ -5,6 +5,7 @@ using CureLogix.Entity.Concrete;
 using CureLogix.Entity.DTOs.MedicineDTOs;
 using CureLogix.WebUI.Filters; // AuditLog için
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CureLogix.WebUI.Controllers
@@ -101,6 +102,7 @@ namespace CureLogix.WebUI.Controllers
         }
 
         // 3. EKLEME İŞLEMİ (Mevcut Kodun)
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Add()
         {
@@ -132,6 +134,7 @@ namespace CureLogix.WebUI.Controllers
 
 
         // 4. İlaç Güncelleme Bilgilerini(Formunu) Getir
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Update(int id)
         {
@@ -143,6 +146,7 @@ namespace CureLogix.WebUI.Controllers
         }
 
         // 5. İlaç Güncelleme bilgilerini Sisteme Gönder(Kaydet)
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Update(MedicineUpdateDto p)
         {
@@ -181,6 +185,7 @@ namespace CureLogix.WebUI.Controllers
 
 
         // 6. SİLME İŞLEMİ (Mevcut Kodun)
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         [AuditLog("İlaç Kaydı Silindi")]
         public IActionResult Delete(int id)

@@ -4,6 +4,7 @@ using CureLogix.Business.ValidationRules;
 using CureLogix.Entity.Concrete;
 using CureLogix.Entity.DTOs.DiseaseDTOs;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CureLogix.WebUI.Controllers
@@ -27,12 +28,14 @@ namespace CureLogix.WebUI.Controllers
         }
 
         // --- EKLEME (ADD) ---
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Add()
         {
             return View();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Add(DiseaseAddDto p)
         {
@@ -56,6 +59,7 @@ namespace CureLogix.WebUI.Controllers
         }
 
         // Hastalık güncelleme bilgilerini(formunu) getir
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Update(int id)
         {
@@ -68,6 +72,7 @@ namespace CureLogix.WebUI.Controllers
         }
 
         // Hastalık güncelleme verilerini sisteme gönder(kaydet)
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Update(DiseaseUpdateDto p)
         {
@@ -103,6 +108,7 @@ namespace CureLogix.WebUI.Controllers
         }
 
         // --- SİLME (DELETE) ---
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Delete(int id)
         {

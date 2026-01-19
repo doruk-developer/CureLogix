@@ -9,8 +9,12 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6"><h1>🦠 Salgın & Hastalık Yönetimi</h1></div>
+
             <div class="col-sm-6 text-right">
-                <a href="/Disease/Add" class="btn btn-danger"><i class="fas fa-biohazard"></i> Yeni Hastalık Tanımla</a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a href="/Disease/Add" class="btn btn-danger"><i class="fas fa-biohazard"></i> Yeni Hastalık Tanımla</a>
+                }
             </div>
         </div>
     </div>
@@ -20,13 +24,18 @@
     <div class="container-fluid">
         <div class="card card-danger card-outline">
             <div class="card-body table-responsive p-0">
-                <table class="table table-hover">
+                <table class="table table-hover w-100">
                     <thead>
                         <tr>
                             <th>ICD Kodu</th>
                             <th>Hastalık Adı</th>
                             <th>Risk Seviyesi</th>
-                            <th>İşlemler</th>
+
+                            @* DİNAMİK KOLON *@
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <th>İşlemler</th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
@@ -36,38 +45,32 @@
                                 <td><span class="badge badge-secondary">@item.Code</span></td>
                                 <td>@item.Name</td>
                                 <td>
-                                    <!-- Risk Seviyesine Göre Renklendirme -->
                                     @if (item.RiskLevel == "Pandemik" || item.RiskLevel == "Kritik")
                                     {
                                         <span class="badge badge-danger">@item.RiskLevel</span>
                                     }
                                     else if (item.RiskLevel == "Yüksek" || item.RiskLevel == "Orta")
                                     {
+
                                         <span class="badge badge-warning">@item.RiskLevel</span>
                                     }
                                     else
                                     {
+
                                         <span class="badge badge-success">@item.RiskLevel</span>
                                     }
                                 </td>
 
-                                <!--Düzenle ve Sil Butonu-->
-                                <td>
-                                    <div class="d-flex gap-2">
-                                        <!-- Düzenle Butonu -->
-                                        <a href="/Disease/Update/@item.Id" class="btn btn-sm btn-outline-info">
-                                            <i class="fas fa-pencil-alt"></i> Düzenle
-                                        </a>
-
-                                        <!-- Sil Butonu -->
-                                        <a href="/Disease/Delete/@item.Id"
-                                           class="btn btn-sm btn-outline-danger"
-                                           onclick="return confirm('@item.Name kaydını silmek istediğinize emin misiniz?');">
-                                            <i class="fas fa-trash"></i> Sil
-                                        </a>
-                                    </div>
-                                </td>
-
+                                @* DİNAMİK HÜCRE *@
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <a href="/Disease/Update/@item.Id" class="btn btn-sm btn-outline-info"><i class="fas fa-pencil-alt"></i> Düzenle</a>
+                                            <a href="/Disease/Delete/@item.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('@item.Name kaydını silmek istediğinize emin misiniz?');"><i class="fas fa-trash"></i> Sil</a>
+                                        </div>
+                                    </td>
+                                }
                             </tr>
                         }
                     </tbody>

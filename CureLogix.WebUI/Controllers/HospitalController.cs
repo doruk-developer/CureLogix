@@ -4,6 +4,7 @@ using CureLogix.Business.ValidationRules; // Validator sınıfımız için
 using CureLogix.Entity.Concrete;          // Hospital entity'si için
 using CureLogix.Entity.DTOs.HospitalDTOs;
 using FluentValidation.Results; // ValidationResult için gerekli
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -35,6 +36,7 @@ namespace CureLogix.WebUI.Controllers
         // ... Constructor ve Index Metodu aynen kalıyor ...
 
         // 1. SAYFAYI GETİRME (GET)
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Add()
         {
@@ -42,6 +44,7 @@ namespace CureLogix.WebUI.Controllers
         }
 
         // 2. VERİYİ KAYDETME (POST)
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Add(HospitalAddDto p)
         {
@@ -78,6 +81,7 @@ namespace CureLogix.WebUI.Controllers
         }
 
         // 1. Hastane Güncelleme Sayfasını Getir (GET)
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Update(int id)
         {
@@ -90,6 +94,7 @@ namespace CureLogix.WebUI.Controllers
         }
 
         // 2. Hastane Güncelleme İşlemini Kaydet (POST)
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Update(HospitalUpdateDto p)
         {
@@ -113,6 +118,7 @@ namespace CureLogix.WebUI.Controllers
         }
 
         // Hastane Silme İşlemi
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Delete(int id)
         {
