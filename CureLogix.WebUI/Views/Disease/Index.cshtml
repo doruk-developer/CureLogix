@@ -1,6 +1,5 @@
 ﻿@using CureLogix.Entity.DTOs.DiseaseDTOs
 @model List<DiseaseListDto>
-
 @{
     ViewData["Title"] = "Hastalık Tanımları";
 }
@@ -9,17 +8,17 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6"><h1>🦠 Salgın & Hastalık Yönetimi</h1></div>
-
             <div class="col-sm-6 text-right">
                 @if (User.IsInRole("Admin"))
                 {
-                    <a href="/Disease/Add" class="btn btn-danger"><i class="fas fa-biohazard"></i> Yeni Hastalık Tanımla</a>
+                    <a href="/Disease/Add" class="btn btn-danger btn-sm shadow-sm"><i class="fas fa-biohazard"></i> Yeni Hastalık Tanımla</a>
                 }
             </div>
         </div>
     </div>
 </div>
 
+<!--Tablo Bloğu-->
 <section class="content">
     <div class="container-fluid">
         <div class="card card-danger card-outline">
@@ -30,8 +29,6 @@
                             <th>ICD Kodu</th>
                             <th>Hastalık Adı</th>
                             <th>Risk Seviyesi</th>
-
-                            @* DİNAMİK KOLON *@
                             @if (User.IsInRole("Admin"))
                             {
                                 <th>İşlemler</th>
@@ -39,38 +36,49 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
+                        @if (Model != null && Model.Count > 0)
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td><span class="badge badge-secondary">@item.Code</span></td>
+                                    <td>@item.Name</td>
+                                    <td>
+                                        @if (item.RiskLevel == "Pandemik" || item.RiskLevel == "Kritik")
+                                        {
+                                            <span class="badge badge-danger">@item.RiskLevel</span>
+                                        }
+                                        else if (item.RiskLevel == "Yüksek" || item.RiskLevel == "Orta")
+                                        {
+
+                                            <span class="badge badge-warning">@item.RiskLevel</span>
+                                        }
+                                        else
+                                        {
+
+                                            <span class="badge badge-success">@item.RiskLevel</span>
+                                        }
+                                    </td>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a href="/Disease/Update/@item.Id" class="btn btn-sm btn-outline-info"><i class="fas fa-pencil-alt"></i> Düzenle</a>
+                                                <a href="/Disease/Delete/@item.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('Silinsin mi?');"><i class="fas fa-trash"></i> Sil</a>
+                                            </div>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        }
+                        else
                         {
                             <tr>
-                                <td><span class="badge badge-secondary">@item.Code</span></td>
-                                <td>@item.Name</td>
-                                <td>
-                                    @if (item.RiskLevel == "Pandemik" || item.RiskLevel == "Kritik")
-                                    {
-                                        <span class="badge badge-danger">@item.RiskLevel</span>
-                                    }
-                                    else if (item.RiskLevel == "Yüksek" || item.RiskLevel == "Orta")
-                                    {
-
-                                        <span class="badge badge-warning">@item.RiskLevel</span>
-                                    }
-                                    else
-                                    {
-
-                                        <span class="badge badge-success">@item.RiskLevel</span>
-                                    }
+                                <td colspan="@(User.IsInRole("Admin") ? 4 : 3)" class="text-center py-5">
+                                    <i class="fas fa-virus-slash fa-4x text-muted mb-3 opacity-25"></i>
+                                    <h5 class="text-muted">Tanımlı Hastalık Yok</h5>
+                                    <p class="small text-secondary">Salgın yönetimi için önce hastalık tiplerini sisteme tanıtmalısınız.</p>
                                 </td>
-
-                                @* DİNAMİK HÜCRE *@
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <td>
-                                        <div class="d-flex gap-2">
-                                            <a href="/Disease/Update/@item.Id" class="btn btn-sm btn-outline-info"><i class="fas fa-pencil-alt"></i> Düzenle</a>
-                                            <a href="/Disease/Delete/@item.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('@item.Name kaydını silmek istediğinize emin misiniz?');"><i class="fas fa-trash"></i> Sil</a>
-                                        </div>
-                                    </td>
-                                }
                             </tr>
                         }
                     </tbody>

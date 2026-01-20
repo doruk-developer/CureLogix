@@ -21,6 +21,8 @@
     </div>
 </div>
 
+
+<!--Tablo Bloğu-->
 <section class="content">
     <div class="container-fluid">
         <div class="card card-info card-outline">
@@ -32,11 +34,9 @@
                             <th>Branş</th>
                             <th>Hastane</th>
                             <th>Yetki / Rol</th>
-
-                            @* DİNAMİK KOLON *@
                             @if (User.IsInRole("Admin"))
                             {
-                                <th>İşlemler</th>
+                                <th>İşlem</th>
                             }
                         </tr>
                     </thead>
@@ -48,19 +48,18 @@
                                 <tr>
                                     <td>
                                         <strong>@item.FullName</strong><br />
-                                        <small class="text-muted">@item.Title</small>
+                                        <small class="text-muted text-uppercase">@item.Title</small>
                                     </td>
                                     <td>@item.Specialty</td>
                                     <td>
                                         @if (!string.IsNullOrEmpty(item.HospitalName))
                                         {
-                                            <i class="fas fa-hospital text-muted"></i> 
+                                            <i class="fas fa-hospital text-muted mr-1"></i> 
                                             @item.HospitalName
                                         }
                                         else
                                         {
-
-                                            <span class="text-muted">- Bağımsız -</span>
+                                            <span class="text-muted italic">- Bağımsız -</span>
                                         }
                                     </td>
                                     <td>
@@ -69,32 +68,30 @@
                                         }
                                         @if (role == RoleTypeEnum.KonseyUyesi)
                                         {
-                                            <span class="badge bg-purple">⚖️ Konsey Üyesi</span>
+                                            <span class="badge bg-purple shadow-sm">⚖️ Konsey Üyesi</span>
                                         }
                                         else if (role == RoleTypeEnum.Bashekim)
                                         {
 
-                                            <span class="badge badge-danger">👑 Başhekim</span>
+                                            <span class="badge badge-danger shadow-sm">👑 Başhekim</span>
                                         }
                                         else if (role == RoleTypeEnum.BakanlikYetkilisi)
                                         {
 
-                                            <span class="badge badge-dark">🏛️ Bakanlık</span>
+                                            <span class="badge badge-dark shadow-sm">🏛️ Bakanlık</span>
                                         }
                                         else
                                         {
 
-                                            <span class="badge badge-success">🩺 Saha Doktoru</span>
+                                            <span class="badge badge-success shadow-sm">🩺 Saha Doktoru</span>
                                         }
                                     </td>
-
-                                    @* DİNAMİK HÜCRE *@
                                     @if (User.IsInRole("Admin"))
                                     {
                                         <td>
                                             <div class="d-flex gap-2">
-                                                <a href="/Doctor/Update/@item.Id" class="btn btn-sm btn-outline-info"><i class="fas fa-pencil-alt"></i> Düzenle</a>
-                                                <a href="/Doctor/Delete/@item.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('@item.FullName kaydını silmek istediğinize emin misiniz?');"><i class="fas fa-trash"></i> Sil</a>
+                                                <a href="/Doctor/Update/@item.Id" class="btn btn-sm btn-outline-info" title="Düzenle"><i class="fas fa-pencil-alt"></i> Düzenle</a>
+                                                <a href="/Doctor/Delete/@item.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bu doktor kaydını silmek istediğinize emin misiniz?');" title="Sil"><i class="fas fa-trash"></i> Sil</a>
                                             </div>
                                         </td>
                                     }
@@ -103,7 +100,22 @@
                         }
                         else
                         {
-                            <tr><td colspan="@(User.IsInRole("Admin") ? 5 : 4)" class="text-center">Kayıtlı doktor bulunamadı.</td></tr>
+                            <!-- ✅ BOŞ DURUM (EMPTY STATE) - Burası müşteriyi etkileyecek kısım -->
+                            <tr>
+                                <td colspan="@(User.IsInRole("Admin") ? 5 : 4)" class="text-center py-5">
+                                    <div class="p-4">
+                                        <i class="fas fa-user-md fa-4x text-muted mb-3 opacity-25" style="filter: grayscale(1);"></i>
+                                        <h5 class="text-muted font-weight-bold">Sistemde Kayıtlı Doktor Bulunamadı</h5>
+                                        <p class="text-secondary small">Personel hiyerarşisini yönetmek ve yetkilendirme yapmak için lütfen doktor ekleyin.</p>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <a href="/Doctor/Add" class="btn btn-info btn-sm mt-2">
+                                                <i class="fas fa-plus"></i> Hemen İlk Kaydı Oluştur
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
                         }
                     </tbody>
                 </table>

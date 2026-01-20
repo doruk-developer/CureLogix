@@ -28,18 +28,16 @@
         <div class="card card-primary card-outline">
             <div class="card-header">
                 <h3 class="card-title">Kayıtlı Sağlık Kurumları</h3>
-
                 <div class="card-tools">
                     @if (User.IsInRole("Admin"))
                     {
-                        <a href="/Hospital/Add" class="btn btn-primary btn-sm">
+                        <a href="/Hospital/Add" class="btn btn-primary btn-sm shadow-sm">
                             <i class="fas fa-plus"></i> Yeni Hastane Ekle
                         </a>
                     }
                 </div>
-
             </div>
-            <!-- /.card-header -->
+
             <div class="card-body table-responsive p-0">
                 <table class="table table-hover text-nowrap w-100">
                     <thead>
@@ -48,8 +46,6 @@
                             <th>Hastane Adı</th>
                             <th>Şehir</th>
                             <th>Depo Kapasitesi</th>
-
-                            @* DİNAMİK KOLON: SADECE ADMIN GÖRÜR *@
                             @if (User.IsInRole("Admin"))
                             {
                                 <th style="width: 15%">İşlemler</th>
@@ -57,31 +53,43 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
+                        @if (Model != null && Model.Count > 0)
                         {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Id</td>
+                                    <td><span class="font-weight-bold">@item.Name</span></td>
+                                    <td><span class="badge badge-info">@item.City</span></td>
+                                    <td>@item.MainStorageCapacity <small>birim</small></td>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a href="/Hospital/Update/@item.Id" class="btn btn-sm btn-outline-info"><i class="fas fa-pencil-alt"></i> Düzenle</a>
+                                                <a href="/Hospital/Delete/@item.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('Silinsin mi?');"><i class="fas fa-trash"></i> Sil</a>
+                                            </div>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <!-- ✅ PROFESYONEL BOŞ SATIR (EMPTY STATE ROW) -->
                             <tr>
-                                <td>@item.Id</td>
-                                <td><span class="font-weight-bold">@item.Name</span></td>
-                                <td><span class="badge badge-info">@item.City</span></td>
-                                <td>@item.MainStorageCapacity <small>birim</small></td>
-
-                                @* DİNAMİK HÜCRE: SADECE ADMIN GÖRÜR *@
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <td>
-                                        <div class="d-flex gap-2">
-                                            <a href="/Hospital/Update/@item.Id" class="btn btn-sm btn-outline-info">Düzenle</a>
-                                            <a href="/Hospital/Delete/@item.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('@item.Name hastanesini silmek istediğinize emin misiniz?');">Sil</a>
-                                        </div>
-                                    </td>
-                                }
+                                <td colspan="@(User.IsInRole("Admin") ? 5 : 4)" class="text-center py-5">
+                                    <div class="empty-state">
+                                        <i class="fas fa-hospital-alt fa-4x text-muted mb-3 opacity-25"></i>
+                                        <h5 class="text-muted">Kayıtlı Hastane Bulunamadı</h5>
+                                        <p class="small text-secondary">Lojistik verilerini takip etmek için lütfen yeni bir hastane kaydı ekleyin.</p>
+                                    </div>
+                                </td>
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
-            <!-- /.card-body -->
         </div>
-        <!-- /.card -->
     </div>
 </section>
