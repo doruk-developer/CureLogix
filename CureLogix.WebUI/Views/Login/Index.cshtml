@@ -9,58 +9,303 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>CureLogix | Güvenli Giriş</title>
 
-    <!-- OFFLINE CSS (Local) -->
-    <!-- Sistem Fontu -->
+    <!-- Favicon Referansı -->
+    <link rel="icon" type="image/png" href="~/favicon.png">
+
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
         }
     </style>
-
-    <!-- FontAwesome (Yerel) -->
-    <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css">
-
-    <!-- AdminLTE (Yerel) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="~/theme/css/adminlte.min.css">
+
+    <style>
+        /* --- 1. MODERN ARKA PLAN --- */
+        body {
+            background: radial-gradient(circle at 10% 20%, rgb(30, 41, 59) 0%, rgb(15, 23, 42) 90%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ARKA PLAN FİLİGRANI */
+        .bg-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-size: 80vh;
+            color: rgba(255, 255, 255, 0.03);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* --- 2. GLASS CARD --- */
+        .login-box {
+            width: 400px;
+            z-index: 1;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideUp 0.8s ease-out;
+        }
+
+        /* LOGO */
+        .medical-icon-container {
+            text-align: center;
+            margin-bottom: 5px;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .medical-icon {
+            font-size: 55px;
+            background: -webkit-linear-gradient(45deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.5));
+        }
+
+        .login-logo a {
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #fff !important;
+        }
+
+        .brand-highlight {
+            color: #38bdf8;
+        }
+
+        /* INPUTS */
+        .input-group {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            border: 1px solid transparent;
+            overflow: hidden;
+            transition: all 0.3s;
+            align-items: stretch;
+        }
+
+            .input-group:focus-within {
+                box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.3);
+                border-color: #38bdf8;
+            }
+
+        .form-control {
+            border: none;
+            height: 55px;
+            padding-left: 20px;
+            font-size: 16px;
+            background: transparent;
+        }
+
+            .form-control:focus {
+                box-shadow: none;
+            }
+
+        .input-group-text {
+            border: none;
+            background: transparent;
+            padding-right: 20px;
+            padding-left: 15px;
+            color: #64748b;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            user-select: none;
+        }
+
+        .clickable-icon:hover {
+            color: #38bdf8;
+            cursor: pointer;
+        }
+
+        /* BUTTON */
+        .btn-primary {
+            height: 50px;
+            border-radius: 12px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #38bdf8, #3b82f6);
+            border: none;
+            color: #0f172a;
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.5);
+            transition: all 0.2s;
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 15px 30px -5px rgba(59, 130, 246, 0.6);
+                color: #0f172a;
+            }
+
+            .btn-primary:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+        .login-box-msg {
+            color: rgba(255,255,255,0.7) !important;
+            letter-spacing: 1px;
+        }
+
+        .footer-text {
+            color: rgba(255,255,255,0.4);
+            font-size: 12px;
+        }
+
+        @@keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
-<body class="hold-transition login-page" style="background-color: #e9ecef;">
+<body>
+
+    <i class="fa-solid fa-staff-snake bg-watermark"></i>
 
     <div class="login-box">
-        <div class="login-logo">
-            <a href="#"><b>Cure</b>Logix</a>
-        </div>
+        <div class="card">
+            <div class="card-body login-card-body" style="background: transparent; padding: 40px;">
 
-        <div class="card card-outline card-primary">
-            <div class="card-header text-center">
-                <span class="h5">Sağlık Lojistik Yönetimi</span>
-            </div>
-            <div class="card-body login-card-body">
-                <p class="login-box-msg">Oturum açmak için kimliğinizi doğrulayın</p>
+                <div class="medical-icon-container">
+                    <i class="fa-solid fa-staff-snake medical-icon"></i>
+                </div>
 
-                <form method="post">
+                <div class="login-logo mb-1">
+                    <a href="#"><b>Cure</b><span class="brand-highlight">Logix</span></a>
+                </div>
+                <p class="text-center login-box-msg mb-4 small">SAĞLIK LOJİSTİK YÖNETİM SİSTEMİ</p>
+
+                <form method="post" id="loginForm">
                     <div class="input-group mb-3">
-                        <input type="text" name="username" class="form-control" placeholder="Kullanıcı Adı" required>
-                        <div class="input-group-append"><div class="input-group-text"><span class="fas fa-user"></span></div></div>
-                    </div>
-                    <div class="input-group mb-3">
-                        <input type="password" name="password" class="form-control" placeholder="Şifre" required>
-                        <div class="input-group-append"><div class="input-group-text"><span class="fas fa-lock"></span></div></div>
+                        <input type="text" name="username" class="form-control" placeholder="Kullanıcı Adı" required autocomplete="off">
+                        <div class="input-group-append">
+                            <div class="input-group-text static-icon"><span class="fas fa-user"></span></div>
+                        </div>
                     </div>
 
-                    @if (ViewBag.Error != null)
-                    {
-                        <div class="alert alert-danger small p-2"><i class="fas fa-exclamation-circle"></i> @ViewBag.Error</div>
-                    }
+                    <div class="input-group mb-4">
+                        <input type="password" name="password" class="form-control" id="passwordInput" placeholder="Şifre" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text clickable-icon" id="togglePassword"><span class="fas fa-eye"></span></div>
+                        </div>
+                    </div>
+
+                    <!-- Alert Kutusu Kaldırıldı, yerine Toast Mesajı gelecek -->
 
                     <div class="row">
-                        <div class="col-12"><button type="submit" class="btn btn-primary btn-block">Giriş Yap</button></div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-block" id="btnLogin">
+                                <span id="btnText">GÜVENLİ GİRİŞ YAP</span>
+                                <i class="fas fa-arrow-right ml-2" id="btnIcon"></i>
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
-            <div class="card-footer text-center pt-1 pb-1">
-                <small class="text-muted">CureLogix v1.0 &copy; @DateTime.Now.Year</small>
+
+            <div class="card-footer text-center pt-3 pb-3" style="background: rgba(255,255,255,0.03); border-top: 1px solid rgba(255,255,255,0.05);">
+                <small class="footer-text">Enterprise Health Solutions &copy; @DateTime.Now.Year</small>
             </div>
         </div>
     </div>
+
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 (Offline) -->
+    <script src="~/lib/sweetalert/sweetalert2.all.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+
+            // 1. Şifre Göster/Gizle
+            $("#togglePassword").click(function() {
+                var input = $("#passwordInput");
+                var icon = $(this).find("span");
+                icon.fadeOut(100, function() {
+                    if (input.attr("type") === "password") {
+                        input.attr("type", "text");
+                        $(this).removeClass("fa-eye").addClass("fa-eye-slash");
+                    } else {
+                        input.attr("type", "password");
+                        $(this).removeClass("fa-eye-slash").addClass("fa-eye");
+                    }
+                    $(this).fadeIn(100);
+                });
+            });
+
+            // 2. Loading Effect (Yükleniyor Animasyonu)
+            $("#loginForm").on("submit", function() {
+                var btn = $("#btnLogin");
+                var text = $("#btnText");
+                var icon = $("#btnIcon");
+
+                // Butonu pasif yap ve ikon değiştir
+                btn.prop("disabled", true);
+                text.text("KİMLİK DOĞRULANIYOR...");
+                icon.removeClass("fa-arrow-right").addClass("fa-circle-notch fa-spin"); // Dönen spinner
+            });
+        });
+
+        // 3. Hata Mesajı (Toast Notification)
+        // Razor'dan gelen veriyi JS'e enjekte ediyoruz
+    </script>
+
+    @if (ViewBag.Error != null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true,
+                    background: '#fff', // Beyaz zemin
+                    color: '#333',
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                });
+
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Giriş Başarısız!',
+                    text: '@Html.Raw(ViewBag.Error)' // Güvenli şekilde hata mesajını bas
+                });
+            });
+        </script>
+    }
+
 </body>
 </html>
