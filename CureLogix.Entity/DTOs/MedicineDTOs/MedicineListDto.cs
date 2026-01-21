@@ -3,10 +3,10 @@
     public class MedicineListDto
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string ActiveIngredient { get; set; } // Etken Madde
-        public string Unit { get; set; }             // Kutu/Şişe
-        public int? CriticalStockLevel { get; set; } // Kritik seviye uyarısı için lazım
-        public bool? RequiresColdChain { get; set; } // Kar tanesi ikonu için lazım ❄️
+        public string? Name { get; set; }
+        public string? ActiveIngredient { get; set; }
+        public string? Unit { get; set; }
+        public int? CriticalStockLevel { get; set; }
+        public bool? RequiresColdChain { get; set; }
     }
 }

@@ -178,6 +178,146 @@
             driverObj.drive();
         }
     </script>
+
+
+
+    <!-- 🚀 GLOBAL BİLDİRİM SİSTEMİ (ULTRA SMOOTH V3) -->
+    <style>
+        /* 1. AÇILIŞ: Yukarıdan Yumuşak İniş (CSS ile) */
+        @@keyframes slideInDownSmooth {
+            from
+
+        {
+            opacity: 0;
+            transform: translate3d(0, -20px, 0);
+        }
+
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+
+        }
+
+        .my-slide-in {
+            animation: slideInDownSmooth 0.6s ease-out forwards !important;
+        }
+
+        /* 2. Özel Progress Bar (Skala) */
+        .my-custom-progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background-color: rgba(0,0,0,0.2);
+            width: 100%;
+            z-index: 9999;
+            /* Köşeleri yuvarla ki taşmasın */
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* 3. SweetAlert Ayarları */
+        .swal2-popup.swal2-toast {
+            animation: none !important; /* SweetAlert'in kendi animasyonunu kapat */
+            padding-bottom: 15px !important; /* Bar için yer aç */
+            overflow: hidden !important;
+        }
+    </style>
+
+    <script>
+        $(function () {
+            var successMessage = '@TempData["Success"]';
+            var errorMessage = '@TempData["Error"]';
+            var infoMessage = '@TempData["Info"]';
+
+            if (!successMessage && !errorMessage && !infoMessage) return;
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+
+                // ⛔ OTOMATİK KAPATMAYI DEVRE DIŞI BIRAKIYORUZ
+                timer: null,
+                timerProgressBar: false,
+
+                // ✨ Açılış Animasyonu (CSS)
+                showClass: {
+                    popup: 'my-slide-in'
+                },
+                // ✨ Kapanış Animasyonu (Boş bırakıyoruz, jQuery ile yapacağız)
+                hideClass: {
+                    popup: ''
+                },
+
+                didOpen: (toast) => {
+                    // --- 1. PROGRESS BAR OLUŞTUR ---
+                    var $progressBar = $('<div class="my-custom-progress-bar"></div>');
+                    $(toast).append($progressBar);
+
+                    // --- 2. AYARLAR ---
+                    var waitTime = 4000;  // Ekranda kalma süresi
+                    var fadeTime = 1500;  // Kaybolma süresi (Yavaşça)
+
+                    // --- 3. BAR ANİMASYONU ---
+                    // Barı 4 saniyede %0 genişliğe indir
+                    $progressBar.animate({ width: '0%' }, waitTime, 'linear');
+
+                    // --- 4. KAPANIŞ ZAMANLAYICISI ---
+                    var closeTimer = setTimeout(function() {
+
+                        // 🔥 İŞTE ÇÖZÜM BURADA: .animate() KULLANIYORUZ 🔥
+                        // fadeOut yerine opacity ve margin'i zorla değiştiriyoruz.
+                        $(toast).animate({
+                            opacity: 0,
+                            marginTop: '-20px' // Hem silinsin hem yukarı kaysın
+                        }, fadeTime, function() {
+                            // Animasyon bittiğinde SweetAlert'i kapat
+                            Swal.close();
+                        });
+
+                    }, waitTime);
+
+                    // --- 5. MOUSE KONTROLÜ (DURDUR/DEVAM ET) ---
+                    $(toast).hover(
+                        function() { // Mouse Gelince
+                            clearTimeout(closeTimer); // Kapanmayı iptal et
+                            $progressBar.stop(true);  // Barı olduğu yerde dondur
+                            $(toast).stop(true).css('opacity', 1).css('margin-top', '0px'); // Soluklaşmayı durdur ve düzelt
+                        },
+                        function() { // Mouse Gidince
+                            // Kalan süreyi hesaplamakla uğraşmayalım, kullanıcı mouse'u çektiyse
+                            // 2 saniye bekleyip yavaşça kapatalım (UX açısından daha temiz)
+                            $progressBar.animate({ width: '0%' }, 2000);
+
+                            closeTimer = setTimeout(function() {
+                                $(toast).animate({
+                                    opacity: 0,
+                                    marginTop: '-20px'
+                                }, fadeTime, function() {
+                                    Swal.close();
+                                });
+                            }, 2000);
+                        }
+                    );
+                }
+            });
+
+            if (successMessage) {
+                Toast.fire({ icon: 'success', title: successMessage });
+            }
+            else if (errorMessage) {
+                Toast.fire({ icon: 'error', title: errorMessage });
+            }
+            else if (infoMessage) {
+                Toast.fire({ icon: 'info', title: infoMessage });
+            }
+        });
+    </script>
+
+
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

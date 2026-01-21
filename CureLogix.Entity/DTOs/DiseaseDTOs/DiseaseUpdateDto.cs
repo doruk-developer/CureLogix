@@ -2,10 +2,11 @@
 {
     public class DiseaseUpdateDto
     {
-        public int Id { get; set; } // Güncelleme için şart
-        public string Name { get; set; }
-        public string Code { get; set; }
-        public string Description { get; set; }
-        public string RiskLevel { get; set; }
+        public int Id { get; set; } // ID zorunludur.
+
+        public string? Name { get; set; }
+        public string? Code { get; set; }
+        public string? Description { get; set; }
+        public int? RiskLevel { get; set; }
     }
 }

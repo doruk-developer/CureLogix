@@ -3,8 +3,11 @@
     public class DiseaseListDto
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string Code { get; set; }      // Örn: U07.1
-        public string RiskLevel { get; set; } // Örn: Pandemik
+        public string? Name { get; set; }
+        public string? Code { get; set; }
+
+        // Listelerken Enum'ın adını (Örn: "Pandemik") yazdırıyorsan string kalabilir.
+        // Ama null gelirse patlamasın diye ? ekledik.
+        public string? RiskLevel { get; set; }
     }
 }

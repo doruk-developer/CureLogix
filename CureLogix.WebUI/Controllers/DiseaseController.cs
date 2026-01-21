@@ -27,7 +27,9 @@ namespace CureLogix.WebUI.Controllers
             return View(list);
         }
 
-        // --- EKLEME (ADD) ---
+        // ==========================================
+        // 1. EKLEME İŞLEMİ
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Add()
@@ -45,7 +47,15 @@ namespace CureLogix.WebUI.Controllers
             if (results.IsValid)
             {
                 var disease = _mapper.Map<Disease>(p);
+
+                // --- DÜZELTİLEN KISIM ---
+                // Entity string bekliyor, DTO'dan sayı geliyor.
+                // Önce null kontrolü yapıyoruz (?? 1), sonra String'e çeviriyoruz.
+                disease.RiskLevel = (p.RiskLevel ?? 1).ToString();
+
                 _diseaseService.TAdd(disease);
+
+                TempData["Success"] = "Yeni hastalık tanımı başarıyla yapıldı.";
                 return RedirectToAction("Index");
             }
             else
@@ -54,11 +64,14 @@ namespace CureLogix.WebUI.Controllers
                 {
                     ModelState.AddModelError(item.PropertyName, item.ErrorMessage);
                 }
+                TempData["Error"] = "Kayıt oluşturulamadı. Lütfen formu kontrol ediniz.";
             }
             return View(p);
         }
 
-        // Hastalık güncelleme bilgilerini(formunu) getir
+        // ==========================================
+        // 2. GÜNCELLEME İŞLEMİ
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Update(int id)
@@ -66,17 +79,14 @@ namespace CureLogix.WebUI.Controllers
             var value = _diseaseService.TGetById(id);
             if (value == null) return RedirectToAction("Index");
 
-            // Formu doldurmak için Entity -> DTO dönüşümü
             var updateDto = _mapper.Map<DiseaseUpdateDto>(value);
             return View(updateDto);
         }
 
-        // Hastalık güncelleme verilerini sisteme gönder(kaydet)
         [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Update(DiseaseUpdateDto p)
         {
-            // 1. Validasyon
             DiseaseUpdateValidator validator = new DiseaseUpdateValidator();
             ValidationResult results = validator.Validate(p);
 
@@ -86,28 +96,35 @@ namespace CureLogix.WebUI.Controllers
                 {
                     ModelState.AddModelError(item.PropertyName, item.ErrorMessage);
                 }
+                TempData["Error"] = "Güncelleme başarısız. Girdiğiniz bilgileri kontrol ediniz.";
                 return View(p);
             }
 
-            // 2. GÜVENLİ GÜNCELLEME (Fetch-Map-Save)
             var existingDisease = _diseaseService.TGetById(p.Id);
-
             if (existingDisease != null)
             {
-                // Manuel Eşleme (Hata riskini sıfırlar)
-                existingDisease.Name = p.Name;
-                existingDisease.Code = p.Code;
-                existingDisease.Description = p.Description;
-                existingDisease.RiskLevel = p.RiskLevel;
+                // GÜVENLİ MANUEL ATAMALAR (Null Coalescing ??)
+
+                existingDisease.Name = p.Name ?? string.Empty;
+                existingDisease.Code = p.Code ?? string.Empty;
+                existingDisease.Description = p.Description ?? string.Empty;
+
+                // --- DÜZELTİLEN KISIM ---
+                // Sayıyı String'e çevirerek atıyoruz.
+                existingDisease.RiskLevel = (p.RiskLevel ?? 1).ToString();
 
                 _diseaseService.TUpdate(existingDisease);
+
+                TempData["Success"] = "Hastalık bilgileri başarıyla güncellendi.";
                 return RedirectToAction("Index");
             }
 
             return NotFound();
         }
 
-        // --- SİLME (DELETE) ---
+        // ==========================================
+        // 3. SİLME İŞLEMİ
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Delete(int id)
@@ -116,6 +133,11 @@ namespace CureLogix.WebUI.Controllers
             if (value != null)
             {
                 _diseaseService.TDelete(value);
+                TempData["Success"] = "Hastalık kaydı başarıyla silindi.";
+            }
+            else
+            {
+                TempData["Error"] = "Silinecek kayıt bulunamadı.";
             }
             return RedirectToAction("Index");
         }

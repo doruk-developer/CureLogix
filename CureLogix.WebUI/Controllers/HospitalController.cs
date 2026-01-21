@@ -1,19 +1,18 @@
 ﻿using AutoMapper;
 using CureLogix.Business.Abstract;
-using CureLogix.Business.ValidationRules; // Validator sınıfımız için
-using CureLogix.Entity.Concrete;          // Hospital entity'si için
+using CureLogix.Business.ValidationRules;
+using CureLogix.Entity.Concrete;
 using CureLogix.Entity.DTOs.HospitalDTOs;
-using FluentValidation.Results; // ValidationResult için gerekli
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 
 namespace CureLogix.WebUI.Controllers
 {
     public class HospitalController : Controller
     {
         private readonly IHospitalService _hospitalService;
-        private readonly IMapper _mapper; // AutoMapper Servisi
+        private readonly IMapper _mapper;
 
         public HospitalController(IHospitalService hospitalService, IMapper mapper)
         {
@@ -23,19 +22,14 @@ namespace CureLogix.WebUI.Controllers
 
         public IActionResult Index()
         {
-            // 1. Veritabanından HAM veriyi çek (Entity Listesi)
             var values = _hospitalService.TGetList();
-
-            // 2. AutoMapper ile DTO Listesine çevir (Tek satır!)
             var hospitalList = _mapper.Map<List<HospitalListDto>>(values);
-
-            // 3. Ekrana DTO gönder
             return View(hospitalList);
         }
 
-        // ... Constructor ve Index Metodu aynen kalıyor ...
-
-        // 1. SAYFAYI GETİRME (GET)
+        // ==========================================
+        // 1. EKLEME İŞLEMİ
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Add()
@@ -43,44 +37,46 @@ namespace CureLogix.WebUI.Controllers
             return View();
         }
 
-        // 2. VERİYİ KAYDETME (POST)
         [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Add(HospitalAddDto p)
         {
-            // Validasyon Kontrolü
             HospitalValidator validator = new HospitalValidator();
             ValidationResult results = validator.Validate(p);
 
             if (results.IsValid)
             {
-                // 1. Validasyondan geçtiyse DTO'yu Entity'e çevir
                 var hospitalEntity = _mapper.Map<Hospital>(p);
 
-                // 2. Varsayılan değerleri ata (örn: Doluluk oranı başta 0'dır)
+                // GÜVENLİ ATAMALAR:
+                // DTO'dan null gelse bile varsayılan değerler atıyoruz.
+                hospitalEntity.MainStorageCapacity = p.MainStorageCapacity ?? 0;
+                hospitalEntity.WasteStorageCapacity = p.WasteStorageCapacity ?? 0;
+
+                // Yeni hastane boş ve aktif başlar
                 hospitalEntity.OccupancyRate = 0;
                 hospitalEntity.IsActive = true;
 
-                // 3. Veritabanına kaydet
                 _hospitalService.TAdd(hospitalEntity);
 
-                // 4. Listeye geri dön
+                TempData["Success"] = "Yeni hastane başarıyla sisteme tanımlandı.";
                 return RedirectToAction("Index");
             }
             else
             {
-                // Hata varsa hataları ekrana bas
                 foreach (var item in results.Errors)
                 {
                     ModelState.AddModelError(item.PropertyName, item.ErrorMessage);
                 }
+                TempData["Error"] = "Kayıt başarısız. Lütfen formdaki hataları gideriniz.";
             }
 
-            // Hata varsa sayfayı tekrar göster (kullanıcı girdiği verileri kaybetmesin)
             return View(p);
         }
 
-        // 1. Hastane Güncelleme Sayfasını Getir (GET)
+        // ==========================================
+        // 2. GÜNCELLEME İŞLEMİ
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Update(int id)
@@ -88,12 +84,10 @@ namespace CureLogix.WebUI.Controllers
             var value = _hospitalService.TGetById(id);
             if (value == null) return RedirectToAction("Index");
 
-            // Entity'den UpdateDto'ya çevir
             var updateDto = _mapper.Map<HospitalUpdateDto>(value);
             return View(updateDto);
         }
 
-        // 2. Hastane Güncelleme İşlemini Kaydet (POST)
         [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Update(HospitalUpdateDto p)
@@ -101,38 +95,55 @@ namespace CureLogix.WebUI.Controllers
             HospitalUpdateValidator validator = new HospitalUpdateValidator();
             ValidationResult results = validator.Validate(p);
 
-            if (results.IsValid)
-            {
-                var hospital = _mapper.Map<Hospital>(p);
-                _hospitalService.TUpdate(hospital);
-                return RedirectToAction("Index");
-            }
-            else
+            if (!results.IsValid)
             {
                 foreach (var item in results.Errors)
                 {
                     ModelState.AddModelError(item.PropertyName, item.ErrorMessage);
                 }
+                TempData["Error"] = "Güncelleme sırasında hata oluştu. Bilgileri kontrol ediniz.";
+                return View(p);
             }
-            return View(p);
+
+            var existingHospital = _hospitalService.TGetById(p.Id);
+            if (existingHospital != null)
+            {
+                // --- GÜVENLİ MANUEL ATAMALAR (Null Gelirse Yedek Değer Kullan) ---
+
+                existingHospital.Name = p.Name ?? string.Empty;
+                existingHospital.City = p.City ?? string.Empty;
+
+                // Sayısal değerler null ise 0 yap
+                existingHospital.MainStorageCapacity = p.MainStorageCapacity ?? 0;
+                existingHospital.WasteStorageCapacity = p.WasteStorageCapacity ?? 0;
+                existingHospital.OccupancyRate = p.OccupancyRate ?? 0;
+
+                // Boolean null ise false yap (veya varsayılan true)
+                existingHospital.IsActive = p.IsActive ?? false;
+
+                _hospitalService.TUpdate(existingHospital);
+
+                TempData["Success"] = "Hastane bilgileri başarıyla güncellendi.";
+                return RedirectToAction("Index");
+            }
+
+            return NotFound();
         }
 
-        // Hastane Silme İşlemi
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Delete(int id)
         {
-            // 1. Silinecek kaydı bul
             var value = _hospitalService.TGetById(id);
-
-            // 2. Kayıt varsa sil
             if (value != null)
             {
-                // (İleride buraya "Bu hastanede doktor var mı?" kontrolü eklenebilir)
                 _hospitalService.TDelete(value);
+                TempData["Success"] = "Hastane kaydı sistemden başarıyla silindi.";
             }
-
-            // 3. Listeye geri dön
+            else
+            {
+                TempData["Error"] = "Silinecek kayıt bulunamadı.";
+            }
             return RedirectToAction("Index");
         }
     }

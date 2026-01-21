@@ -32,7 +32,9 @@ namespace CureLogix.WebUI.Controllers
             return View(list);
         }
 
-        // --- EKLEME İŞLEMLERİ ---
+        // ==========================================
+        // 1. EKLEME İŞLEMİ (ADD)
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Add()
@@ -53,21 +55,31 @@ namespace CureLogix.WebUI.Controllers
             {
                 var doctor = _mapper.Map<Doctor>(model.Data);
                 _doctorService.TAdd(doctor);
+
+                // ✅ BAŞARILI MESAJI
+                TempData["Success"] = "Yeni personel kaydı başarıyla oluşturuldu.";
                 return RedirectToAction("Index");
             }
             else
             {
+                // Hataları Model'e ekle
                 foreach (var item in results.Errors)
                 {
                     ModelState.AddModelError($"Data.{item.PropertyName}", item.ErrorMessage);
                 }
+
+                // ❌ HATA MESAJI
+                TempData["Error"] = "Kayıt eklenemedi. Lütfen formdaki eksik alanları doldurunuz.";
             }
 
+            // Hata durumunda Dropdownları tekrar doldur ki sayfa bozulmasın
             FillDropdowns(model);
             return View(model);
         }
 
-        // --- GÜNCELLEME İŞLEMLERİ ---
+        // ==========================================
+        // 2. GÜNCELLEME İŞLEMİ (UPDATE)
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Update(int id)
@@ -75,10 +87,7 @@ namespace CureLogix.WebUI.Controllers
             var entity = _doctorService.TGetById(id);
             if (entity == null) return RedirectToAction("Index");
 
-            // Entity -> DTO Dönüşümü
-            // Burada RoleType int olarak geldiği için sorun yok.
             var updateDto = _mapper.Map<DoctorUpdateDto>(entity);
-
             var model = new DoctorUpdateViewModel
             {
                 Data = updateDto
@@ -92,7 +101,6 @@ namespace CureLogix.WebUI.Controllers
         [HttpPost]
         public IActionResult Update(DoctorUpdateViewModel model)
         {
-            // 1. Validasyon
             DoctorUpdateValidator validator = new DoctorUpdateValidator();
             ValidationResult results = validator.Validate(model.Data);
 
@@ -103,53 +111,43 @@ namespace CureLogix.WebUI.Controllers
                     ModelState.AddModelError($"Data.{item.PropertyName}", item.ErrorMessage);
                 }
 
-                // Hata varsa dropdownları yeniden doldur
+                TempData["Error"] = "Güncelleme başarısız. Lütfen bilgileri kontrol ediniz.";
+
                 FillDropdownsForUpdate(model);
                 return View(model);
             }
 
-            // 2. İşlem Başarılıysa Kaydet
             var existingDoctor = _doctorService.TGetById(model.Data.Id);
 
             if (existingDoctor != null)
             {
-                // Manuel Eşleştirme (En Güvenlisi)
-                existingDoctor.FullName = model.Data.FullName;
-                existingDoctor.Title = model.Data.Title;
-                existingDoctor.Specialty = model.Data.Specialty;
+                // GÜVENLİ ATAMALAR (Null Gelirse Boş String veya 0 Ata)
 
-                // KRİTİK: RoleType burada doğru geliyor çünkü Validasyon geçti
-                existingDoctor.RoleType = model.Data.RoleType;
+                existingDoctor.FullName = model.Data.FullName ?? string.Empty;
+                existingDoctor.Title = model.Data.Title ?? string.Empty;
+                existingDoctor.Specialty = model.Data.Specialty ?? string.Empty;
+
+                // Sayı null ise 0 yap
+                existingDoctor.RoleType = model.Data.RoleType ?? 0;
 
                 existingDoctor.HospitalId = model.Data.HospitalId;
-                existingDoctor.Email = model.Data.Email;
+
+                // --- DÜZELTİLEN SON SATIR ---
+                // Email null ise veritabanına boş metin ("") kaydet.
+                existingDoctor.Email = model.Data.Email ?? string.Empty;
 
                 _doctorService.TUpdate(existingDoctor);
+
+                TempData["Success"] = "Personel bilgileri başarıyla güncellendi.";
                 return RedirectToAction("Index");
             }
 
             return NotFound();
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpGet]
-        public IActionResult Delete(int id)
-        {
-            // 1. Silinecek kaydı bul
-            var value = _doctorService.TGetById(id);
-
-            // 2. Kayıt varsa sil
-            if (value != null)
-            {
-                _doctorService.TDelete(value);
-            }
-
-            // 3. Listeye geri dön
-            return RedirectToAction("Index");
-        }
-
-
-        // --- YARDIMCI METOTLAR ---
+        // ==========================================
+        // YARDIMCI METOTLAR
+        // ==========================================
 
         private void FillDropdowns(DoctorAddViewModel model)
         {
@@ -161,10 +159,8 @@ namespace CureLogix.WebUI.Controllers
                 .Select(r => new SelectListItem { Text = r.ToString(), Value = ((int)r).ToString() }).ToList();
         }
 
-        // GÜNCELLEME İÇİN DROPDOWN DOLDURMA
         private void FillDropdownsForUpdate(DoctorUpdateViewModel model)
         {
-            // 1. Hastaneleri Getir
             model.HospitalList = _hospitalService.TGetList()
                 .Select(x => new SelectListItem
                 {
@@ -172,8 +168,6 @@ namespace CureLogix.WebUI.Controllers
                     Value = x.Id.ToString()
                 }).ToList();
 
-            // 2. Rolleri (Enum) MANUEL ve GARANTİ Yöntemle Getir
-            // Reflection kullanmadan, tek tek ekliyoruz ki "Value" kesinlikle sayı olsun.
             model.RoleList = new List<SelectListItem>
             {
                 new SelectListItem { Text = "Saha Doktoru", Value = "1" },

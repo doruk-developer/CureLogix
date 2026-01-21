@@ -21,13 +21,14 @@ namespace CureLogix.WebUI.Controllers
             _mapper = mapper;
         }
 
-        // 1. INDEX: Sadece sayfayı yükler (Veriyi AJAX çekecek)
         public IActionResult Index()
         {
             return View();
         }
 
-        // 2. SERVER-SIDE MOTORU (Yeni Eklenen Kısım)
+        // ==========================================
+        // 1. SERVER-SIDE DATATABLES (AJAX MOTORU)
+        // ==========================================
         [HttpPost]
         public IActionResult GetAllMedicinesAjax()
         {
@@ -45,9 +46,7 @@ namespace CureLogix.WebUI.Controllers
                 int skip = start != null ? Convert.ToInt32(start) : 0;
                 int recordsTotal = 0;
 
-                // Sorguyu Hazırla (Henüz veritabanına gitmedi)
-                // DİKKAT: IMedicineService'de GetQuery() metodunun tanımlı olması lazım.
-                // Eğer hata verirse GenericRepository ve IGenericService'e GetQuery() eklediğinden emin ol.
+                // Sorguyu Hazırla
                 var query = _medicineService.GetQuery();
 
                 // A) FİLTRELEME
@@ -86,7 +85,7 @@ namespace CureLogix.WebUI.Controllers
                     query = query.OrderByDescending(x => x.Id);
                 }
 
-                // C) SAYFALAMA VE VERİYİ ÇEKME (SQL Burada Çalışır)
+                // C) SAYFALAMA VE VERİYİ ÇEKME
                 var data = query.Skip(skip).Take(pageSize).ToList();
 
                 // DTO'ya Çevir
@@ -101,7 +100,9 @@ namespace CureLogix.WebUI.Controllers
             }
         }
 
-        // 3. EKLEME İŞLEMİ (Mevcut Kodun)
+        // ==========================================
+        // 2. EKLEME İŞLEMİ (ADD)
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Add()
@@ -119,7 +120,17 @@ namespace CureLogix.WebUI.Controllers
             if (results.IsValid)
             {
                 var medicine = _mapper.Map<Medicine>(p);
+
+                // GÜVENLİ ATAMALAR (Null gelirse varsayılan değer ata)
+                // Bu sayede veritabanı "Not Null" hatası vermez.
+                medicine.ShelfLifeDays = p.ShelfLifeDays ?? 0;
+                medicine.CriticalStockLevel = p.CriticalStockLevel ?? 0;
+                medicine.RequiresColdChain = p.RequiresColdChain ?? false;
+
                 _medicineService.TAdd(medicine);
+
+                // ✅ BAŞARILI MESAJI
+                TempData["Success"] = "İlaç sisteme başarıyla kaydedildi.";
                 return RedirectToAction("Index");
             }
             else
@@ -128,12 +139,15 @@ namespace CureLogix.WebUI.Controllers
                 {
                     ModelState.AddModelError(item.PropertyName, item.ErrorMessage);
                 }
+                // ❌ HATA MESAJI
+                TempData["Error"] = "Kayıt başarısız. Lütfen bilgileri kontrol ediniz.";
             }
             return View(p);
         }
 
-
-        // 4. İlaç Güncelleme Bilgilerini(Formunu) Getir
+        // ==========================================
+        // 3. GÜNCELLEME İŞLEMİ (UPDATE)
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Update(int id)
@@ -145,12 +159,10 @@ namespace CureLogix.WebUI.Controllers
             return View(updateDto);
         }
 
-        // 5. İlaç Güncelleme bilgilerini Sisteme Gönder(Kaydet)
         [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Update(MedicineUpdateDto p)
         {
-            // 1. Validasyon
             MedicineUpdateValidator validator = new MedicineUpdateValidator();
             ValidationResult results = validator.Validate(p);
 
@@ -160,38 +172,55 @@ namespace CureLogix.WebUI.Controllers
                 {
                     ModelState.AddModelError(item.PropertyName, item.ErrorMessage);
                 }
+                // ❌ HATA MESAJI
+                TempData["Error"] = "Güncelleme sırasında hata oluştu. Formu kontrol ediniz.";
                 return View(p);
             }
 
-            // 2. GÜVENLİ GÜNCELLEME (Fetch-Map-Save)
             var existingMedicine = _medicineService.TGetById(p.Id);
-
             if (existingMedicine != null)
             {
-                existingMedicine.Name = p.Name;
-                existingMedicine.ActiveIngredient = p.ActiveIngredient;
-                existingMedicine.Unit = p.Unit;
-                existingMedicine.ShelfLifeDays = p.ShelfLifeDays;
-                existingMedicine.CriticalStockLevel = p.CriticalStockLevel;
-                existingMedicine.RequiresColdChain = p.RequiresColdChain;
+                // GÜVENLİ MANUEL ATAMALAR (Null Coalescing ??)
+                // DTO nullable olduğu için, null gelme ihtimaline karşı varsayılan değerleri atıyoruz.
+
+                existingMedicine.Name = p.Name ?? string.Empty;
+                existingMedicine.ActiveIngredient = p.ActiveIngredient ?? string.Empty;
+                existingMedicine.Unit = p.Unit ?? string.Empty;
+
+                existingMedicine.ShelfLifeDays = p.ShelfLifeDays ?? 0;
+                existingMedicine.CriticalStockLevel = p.CriticalStockLevel ?? 0;
+                existingMedicine.RequiresColdChain = p.RequiresColdChain ?? false;
 
                 _medicineService.TUpdate(existingMedicine);
+
+                // ✅ BAŞARILI MESAJI
+                TempData["Success"] = "İlaç detayları başarıyla güncellendi.";
                 return RedirectToAction("Index");
             }
 
             return NotFound();
         }
 
-
-
-        // 6. SİLME İŞLEMİ (Mevcut Kodun)
+        // ==========================================
+        // 4. SİLME İŞLEMİ (DELETE)
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         [AuditLog("İlaç Kaydı Silindi")]
         public IActionResult Delete(int id)
         {
             var value = _medicineService.TGetById(id);
-            _medicineService.TDelete(value);
+            if (value != null)
+            {
+                _medicineService.TDelete(value);
+                // ✅ BAŞARILI MESAJI
+                TempData["Success"] = "İlaç kaydı sistemden silindi.";
+            }
+            else
+            {
+                // ❌ HATA MESAJI
+                TempData["Error"] = "Silinecek kayıt bulunamadı.";
+            }
             return RedirectToAction("Index");
         }
     }
