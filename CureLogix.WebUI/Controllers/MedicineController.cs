@@ -107,7 +107,9 @@ namespace CureLogix.WebUI.Controllers
         [HttpGet]
         public IActionResult Add()
         {
-            return View();
+            // Boş bir DTO göndererek View'ın null hatası vermesini engelliyoruz.
+            // DTO'daki 'bool RequiresColdChain' artık varsayılan olarak 'false' gelecek.
+            return View(new MedicineAddDto());
         }
 
         [HttpPost]
@@ -125,7 +127,7 @@ namespace CureLogix.WebUI.Controllers
                 // Bu sayede veritabanı "Not Null" hatası vermez.
                 medicine.ShelfLifeDays = p.ShelfLifeDays ?? 0;
                 medicine.CriticalStockLevel = p.CriticalStockLevel ?? 0;
-                medicine.RequiresColdChain = p.RequiresColdChain ?? false;
+                medicine.RequiresColdChain = p.RequiresColdChain;
 
                 _medicineService.TAdd(medicine);
 
@@ -189,7 +191,7 @@ namespace CureLogix.WebUI.Controllers
 
                 existingMedicine.ShelfLifeDays = p.ShelfLifeDays ?? 0;
                 existingMedicine.CriticalStockLevel = p.CriticalStockLevel ?? 0;
-                existingMedicine.RequiresColdChain = p.RequiresColdChain ?? false;
+                existingMedicine.RequiresColdChain = p.RequiresColdChain;
 
                 _medicineService.TUpdate(existingMedicine);
 

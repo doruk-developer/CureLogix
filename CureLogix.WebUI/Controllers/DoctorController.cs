@@ -145,6 +145,34 @@ namespace CureLogix.WebUI.Controllers
             return NotFound();
         }
 
+        // 3. SİLME İŞLEMİ (DELETE)
+        [Authorize(Roles = "Admin")]
+        [HttpGet] // Link ile tetiklendiği için GET
+        public IActionResult Delete(int id)
+        {
+            var entity = _doctorService.TGetById(id);
+
+            if (entity != null)
+            {
+                try
+                {
+                    _doctorService.TDelete(entity);
+                    TempData["Success"] = "Personel kaydı başarıyla silindi.";
+                }
+                catch (Exception)
+                {
+                    // Eğer silerken hata olursa (FK hatası vb.)
+                    TempData["Error"] = "Bu kayıt silinemez! İlişkili veriler (Reçeteler, Oylar vb.) mevcut.";
+                }
+            }
+            else
+            {
+                TempData["Error"] = "Silinecek kayıt bulunamadı.";
+            }
+
+            return RedirectToAction("Index");
+        }
+
         // ==========================================
         // YARDIMCI METOTLAR
         // ==========================================

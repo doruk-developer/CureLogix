@@ -3,24 +3,28 @@
 @inject UserManager<AppUser> UserManager
 
 @{
+    // -----------------------------------------------------------
+    // 1. TEMA VE RENK AYARLARI (Cookie'den Okuma)
+    // -----------------------------------------------------------
     var themePref = Context.Request.Cookies["ThemePreference"] ?? "light";
     var themeAttr = themePref == "dark" ? "dark" : "light";
     var bodyClass = themePref == "dark" ? "bg-body" : "bg-body-tertiary";
     var sidebarColor = Context.Request.Cookies["SidebarColorPreference"] ?? "primary";
-    string hexColor = "#0d6efd"; string textColor = "#ffffff";
+
+    string hexColor = "#0d6efd";
+    string textColor = "#ffffff";
 
     switch (sidebarColor)
     {
         case "success": hexColor = "#198754"; break;
         case "danger": hexColor = "#dc3545"; break;
-        case "warning": hexColor = "#ffc107"; break;
-        case "info": hexColor = "#0dcaf0"; break;
+        case "warning": hexColor = "#ffc107"; textColor = "#000000"; break;
+        case "info": hexColor = "#0dcaf0"; textColor = "#000000"; break;
         case "secondary": hexColor = "#6c757d"; break;
         case "indigo": hexColor = "#6610f2"; break;
         case "pink": hexColor = "#d63384"; break;
         default: hexColor = "#0d6efd"; break;
     }
-    if (sidebarColor == "warning" || sidebarColor == "info") { textColor = "#000000"; }
 }
 
 <!DOCTYPE html>
@@ -28,27 +32,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CureLogix | Sağlık Lojistik Sistemi</title>
+    <title>@ViewData["Title"] - CureLogix</title>
 
-    <!--Favicon Referansı-->
     <link rel="icon" type="image/png" href="~/favicon.png">
 
-    <!-- OFFLINE CSS -->
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
-        }</style>
+        }
 
-    <!-- İkonlar (Dosyaları indirdiysen yerel yap) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.3.0/styles/overlayscrollbars.min.css">
-
-    <!-- AdminLTE & Driver -->
-    <link rel="stylesheet" href="~/theme/css/adminlte.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.css" />
-
-    <style>
+        /* --- TEMA ÖZELLEŞTİRMELERİ --- */
         .app-sidebar-brand {
             background-color: @hexColor !important;
             color: @textColor !important;
@@ -57,153 +50,62 @@
         .sidebar-menu .nav-link.active {
             background-color: @hexColor !important;
             color: @textColor !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,.12);
-        }
-    </style>
-</head>
-
-<body class="layout-fixed sidebar-expand-lg @bodyClass" data-bs-theme="@themeAttr">
-    <div class="app-wrapper">
-        <!-- NAVBAR -->
-        <nav class="app-header navbar navbar-expand bg-body">
-            <div class="container-fluid">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" data-lte-toggle="sidebar" href="#"><i class="bi bi-list"></i></a></li>
-                    <li class="nav-item d-none d-md-block"><span class="nav-link fw-bold">CureLogix Yönetim Paneli</span></li>
-                </ul>
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#" onclick="startTour()"><i class="bi bi-question-circle-fill text-warning"></i> Tur</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" data-lte-toggle="fullscreen"><i class="bi bi-arrows-fullscreen"></i></a></li>
-                    <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center" href="/Settings/Index">
-                            @{
-                                var currentUser = await UserManager.GetUserAsync(User);
-                            }
-                            <i class="fas fa-user-circle fa-lg"></i>
-                            <span class="d-none d-md-inline ms-2 fw-bold small">@(currentUser?.NameSurname ?? User.Identity?.Name)</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-
-        <!-- SIDEBAR -->
-        <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
-            <div class="sidebar-brand"><a href="/" class="brand-link"><i class="fa-solid fa-heart-pulse me-2"></i><span class="brand-text fw-light">CureLogix</span></a></div>
-            <div class="sidebar-wrapper">
-                <nav class="mt-2">
-                    <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
-                        <li class="nav-header">GENEL</li>
-                        <li class="nav-item"><a href="/Ai/Index" class="nav-link"><i class="nav-icon fas fa-brain"></i><p>Yapay Zeka (AI)</p></a></li>
-                        <li class="nav-item"><a href="/" class="nav-link"><i class="nav-icon bi bi-speedometer"></i><p>Dashboard</p></a></li>
-                        <li class="nav-item"><a href="/Map/Index" class="nav-link"><i class="nav-icon fas fa-map-marked-alt"></i><p>Salgın Haritası</p></a></li>
-                        <li class="nav-item"><a href="/Report/Index" class="nav-link"><i class="nav-icon fas fa-chart-pie"></i><p>Raporlar</p></a></li>
-                        <li class="nav-item"><a href="/Audit/Index" class="nav-link"><i class="nav-icon fas fa-user-secret"></i><p>Denetim Günlüğü</p></a></li>
-                        <li class="nav-header">OPERASYON</li>
-                        <li class="nav-item"><a href="/Hospital/Index" class="nav-link"><i class="nav-icon fa-solid fa-hospital"></i><p>Hastaneler</p></a></li>
-                        <li class="nav-item"><a href="/Disease/Index" class="nav-link"><i class="nav-icon fa-solid fa-user-doctor"></i><p>Hastalıklar</p></a></li>
-                        <li class="nav-item"><a href="/Doctor/Index" class="nav-link"><i class="nav-icon fa-solid fa-user-doctor"></i><p>Doktorlar</p></a></li>
-                        <li class="nav-item"><a href="/Medicine/Index" class="nav-link"><i class="nav-icon fas fa-pills"></i><p>İlaçlar</p></a></li>
-                        <li class="nav-item"><a href="/Protocol/Create" class="nav-link"><i class="nav-icon fas fa-file-medical"></i><p>Reçete Oluştur</p></a></li>
-                        <li class="nav-item"><a href="/Council/Index" class="nav-link"><i class="nav-icon fas fa-gavel"></i><p>Konsey Kararları</p></a></li>
-                        <li class="nav-item"><a href="/Council/ChatRoom" class="nav-link"><i class="nav-icon fas fa-comments"></i><p>Canlı Konsey Odası</p></a></li>
-                        <li class="nav-item"><a href="/Document/Index" class="nav-link"><i class="nav-icon fas fa-folder-open"></i><p>Doküman Yönetimi</p></a></li>
-                        <li class="nav-header">LOJİSTİK</li>
-                        <li class="nav-item"><a href="/CentralStock/Index" class="nav-link"><i class="nav-icon fas fa-boxes-stacked"></i><p>Merkez Depo</p></a></li>
-                        <li class="nav-item"><a href="/Supply/Index" class="nav-link"><i class="nav-icon fas fa-truck-medical"></i><p>Talepler</p></a></li>
-                        <li class="nav-item"><a href="/CentralStock/Scan" class="nav-link"><i class="nav-icon fas fa-barcode"></i><p>Hızlı Stok Çıkış</p></a></li>
-                        <li class="nav-item"><a href="/Waste/Index" class="nav-link"><i class="nav-icon fas fa-biohazard"></i><p>Atık Yönetimi</p></a></li>
-                        <li class="nav-header border-top mt-3 pt-2">OTURUM</li>
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <li class="nav-item"><a href="/User/Index" class="nav-link bg-info mb-2"><i class="nav-icon fas fa-users-cog"></i><p>Kullanıcı Yönetimi</p></a></li>
-                        }
-                        <li class="nav-item"><a href="/Settings/Index" class="nav-link bg-secondary mb-2"><i class="nav-icon fas fa-user-cog"></i><p>Hesap Ayarları</p></a></li>
-                        <li class="nav-item"><a href="/Login/Logout" class="nav-link bg-danger"><i class="nav-icon fas fa-power-off"></i><p>Güvenli Çıkış</p></a></li>
-                    </ul>
-                </nav>
-            </div>
-        </aside>
-
-        <!-- CONTENT -->
-        <main class="app-main">
-            <div class="app-content-header"><div class="container-fluid"><div class="row"><div class="col-sm-6"><h3 class="mb-0">@ViewData["Title"]</h3></div></div></div></div>
-            <div class="app-content"><div class="container-fluid">@RenderBody()</div></div>
-        </main>
-
-        <footer class="app-footer"><div class="float-end d-none d-sm-inline">v1.0 (Offline)</div><strong>Copyright &copy; @DateTime.Now.Year CureLogix.</strong></footer>
-    </div>
-
-    <!-- OFFLINE SCRIPTS (GÜNCELLENMİŞ YOLLAR) -->
-    <!-- 1. jQuery (dist klasöründen çıkarıp ana klasöre aldığını varsayıyorum) -->
-    <script src="~/lib/jquery/jquery.min.js"></script>
-
-    <!-- 2. Bootstrap Bundle (AdminLTE 4 İçin Şart) -->
-    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <!-- 3. AdminLTE -->
-    <script src="~/theme/js/adminlte.js"></script>
-
-    <!-- Diğerleri (İndirdiysen yorumları aç) -->
-    <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.3.0/browser/overlayscrollbars.browser.es6.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.js.iife.js"></script>
-
-    <script>
-        // Scrollbar Init
-        const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
-        const Default = { scrollbarTheme: "os-theme-light", scrollbarAutoHide: "leave", scrollbarClickScroll: true };
-        document.addEventListener("DOMContentLoaded", function() {
-            const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
-            if (sidebarWrapper && typeof OverlayScrollbarsGlobal?.OverlayScrollbars !== "undefined") {
-                OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, { scrollbars: { theme: Default.scrollbarTheme, autoHide: Default.scrollbarAutoHide, clickScroll: Default.scrollbarClickScroll } });
-            }
-        });
-
-        // SignalR
-        var connection = new signalR.HubConnectionBuilder().withUrl("/generalHub").build();
-        connection.start().catch(function (err) { console.error(err.toString()); });
-        connection.on("ReceiveCriticalStock", function (message) {
-            Swal.fire({ icon: 'error', title: 'KRİTİK STOK ALARMI!', text: message, background: '#fff', color: '#d33' });
-        });
-
-        // Driver.js
-        function startTour() {
-            const driver = window.driver.js.driver;
-            const driverObj = driver({
-                showProgress: true, animate: true, nextBtnText: 'İleri >', prevBtnText: '< Geri', doneBtnText: 'Tamamla',
-                steps: [{ element: '.brand-link', popover: { title: 'Hoş Geldiniz!', description: 'CureLogix Sistemine hoş geldiniz.' } }]
-            });
-            driverObj.drive();
-        }
-    </script>
-
-
-
-    <!-- 🚀 GLOBAL BİLDİRİM SİSTEMİ (ULTRA SMOOTH V3) -->
-    <style>
-        /* 1. AÇILIŞ: Yukarıdan Yumuşak İniş (CSS ile) */
-        @@keyframes slideInDownSmooth {
-            from
-
-        {
-            opacity: 0;
-            transform: translate3d(0, -20px, 0);
         }
 
-        to {
-            opacity: 1;
-            transform: translate3d(0, 0, 0);
+        /* --- VERİTABANI BAĞLANTI SİNYALİ --- */
+        .status-dot {
+            width: 12px !important;
+            height: 12px !important;
+            border-radius: 50% !important;
+            display: inline-block !important;
+            margin-left: 8px;
+            vertical-align: middle;
+            border: 2px solid rgba(255,255,255,0.4);
+            background-color: #6c757d;
+            transition: all 0.5s ease;
         }
 
+        .status-online {
+            background-color: #28a745 !important;
+            box-shadow: 0 0 8px #28a745;
+            border-color: transparent !important;
         }
 
+        .status-offline {
+            background-color: #dc3545 !important;
+            box-shadow: none !important;
+            border-color: white !important;
+        }
+
+        .pulse-green {
+            animation: pulse-green-anim 2s infinite;
+        }
+
+        /* --- SİMÜLASYON UYARISI --- */
+        .simulation-warning {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: #dc3545;
+            text-transform: uppercase;
+            border: 2px dashed #dc3545;
+            padding: 3px 10px;
+            border-radius: 4px;
+            background-color: rgba(220, 53, 69, 0.1);
+            animation: blinker-anim 1s linear infinite;
+        }
+
+        /* --- TOAST & UI --- */
         .my-slide-in {
             animation: slideInDownSmooth 0.6s ease-out forwards !important;
         }
 
-        /* 2. Özel Progress Bar (Skala) */
+        .swal2-popup.swal2-toast {
+            animation: none !important;
+            margin-top: 0 !important;
+            padding-bottom: 15px !important;
+            overflow: hidden !important;
+        }
+
         .my-custom-progress-bar {
             position: absolute;
             bottom: 0;
@@ -212,111 +114,230 @@
             background-color: rgba(0,0,0,0.2);
             width: 100%;
             z-index: 9999;
-            /* Köşeleri yuvarla ki taşmasın */
-            border-bottom-left-radius: 4px;
-            border-bottom-right-radius: 4px;
         }
 
-        /* 3. SweetAlert Ayarları */
-        .swal2-popup.swal2-toast {
-            animation: none !important; /* SweetAlert'in kendi animasyonunu kapat */
-            padding-bottom: 15px !important; /* Bar için yer aç */
-            overflow: hidden !important;
+        .system-locked {
+            opacity: 0.6;
+            pointer-events: none;
+            filter: grayscale(100%);
+        }
+
+        /* Keyframes */
+        @@keyframes pulse-green-anim {
+            0% {
+                box-shadow: 0 0 0 0px rgba(40, 167, 69, 0.7);
+            }
+
+            100% {
+                box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+            }
+        }
+
+        @@keyframes blinker-anim {
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        @@keyframes slideInDownSmooth {
+            from {
+                opacity: 0;
+                transform: translate3d(0, -20px, 0);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
         }
     </style>
 
+    <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="~/theme/css/adminlte.min.css">
+</head>
+
+<body class="layout-fixed sidebar-expand-lg @bodyClass" data-bs-theme="@themeAttr">
+    <div class="app-wrapper">
+
+        <!-- A. ÜST MENÜ (NAVBAR) -->
+        <nav class="app-header navbar navbar-expand bg-body">
+            <div class="container-fluid">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                            <i class="bi bi-list"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item d-none d-md-block">
+                        <span class="nav-link fw-bold">CureLogix Yönetim Paneli</span>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto align-items-center">
+
+                    <!-- 1. VERİTABANI BAĞLANTISI GÖSTERGESİ -->
+                    <li class="nav-item d-none d-md-flex align-items-center px-3 border-right">
+                        <div id="db-status-container" class="d-flex align-items-center">
+                            <small class="text-muted fw-bold">YÜKLENİYOR...</small>
+                        </div>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="startTour()">
+                            <i class="bi bi-question-circle-fill text-warning"></i> Tur
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center" href="/Settings/Index">
+                            @{
+                                // --- GÜVENLİ KULLANICI ÇEKME (CS8600 UYARISI GİDERİLDİ) ---
+                                CureLogix.Entity.Concrete.AppUser? userObj = null;
+                                string nameToShow = User.Identity?.Name ?? "Kullanıcı";
+                                try
+                                {
+                                    userObj = await UserManager.GetUserAsync(User);
+                                    if (userObj != null) nameToShow = userObj.NameSurname ?? nameToShow;
+                                }
+                                catch { }
+                            }
+                            <i class="fas fa-user-circle fa-lg"></i>
+                            <span class="ms-2 fw-bold small">@nameToShow</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- B. SOL MENÜ (SIDEBAR) -->
+        <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+            <div class="sidebar-brand">
+                <a href="/" class="brand-link">
+                    <i class="fa-solid fa-heart-pulse me-2"></i>
+                    <span class="brand-text fw-light">CureLogix</span>
+                </a>
+            </div>
+            <div class="sidebar-wrapper">
+                <nav class="mt-2">
+                    <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu">
+                        <li class="nav-header">GENEL</li>
+                        <li class="nav-item"><a href="/Ai/Index" class="nav-link"><i class="nav-icon fas fa-brain"></i><p>Yapay Zeka (AI)</p></a></li>
+                        <li class="nav-item"><a href="/" class="nav-link active"><i class="nav-icon bi bi-speedometer"></i><p>Dashboard</p></a></li>
+                        <li class="nav-item"><a href="/Map/Index" class="nav-link"><i class="nav-icon fas fa-map-marked-alt"></i><p>Salgın Haritası</p></a></li>
+                        <li class="nav-item"><a href="/Report/Index" class="nav-link"><i class="nav-icon fas fa-chart-pie"></i><p>Raporlar</p></a></li>
+                        <li class="nav-item"><a href="/Audit/Index" class="nav-link"><i class="nav-icon fas fa-user-secret"></i><p>Denetim Günlüğü</p></a></li>
+
+                        <li class="nav-header">OPERASYON</li>
+                        <li class="nav-item"><a href="/Hospital/Index" class="nav-link"><i class="nav-icon fa-solid fa-hospital"></i><p>Hastaneler</p></a></li>
+                        <li class="nav-item"><a href="/Disease/Index" class="nav-link"><i class="nav-icon fa-solid fa-virus"></i><p>Hastalıklar</p></a></li>
+                        <li class="nav-item"><a href="/Doctor/Index" class="nav-link"><i class="nav-icon fa-solid fa-user-doctor"></i><p>Doktorlar</p></a></li>
+                        <li class="nav-item"><a href="/Medicine/Index" class="nav-link"><i class="nav-icon fas fa-pills"></i><p>İlaçlar</p></a></li>
+                        <li class="nav-item"><a href="/Protocol/Create" class="nav-link"><i class="nav-icon fas fa-file-medical"></i><p>Reçete Oluştur</p></a></li>
+                        <li class="nav-item"><a href="/Council/Index" class="nav-link"><i class="nav-icon fas fa-gavel"></i><p>Konsey Kararları</p></a></li>
+                        <li class="nav-item"><a href="/Council/ChatRoom" class="nav-link"><i class="nav-icon fas fa-comments"></i><p>Canlı Konsey Odası</p></a></li>
+                        <li class="nav-item"><a href="/Document/Index" class="nav-link"><i class="nav-icon fas fa-folder-open"></i><p>Doküman Yönetimi</p></a></li>
+
+                        <li class="nav-header">LOJİSTİK</li>
+                        <li class="nav-item"><a href="/CentralStock/Index" class="nav-link"><i class="nav-icon fas fa-boxes-stacked"></i><p>Merkez Depo</p></a></li>
+                        <li class="nav-item"><a href="/Supply/Index" class="nav-link"><i class="nav-icon fas fa-truck-medical"></i><p>Talepler</p></a></li>
+                        <li class="nav-item"><a href="/CentralStock/Scan" class="nav-link"><i class="nav-icon fas fa-barcode"></i><p>Hızlı Stok Çıkış</p></a></li>
+                        <li class="nav-item"><a href="/Waste/Index" class="nav-link"><i class="nav-icon fas fa-biohazard"></i><p>Atık Yönetimi</p></a></li>
+
+                        <li class="nav-header border-top mt-3 pt-2">OTURUM</li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a href="/User/Index" class="nav-link bg-info mb-2 text-white">
+                                    <i class="nav-icon fas fa-users-cog"></i><p>Kullanıcı Yönetimi</p>
+                                </a>
+                            </li>
+                        }
+                        <li class="nav-item">
+                            <a href="/Settings/Index" class="nav-link bg-secondary mb-2 text-white">
+                                <i class="nav-icon fas fa-user-cog"></i><p>Hesap Ayarları</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/Login/Logout" class="nav-link bg-danger text-white mt-2">
+                                <i class="nav-icon fas fa-power-off"></i><p>Güvenli Çıkış</p>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- C. İÇERİK ALANI -->
+        <main class="app-main">
+            <div class="app-content pt-3">
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+            </div>
+        </main>
+
+        <!-- D. FOOTER -->
+        <footer class="app-footer">
+            <div class="float-end d-none d-sm-inline">v1.1 (Stable)</div>
+            <strong>Copyright &copy; @DateTime.Now.Year CureLogix.</strong>
+        </footer>
+    </div>
+
+    <!-- D. SCRIPTS -->
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/sweetalert/sweetalert2.all.min.js"></script>
+    <script src="~/theme/js/adminlte.js"></script>
+
     <script>
+        // 1. TOAST BİLDİRİMLER (FADE ONLY)
         $(function () {
             var successMessage = '@TempData["Success"]';
             var errorMessage = '@TempData["Error"]';
-            var infoMessage = '@TempData["Info"]';
-
-            if (!successMessage && !errorMessage && !infoMessage) return;
+            if (!successMessage && !errorMessage) return;
 
             const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-
-                // ⛔ OTOMATİK KAPATMAYI DEVRE DIŞI BIRAKIYORUZ
-                timer: null,
-                timerProgressBar: false,
-
-                // ✨ Açılış Animasyonu (CSS)
-                showClass: {
-                    popup: 'my-slide-in'
-                },
-                // ✨ Kapanış Animasyonu (Boş bırakıyoruz, jQuery ile yapacağız)
-                hideClass: {
-                    popup: ''
-                },
-
+                toast: true, position: 'top-end', showConfirmButton: false, timer: null,
+                showClass: { popup: 'my-slide-in' }, hideClass: { popup: '' },
                 didOpen: (toast) => {
-                    // --- 1. PROGRESS BAR OLUŞTUR ---
                     var $progressBar = $('<div class="my-custom-progress-bar"></div>');
                     $(toast).append($progressBar);
-
-                    // --- 2. AYARLAR ---
-                    var waitTime = 4000;  // Ekranda kalma süresi
-                    var fadeTime = 1500;  // Kaybolma süresi (Yavaşça)
-
-                    // --- 3. BAR ANİMASYONU ---
-                    // Barı 4 saniyede %0 genişliğe indir
-                    $progressBar.animate({ width: '0%' }, waitTime, 'linear');
-
-                    // --- 4. KAPANIŞ ZAMANLAYICISI ---
-                    var closeTimer = setTimeout(function() {
-
-                        // 🔥 İŞTE ÇÖZÜM BURADA: .animate() KULLANIYORUZ 🔥
-                        // fadeOut yerine opacity ve margin'i zorla değiştiriyoruz.
-                        $(toast).animate({
-                            opacity: 0,
-                            marginTop: '-20px' // Hem silinsin hem yukarı kaysın
-                        }, fadeTime, function() {
-                            // Animasyon bittiğinde SweetAlert'i kapat
-                            Swal.close();
-                        });
-
-                    }, waitTime);
-
-                    // --- 5. MOUSE KONTROLÜ (DURDUR/DEVAM ET) ---
+                    $progressBar.animate({ width: '0%' }, 4000, 'linear');
+                    var closeTimer = setTimeout(() => { $(toast).animate({ opacity: 0 }, 1500, () => Swal.close()); }, 4000);
                     $(toast).hover(
-                        function() { // Mouse Gelince
-                            clearTimeout(closeTimer); // Kapanmayı iptal et
-                            $progressBar.stop(true);  // Barı olduğu yerde dondur
-                            $(toast).stop(true).css('opacity', 1).css('margin-top', '0px'); // Soluklaşmayı durdur ve düzelt
-                        },
-                        function() { // Mouse Gidince
-                            // Kalan süreyi hesaplamakla uğraşmayalım, kullanıcı mouse'u çektiyse
-                            // 2 saniye bekleyip yavaşça kapatalım (UX açısından daha temiz)
-                            $progressBar.animate({ width: '0%' }, 2000);
-
-                            closeTimer = setTimeout(function() {
-                                $(toast).animate({
-                                    opacity: 0,
-                                    marginTop: '-20px'
-                                }, fadeTime, function() {
-                                    Swal.close();
-                                });
-                            }, 2000);
-                        }
+                        () => { clearTimeout(closeTimer); $progressBar.stop(true); $(toast).stop(true).css('opacity', 1); },
+                        () => { $progressBar.animate({ width: '0%' }, 2000, 'linear'); closeTimer = setTimeout(() => { $(toast).animate({ opacity: 0 }, 1500, () => Swal.close()); }, 2000); }
                     );
                 }
             });
-
-            if (successMessage) {
-                Toast.fire({ icon: 'success', title: successMessage });
-            }
-            else if (errorMessage) {
-                Toast.fire({ icon: 'error', title: errorMessage });
-            }
-            else if (infoMessage) {
-                Toast.fire({ icon: 'info', title: infoMessage });
-            }
+            if (successMessage) Toast.fire({ icon: 'success', title: successMessage });
+            if (errorMessage) Toast.fire({ icon: 'error', title: errorMessage });
         });
+
+        // 2. VERİTABANI SAĞLIK KONTROLÜ
+        function checkSystemPulse() {
+            var container = $("#db-status-container");
+            $.get("/HealthCheck/DbStatus", function (res) {
+                if (res.status === "Demo") {
+                    container.html('<div class="simulation-warning"><i class="fas fa-biohazard me-2"></i> TEST VERİSİ</div>');
+                    $("button, input, select").prop("disabled", false).removeClass("system-locked");
+                } else if (res.status === "Online") {
+                    container.html('<small class="text-muted fw-bold">VERİTABANI BAĞLANTISI</small><div class="status-dot status-online pulse-green"></div>');
+                    $("button, input, select").prop("disabled", false).removeClass("system-locked");
+                } else {
+                    container.html('<small class="text-muted fw-bold">VERİTABANI BAĞLANTISI</small><div class="status-dot status-offline"></div>');
+                    $("button, input, select").prop("disabled", true).addClass("system-locked");
+                }
+            }).fail(() => container.html('<small class="text-muted fw-bold text-danger">BAĞLANTI HATASI</small><div class="status-dot status-offline"></div>'));
+        }
+
+        $(document).ready(() => {
+            checkSystemPulse();
+            setInterval(checkSystemPulse, 30000);
+        });
+
+        function startTour() { /* Driver.js buraya */ }
     </script>
-
-
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

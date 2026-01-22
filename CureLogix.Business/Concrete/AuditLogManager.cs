@@ -16,12 +16,13 @@ namespace CureLogix.Business.Concrete
             base.TAdd(t);
 
             // 2. OTOMATİK TEMİZLİK (ROLLING LOGS)
-            // Eğer kayıt sayısı 100'ü geçtiyse
-            var allLogs = _repository.GetList().OrderByDescending(x => x.ProcessDate).ToList();
+            // Eğer kayıt sayısı 100'ü geçtiyse en eskileri sil
+            // DÜZELTME: x.ProcessDate yerine x.Date yazdık
+            var allLogs = _repository.GetList().OrderByDescending(x => x.Date).ToList();
 
             if (allLogs.Count > 100)
             {
-                // İlk 100 tanesini atla, geriye kalan eskileri (101. ve sonrası) bul
+                // En güncel 100 taneyi tut (Skip), geri kalanları (eski olanları) al
                 var logsToDelete = allLogs.Skip(100).ToList();
 
                 foreach (var oldLog in logsToDelete)

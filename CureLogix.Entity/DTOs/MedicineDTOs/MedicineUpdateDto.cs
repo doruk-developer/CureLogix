@@ -14,6 +14,6 @@
 
         public int? CriticalStockLevel { get; set; }
 
-        public bool? RequiresColdChain { get; set; }
+        public bool RequiresColdChain { get; set; }
     }
 }

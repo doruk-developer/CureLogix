@@ -8,7 +8,7 @@
         public string Specialty { get; set; }
         public int RoleType { get; set; } // 1:Saha, 2:Hakem, 3:Başhekim
         public int? HospitalId { get; set; }
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         // İlişkiler
         public virtual Hospital Hospital { get; set; }

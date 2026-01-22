@@ -62,15 +62,26 @@ namespace CureLogix.DataAccess.Repositories
             Console.WriteLine($"Entity Type: {typeof(T).Name}");
             Console.WriteLine($"Entity NULL mu? {t == null}");
 
+            // 1. ADIM: Eğer t null ise işlem yapma, direk dön (Güvenlik Önlemi)
+            if (t == null)
+            {
+                Console.WriteLine("HATA: Güncellenecek entity NULL geldi, işlem iptal edildi.");
+                return;
+            }
+
             try
             {
-                var entry = _context.Entry(t);
+                // 2. ADIM: t'nin yanına '!' koyarak derleyiciye "Merak etme bu null değil" diyoruz.
+                var entry = _context.Entry(t!);
+
                 Console.WriteLine($"Entry State (Önce): {entry.State}");
 
                 if (entry.State == EntityState.Detached)
                 {
                     Console.WriteLine("Entity DETACHED durumda, Attach ediliyor...");
-                    _context.Set<T>().Attach(t);
+
+                    // Burada da '!' kullanıyoruz (CS8604 uyarısı için)
+                    _context.Set<T>().Attach(t!);
                 }
 
                 entry.State = EntityState.Modified;

@@ -1,6 +1,7 @@
 using AutoMapper;
 using CureLogix.Business.Abstract;
 using CureLogix.Entity.DTOs.WarehouseDTOs;
+using CureLogix.WebUI.Helpers; // DummyDataGenerator için gerekli
 using CureLogix.WebUI.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +16,7 @@ namespace CureLogix.WebUI.Controllers
         private readonly ISupplyRequestService _supplyService;
         private readonly ICentralWarehouseService _warehouseService;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration; // 1. Konfigürasyon nesnesi eklendi
 
         public HomeController(
             IHospitalService hospitalService,
@@ -23,7 +25,8 @@ namespace CureLogix.WebUI.Controllers
             ITreatmentProtocolService protocolService,
             ISupplyRequestService supplyService,
             ICentralWarehouseService warehouseService,
-            IMapper mapper)
+            IMapper mapper,
+            IConfiguration configuration) // 2. Constructor'a eklendi
         {
             _hospitalService = hospitalService;
             _doctorService = doctorService;
@@ -32,54 +35,80 @@ namespace CureLogix.WebUI.Controllers
             _supplyService = supplyService;
             _warehouseService = warehouseService;
             _mapper = mapper;
+            _configuration = configuration;
         }
 
         public IActionResult Index()
         {
-            var model = new AdvancedDashboardViewModel();
+            // ---------------------------------------------------------
+            // A. DEMO MODU KONTROLÜ (SATIÞ SUNUMU ÝÇÝN)
+            // ---------------------------------------------------------
+            bool isDemo = _configuration.GetValue<bool>("AppSettings:DemoMode");
 
-            // 1. KPI Verileri
-            model.TotalHospitals = _hospitalService.TGetList().Count;
-            model.TotalDoctors = _doctorService.TGetList().Count;
-
-            var requests = _supplyService.TGetList();
-            model.PendingRequests = requests.Count(x => x.Status == 0); // Bekleyenler
-
-            var stocks = _warehouseService.TGetList();
-            // Kritik seviye: 1000 adetin altý (Simülasyon kuralý)
-            model.CriticalStockCount = stocks.Count(x => x.Quantity < 1000);
-
-            // 2. Grafikler
-            // A) Hastane Doluluk
-            var hospitals = _hospitalService.TGetList();
-            model.HospitalNames = hospitals.Select(x => x.Name).ToList();
-            model.OccupancyRates = hospitals.Select(x => x.OccupancyRate ?? 0).ToList();
-
-            // B) Talep Durumlarý
-            model.WaitingReq = model.PendingRequests;
-            model.ApprovedReq = requests.Count(x => x.Status == 1);
-            model.RejectedReq = 5; // Simülasyon (DB'de red sütunu yoksa)
-
-            // C) Radar Chart (Kategori Analizi - Simülasyon)
-            model.MedicineCategories = new List<string> { "Antibiyotik", "Antiviral", "Aþý", "Analjezik", "Solunum", "Kardiyak" };
-            model.CategoryStockLevels = new List<int> { 85, 40, 90, 65, 30, 75 }; // Rastgele simülasyon verileri
-
-            // 3. Tablolar
-            // Kritik Stoklar (Ýlk 5)
-            var criticals = stocks.Where(x => x.Quantity < 5000).OrderBy(x => x.Quantity).Take(5).ToList();
-            model.CriticalMedicines = _mapper.Map<List<CentralStockListDto>>(criticals);
-
-            // Son Aktiviteler (Simülasyon - Normalde Audit tablosundan gelir)
-            model.RecentActivities = new List<string>
+            if (isDemo)
             {
-                "Dr. Kemal Sayar sisteme giriþ yaptý.",
-                "Merkez Depo'ya 10.000 adet ViruGuard giriþi yapýldý.",
-                "Acil Durum: Ankara Þehir Hastanesi oksijen tüpü talep etti.",
-                "Konsey, RS-24 protokolünü onayladý.",
-                "Sistem yedeklemesi baþarýyla tamamlandý."
-            };
+                // Veritabanýna hiç gitme, zengin sahte veriyi döndür.
+                // Eðer Helpers/DummyDataGenerator.cs dosyasýný oluþturmadýysan hata verir!
+                return View(DummyDataGenerator.GetDashboard());
+            }
 
-            return View(model);
+            // ---------------------------------------------------------
+            // B. GERÇEK VERÝ AKIÞI (CANLI SÝSTEM)
+            // ---------------------------------------------------------
+
+            // Olasý bir veritabaný kesintisinde sayfanýn patlamamasý için Try-Catch
+            try
+            {
+                var model = new AdvancedDashboardViewModel();
+
+                // 1. KPI Verileri
+                model.TotalHospitals = _hospitalService.TGetList().Count;
+                model.TotalDoctors = _doctorService.TGetList().Count;
+
+                var requests = _supplyService.TGetList();
+                model.PendingRequests = requests.Count(x => x.Status == 0); // Bekleyenler
+
+                var stocks = _warehouseService.TGetList();
+                // Kritik seviye: 1000 adetin altý (Simülasyon kuralý)
+                model.CriticalStockCount = stocks.Count(x => x.Quantity < 1000);
+
+                // 2. Grafikler
+                // A) Hastane Doluluk
+                var hospitals = _hospitalService.TGetList();
+                model.HospitalNames = hospitals.Select(x => x.Name).ToList();
+                model.OccupancyRates = hospitals.Select(x => x.OccupancyRate ?? 0).ToList();
+
+                // B) Talep Durumlarý
+                model.WaitingReq = model.PendingRequests;
+                model.ApprovedReq = requests.Count(x => x.Status == 1);
+                model.RejectedReq = 5; // Simülasyon (DB'de red sütunu yoksa)
+
+                // C) Radar Chart (Kategori Analizi - Simülasyon)
+                model.MedicineCategories = new List<string> { "Antibiyotik", "Antiviral", "Aþý", "Analjezik", "Solunum", "Kardiyak" };
+                model.CategoryStockLevels = new List<int> { 85, 40, 90, 65, 30, 75 }; // Rastgele simülasyon verileri
+
+                // 3. Tablolar
+                // Kritik Stoklar (Ýlk 5)
+                var criticals = stocks.Where(x => x.Quantity < 5000).OrderBy(x => x.Quantity).Take(5).ToList();
+                model.CriticalMedicines = _mapper.Map<List<CentralStockListDto>>(criticals);
+
+                // Son Aktiviteler (Simülasyon - Normalde Audit tablosundan gelir)
+                model.RecentActivities = new List<string>
+                {
+                    "Dr. Kemal Sayar sisteme giriþ yaptý.",
+                    "Merkez Depo'ya 10.000 adet ViruGuard giriþi yapýldý.",
+                    "Acil Durum: Ankara Þehir Hastanesi oksijen tüpü talep etti.",
+                    "Konsey, RS-24 protokolünü onayladý.",
+                    "Sistem yedeklemesi baþarýyla tamamlandý."
+                };
+
+                return View(model);
+            }
+            catch
+            {
+                // Baðlantý koparsa boþ model gönder (Empty State çalýþsýn)
+                return View(new AdvancedDashboardViewModel());
+            }
         }
     }
 }

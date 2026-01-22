@@ -1,6 +1,6 @@
 ﻿using CureLogix.Business.Abstract;
 using CureLogix.Business.Concrete;
-using CureLogix.Business.ValidationRules; // Validatorlar için gerekebilir
+using CureLogix.Business.ValidationRules;
 using CureLogix.DataAccess.Abstract;
 using CureLogix.DataAccess.Concrete;
 using CureLogix.DataAccess.Repositories;
@@ -68,7 +68,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
 });
 
-// GLOBAL AUTHORIZATION ve JSON AYARLARI (Birleştirilmiş)
+// GLOBAL AUTHORIZATION ve JSON AYARLARI
 builder.Services.AddControllersWithViews(config =>
 {
     // 1. Global Kilit (Authorization)
@@ -133,51 +133,90 @@ builder.Services.AddHangfireServer();
 var app = builder.Build();
 
 // HATA YÖNETİMİ
-if (!app.Environment.IsDevelopment())
-{
-    // Canlı ortamda (Production) hata olursa 500 sayfasına git
-    app.UseExceptionHandler("/Error/Page500");
-    app.UseHsts();
-}
-else
-{
-    // Geliştirme ortamında (Development) hata olursa yine 500 sayfasına git (Test için)
-    // Normalde DeveloperPage kullanılır ama biz kendi sayfamızı görmek istiyoruz.
-    app.UseExceptionHandler("/Error/Page500");
-}
+//if (!app.Environment.IsDevelopment())
+//{
+//    app.UseExceptionHandler("/Error/Page500");
+//    app.UseHsts();
+//}
+//else
+//{
+//    app.UseExceptionHandler("/Error/Page500");
+//}
 
-//app.UseDeveloperExceptionPage();
+app.UseDeveloperExceptionPage();
 
-// Olmayan sayfa (404) yönetimi
 app.UseStatusCodePagesWithReExecute("/Error/Page404");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseRouting(); // Routing bir kere tanımlanır
+app.UseRouting();
 
-// ÖZEL IP KISITLAMA MODÜLÜ (GÜVENLİK DUVARI)
-// using CureLogix.WebUI.Middlewares; eklemeyi unutma
+// ÖZEL IP KISITLAMA MODÜLÜ
 app.UseMiddleware<IpSafeListMiddleware>();
 
-// Güvenlik Sıralaması Önemlidir: Önce Kimlik Doğrulama, Sonra Yetkilendirme
+// ✅ YENİ: VERİTABANI KORUMA KALKANI (AUTH'TAN ÖNCE OLMALI)
+app.UseMiddleware<DbFailSafeMiddleware>();
+
+// Güvenlik Sıralaması
 app.UseAuthentication();
 app.UseAuthorization();
 
 // Hangfire Dashboard
 app.UseHangfireDashboard("/hangfire");
 
-// Hangfire Zamanlanmış Görevler (Cron Jobs)
+// ==================================================================
+// 6. GÜVENLİ BAŞLANGIÇ GÖREVLERİ (FAIL-SAFE ZONE)
+// ==================================================================
+// Buradaki işlemler veritabanına bağlıdır. Bağlantı yoksa patlamamalı,
+// log yazıp uygulamayı açmaya devam etmelidir.
+
 using (var scope = app.Services.CreateScope())
 {
-    var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
-    var warehouseService = scope.ServiceProvider.GetRequiredService<ICentralWarehouseService>();
+    var services = scope.ServiceProvider;
 
-    recurringJobManager.AddOrUpdate(
-        "Otomatik-Siparis-Olusturma",
-        () => warehouseService.CheckExpiriesAndCreateOrder(),
-        Cron.Daily(3) // Her gece 03:00
-    );
+    // A) HANGFIRE GÖREVLERİ
+    try
+    {
+        var recurringJobManager = services.GetRequiredService<IRecurringJobManager>();
+        var warehouseService = services.GetRequiredService<ICentralWarehouseService>();
+
+        recurringJobManager.AddOrUpdate(
+            "Otomatik-Siparis-Olusturma",
+            () => warehouseService.CheckExpiriesAndCreateOrder(),
+            Cron.Daily(3) // Her gece 03:00
+        );
+    }
+    catch (Exception ex)
+    {
+        // DB yoksa Hangfire görevi kurulamaz, ama site açılsın.
+        Console.WriteLine($"⚠️ UYARI: Hangfire Job başlatılamadı (DB Hatası): {ex.Message}");
+    }
+
+    // B) VERİ TOHUMLAMA (SEED DATA)
+    try
+    {
+        var context = services.GetRequiredService<CureLogixContext>();
+
+        // Veritabanı ile el sıkış (Ping at)
+        if (context.Database.CanConnect())
+        {
+            var userManager = services.GetRequiredService<UserManager<AppUser>>();
+            var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
+
+            // Veritabanı yoksa oluştur (Migrationları bas)
+            // context.Database.EnsureCreated(); // Bu satır bazen Migration çakışması yaratabilir, dikkatli kullanılmalı.
+            // Eğer Migration kullanıyorsan: context.Database.Migrate();
+
+            // Verileri Doldur
+            await DbSeeder.SeedAsync(context, userManager, roleManager);
+        }
+    }
+    catch (Exception ex)
+    {
+        // DB yoksa Seed yapılamaz, ama site açılsın.
+        Console.WriteLine($"⚠️ UYARI: Seed Data atlandı (DB Hatası): {ex.Message}");
+    }
 }
 
 // Endpoint Tanımları

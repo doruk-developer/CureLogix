@@ -35,11 +35,14 @@
                                 <label>Risk Seviyesi</label>
                                 <select class="form-control custom-select" asp-for="RiskLevel">
                                     <option value="">Seçiniz...</option>
-                                    <option value="Düşük">Düşük (Mevsimsel)</option>
-                                    <option value="Orta">Orta (İzlenmeli)</option>
-                                    <option value="Yüksek">Yüksek (Bölgesel Salgın)</option>
-                                    <option value="Kritik">Kritik (Ölümcül)</option>
-                                    <option value="Pandemik">Pandemik (Küresel)</option>
+
+                                    <!-- DÜZELTME: Value değerleri metin değil, sayı (1,2,3...) yapıldı -->
+                                    <option value="1">Düşük (Mevsimsel)</option>
+                                    <option value="2">Orta (İzlenmeli)</option>
+                                    <option value="3">Yüksek (Bölgesel Salgın)</option>
+                                    <option value="4">Kritik (Ölümcül)</option>
+                                    <option value="5">Pandemik (Küresel)</option>
+
                                 </select>
                                 <span asp-validation-for="RiskLevel" class="text-danger"></span>
                             </div>

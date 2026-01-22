@@ -13,6 +13,6 @@
 
         public int? CriticalStockLevel { get; set; }
 
-        public bool? RequiresColdChain { get; set; } // Checkbox
+        public bool RequiresColdChain { get; set; } // Checkbox
     }
 }

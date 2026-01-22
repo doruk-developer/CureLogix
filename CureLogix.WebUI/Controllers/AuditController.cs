@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CureLogix.WebUI.Controllers
 {
-    [Authorize] // Sadece giriş yapanlar görebilir
+    [Authorize(Roles = "Admin")] // Sadece Admin görebilmeli
     public class AuditController : Controller
     {
         private readonly IAuditLogService _auditService;
@@ -16,8 +16,8 @@ namespace CureLogix.WebUI.Controllers
 
         public IActionResult Index()
         {
-            // Logları tarihe göre tersten sırala (En yeni en üstte)
-            var values = _auditService.TGetList().OrderByDescending(x => x.ProcessDate).ToList();
+            // DÜZELTME: x.ProcessDate yerine x.Date yaptık.
+            var values = _auditService.TGetList().OrderByDescending(x => x.Date).ToList();
             return View(values);
         }
     }
