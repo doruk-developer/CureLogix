@@ -8,5 +8,6 @@
         public string Specialty { get; set; } // Branş
         public int RoleType { get; set; }     // Enum olarak kullanacağız
         public string HospitalName { get; set; } // İlişkili tablodan gelecek
+        public string? Email { get; set; }
     }
 }

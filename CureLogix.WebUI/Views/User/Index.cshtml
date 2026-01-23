@@ -69,7 +69,22 @@
                                     <td>
                                         <span class="badge bg-secondary">@item.UserName</span>
                                     </td>
-                                    <td>@item.Email</td>
+                                    <td>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <!-- Admin: Tam E-posta -->
+                                            <span class="text-dark" style="opacity: 0.75;">
+                                                <i class="fas fa-envelope mr-1"></i> @item.Email
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <!-- Standart Kullanıcı: Maskelenmiş E-posta -->
+                                            <span class="text-dark" style="opacity: 0.75;" title="Veri Gizliliği Koruması">
+                                                <i class="fas fa-envelope mr-1"></i> @CureLogix.WebUI.Helpers.PrivacyExtensions.MaskEmail(item.Email)
+                                            </span>
+                                        }
+                                    </td>
                                     <td class="text-center">
                                         @if (item.UserName == "Admin")
                                         {

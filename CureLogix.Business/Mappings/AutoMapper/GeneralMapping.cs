@@ -94,6 +94,9 @@ namespace CureLogix.Business.Mappings.AutoMapper
 
             // Kullanıcı Güncelleme Mappingi
             CreateMap<UserUpdateDto, AppUser>().ReverseMap();
+
+            // Email Gönderim İçin Kullanıcı Mappingi
+            CreateMap<Doctor, DoctorListDto>().ReverseMap();
         }
     }
 }
