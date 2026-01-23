@@ -130,6 +130,59 @@
             }
         ")
 
+
+        /* --- YAZDIRMA (PRINT) MODU AYARLARI --- */
+        @@media print {
+            /* 1. Gereksiz her şeyi gizle */
+            .app-header,        /* Üst Menü */
+            .app-sidebar,       /* Yan Menü */
+            .app-footer,        /* Alt Bilgi */
+            .content-header,    /* Sayfa Başlığı */
+            .btn,               /* Butonlar (Yazdır butonu da dahil) */
+            .dataTables_filter, /* Arama Kutusu */
+            .dataTables_info,   /* "10 kayıttan 1'i..." yazısı */
+            .dataTables_paginate /* Sayfalama numaraları */
+            {
+                display: none !important;
+            }
+
+            /* 2. İçeriği kağıda tam yay */
+            .app-wrapper, .app-main, .app-content, .container-fluid, .card, .card-body {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                border: none !important;
+                box-shadow: none !important;
+                background-color: white !important; /* Arka planı beyaz yap */
+                color: black !important;            /* Yazıları siyah yap (Tasarruf) */
+            }
+
+            /* 3. Linklerin URL'ini yanına yazma (Bootstrap defaultunu kapat) */
+            a[href]:after {
+                content: none !important;
+            }
+
+            /* 4. Tablo ayarları */
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+            th, td {
+                border: 1px solid #000 !important; /* Hücreleri net çiz */
+                padding: 8px !important;
+            }
+            
+            /* Sayfa başlığı ekle (Opsiyonel: Logoyu gösterebiliriz) */
+            body::before {
+                content: "CureLogix - Resmi Sistem Raporu";
+                display: block;
+                text-align: center;
+                font-weight: bold;
+                font-size: 14pt;
+                margin-bottom: 20px;
+            }
+        }
+
     </style>
 
     <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css">

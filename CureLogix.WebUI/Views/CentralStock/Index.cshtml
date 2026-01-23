@@ -1,7 +1,14 @@
 ﻿@using CureLogix.Entity.DTOs.WarehouseDTOs
 @model List<CentralStockListDto>
 
-@{ ViewData["Title"] = "Merkez Stok"; }
+@{
+    ViewData["Title"] = "Merkez Stok";
+}
+
+<!-- 1. DataTables ve Buttons CSS -->
+<link rel="stylesheet" href="~/lib/datatables/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="~/lib/datatables/css/responsive.bootstrap5.min.css">
+<link href="~/lib/datatables/css/buttons.bootstrap5.min.css" rel="stylesheet" />
 
 <div class="content-header">
     <div class="container-fluid">
@@ -9,7 +16,13 @@
             <div class="col-sm-6"><h1>📦 Merkez Depo Yönetimi</h1></div>
 
             <div class="col-sm-6 text-right">
-                <!-- Hızlı Çıkış Terminali Butonu (Yeni) -->
+
+                <!-- Excel Çıktısı -->
+                <a href="/CentralStock/ExportExcel" class="btn btn-success mr-1">
+                    <i class="fas fa-file-excel"></i> Excel Raporu
+                </a>
+
+                <!-- Hızlı Çıkış Terminali Butonu (Mevcut) -->
                 <a href="/CentralStock/Scan" class="btn btn-dark">
                     <i class="fas fa-barcode"></i> Hızlı Çıkış Terminali
                 </a>
@@ -19,15 +32,15 @@
                     <i class="fas fa-boxes"></i> Mal Kabul / Stok Girişi
                 </a>
             </div>
-
         </div>
     </div>
 </div>
 
 <section class="content">
     <div class="card card-indigo card-outline">
-        <div class="card-body table-responsive p-0">
-            <table class="table table-hover text-nowrap">
+        <div class="card-body">
+            <!-- Table'a ID (stockTable) verdik ki DataTables yakalasın -->
+            <table id="stockTable" class="table table-hover table-striped w-100">
                 <thead>
                     <tr>
                         <th>İlaç Adı</th>
@@ -35,7 +48,7 @@
                         <th>Parti No (Batch)</th>
                         <th>Son Kullanma Tarihi</th>
                         <th>Durum</th>
-                        <th>Barkod</th> <!-- 1. BAŞLIĞI BURAYA EKLEDİK -->
+                        <th>Barkod</th>
                     </tr>
                 </thead>
 
@@ -50,17 +63,17 @@
                         <tr>
                             <td><strong>@item.MedicineName</strong></td>
                             <td>
-                                <span class="text-indigo font-weight-bold">@item.Quantity.ToString("N0")</span> 
+                                <span class="text-indigo font-weight-bold">@item.Quantity.ToString("N0")</span>
                                 <small class="text-muted">@item.MedicineUnit</small>
                             </td>
                             <td><code>@item.BatchNo</code></td>
                             <td>@item.ExpiryDate.ToShortDateString()</td>
                             <td><span class="badge @badgeClass">@statusText</span></td>
-                            
-                            <!-- 2. BUTONU FOREACH DÖNGÜSÜNÜN İÇİNE, SATIRIN SONUNA KOYDUK -->
+
+                            <!-- QR Butonu -->
                             <td>
-                                <button type="button" class="btn btn-outline-dark btn-sm" 
-                                        data-bs-toggle="modal" data-bs-target="#qrModal" 
+                                <button type="button" class="btn btn-outline-dark btn-sm"
+                                        data-bs-toggle="modal" data-bs-target="#qrModal"
                                         onclick="showQr(@item.Id, '@item.BatchNo')">
                                     <i class="fas fa-qrcode"></i>
                                 </button>
@@ -74,7 +87,7 @@
     </div>
 </section>
 
-<!-- 3. MODAL VE SCRIPT SAYFANIN EN ALTINDA OLMALI -->
+<!-- MODAL (MEVCUT) -->
 <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
@@ -91,14 +104,51 @@
     </div>
 </div>
 
-<script>
-    function showQr(id, batch) {
-        // 1. Karekod resmini getir
-        document.getElementById('qrImage').src = "/CentralStock/GetQrImage/" + id;
+@section Scripts {
+    <!-- DataTables JS Zinciri (Sıralama Önemli!) -->
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap5.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.responsive.min.js"></script>
 
-        // 2. Altındaki yazıyı "Tam Kod" haline getir (STOK-ID-BATCH formatında)
-        // Böylece test ederken buradan kopyalayabilirsin.
-        var fullCode = "STOK-" + id + "-" + batch;
-        document.getElementById('qrBatch').innerText = fullCode;
-    }
-</script>
+    <!-- Export Motorları (PDF, Excel) -->
+    <script src="~/lib/datatables/js/dataTables.buttons.min.js"></script>
+    <script src="~/lib/datatables/js/jszip.min.js"></script>
+    <script src="~/lib/datatables/js/pdfmake.min.js"></script>
+    <script src="~/lib/datatables/js/vfs_fonts.js"></script>
+    <script src="~/lib/datatables/js/buttons.html5.min.js"></script>
+    <script src="~/lib/datatables/js/buttons.print.min.js"></script>
+    <script src="~/lib/datatables/js/buttons.bootstrap5.min.js"></script>
+
+    <script>
+        function showQr(id, batch) {
+            document.getElementById('qrImage').src = "/CentralStock/GetQrImage/" + id;
+            var fullCode = "STOK-" + id + "-" + batch;
+            document.getElementById('qrBatch').innerText = fullCode;
+        }
+
+        $(document).ready(function () {
+            $('#stockTable').DataTable({
+                "language": { "url": "/lib/datatables/tr.json" },
+                "responsive": true,
+                "autoWidth": false,
+                "dom": '<"row"<"col-md-6"B><"col-md-6"f>>rtip',
+                "buttons": [
+                    
+                    {
+                        extend: 'pdfHtml5',
+                        text: '<i class="fas fa-file-pdf"></i> PDF Rapor',
+                        className: 'btn btn-danger btn-sm',
+                        orientation: 'landscape', // Yatay sayfa
+                        pageSize: 'A4',
+                        title: 'CureLogix - Merkez Depo Stok Durumu'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fas fa-print"></i> Yazdır',
+                        className: 'btn btn-secondary btn-sm'
+                    }
+                ]
+            });
+        });
+    </script>
+}

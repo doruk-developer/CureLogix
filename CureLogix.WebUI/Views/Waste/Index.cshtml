@@ -5,11 +5,23 @@
     ViewData["Title"] = "Atık Yönetimi";
 }
 
+<!-- 1. DataTables ve Buttons CSS -->
+<link rel="stylesheet" href="~/lib/datatables/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="~/lib/datatables/css/responsive.bootstrap5.min.css">
+<link href="~/lib/datatables/css/buttons.bootstrap5.min.css" rel="stylesheet" />
+
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6"><h1>☣️ Tıbbi Atık ve İmha Yönetimi</h1></div>
             <div class="col-sm-6 text-right">
+
+                <!-- YENİ: Profesyonel Excel Butonu -->
+                <a href="/Waste/ExportExcel" class="btn btn-success mr-1">
+                    <i class="fas fa-file-excel"></i> Excel Raporu
+                </a>
+
+                <!-- Mevcut Buton -->
                 <a href="/Waste/ScanAndMove" class="btn btn-warning">
                     <i class="fas fa-search"></i> Miad Kontrolü Yap (Otomatik Tarama)
                 </a>
@@ -30,8 +42,9 @@
 <section class="content">
     <div class="card card-dark card-outline">
         <div class="card-header"><h3 class="card-title">Geçmiş İmha Tutanakları</h3></div>
-        <div class="card-body table-responsive p-0">
-            <table class="table table-hover text-nowrap">
+        <div class="card-body">
+            <!-- Table'a ID (wasteTable) verdik -->
+            <table id="wasteTable" class="table table-hover table-striped w-100">
                 <thead>
                     <tr>
                         <th>Tarih</th>
@@ -55,12 +68,52 @@
                             </tr>
                         }
                     }
-                    else
-                    {
-                        <tr><td colspan="5" class="text-center text-muted">Henüz oluşturulmuş bir imha tutanağı bulunmuyor.</td></tr>
-                    }
                 </tbody>
             </table>
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <!-- DataTables JS Zinciri -->
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap5.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.responsive.min.js"></script>
+
+    <!-- Export Motorları -->
+    <script src="~/lib/datatables/js/dataTables.buttons.min.js"></script>
+    <script src="~/lib/datatables/js/jszip.min.js"></script>
+    <script src="~/lib/datatables/js/pdfmake.min.js"></script>
+    <script src="~/lib/datatables/js/vfs_fonts.js"></script>
+    <script src="~/lib/datatables/js/buttons.html5.min.js"></script>
+    <script src="~/lib/datatables/js/buttons.print.min.js"></script>
+    <script src="~/lib/datatables/js/buttons.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#wasteTable').DataTable({
+                "language": { "url": "/lib/datatables/tr.json" },
+                "responsive": true,
+                "autoWidth": false,
+                "dom": '<"row"<"col-md-6"B><"col-md-6"f>>rtip',
+                "buttons": [
+                    {
+                        extend: 'print',
+                        text: '<i class="fas fa-print"></i> TUTANAK YAZDIR',
+                        className: 'btn btn-dark btn-sm',
+                        title: '',
+                        messageTop: '<h2 class="text-center">TIBBİ ATIK İMHA TUTANAĞI</h2><p class="text-center">Aşağıda listelenen ürünler, yönetmeliklere uygun olarak imha edilmiştir.</p>',
+                        messageBottom: '<br><br><br><p class="text-right">Teslim Eden &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Teslim Alan &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>'
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: '<i class="fas fa-file-pdf"></i> PDF İndir',
+                        className: 'btn btn-danger btn-sm',
+                        orientation: 'portrait',
+                        title: 'CureLogix_ImhaTutanagi'
+                    }
+                ]
+            });
+        });
+    </script>
+}
