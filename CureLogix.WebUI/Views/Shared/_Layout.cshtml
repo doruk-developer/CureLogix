@@ -314,8 +314,13 @@
 
         <!-- D. FOOTER -->
         <footer class="app-footer">
-            <div class="float-end d-none d-sm-inline">v1.1 (Stable)</div>
-            <strong>Copyright &copy; @DateTime.Now.Year CureLogix.</strong>
+            <div class="float-end d-none d-sm-inline">
+                <!-- Tıklanabilir Versiyon Linki -->
+                <a href="#" data-bs-toggle="modal" data-bs-target="#modal-system-about" class="text-decoration-none text-muted fw-bold">
+                    <i class="fas fa-certificate text-warning me-1"></i> v1.2 (Enterprise)
+                </a>
+            </div>
+            <strong>Copyright &copy; @DateTime.Now.Year <a href="#" class="text-decoration-none">CureLogix Inc.</a></strong> Tüm hakları saklıdır.
         </footer>
     </div>
 
@@ -460,5 +465,74 @@
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
+
+    <!-- 🆔 SİSTEM KİMLİK VE LİSANS MODALI -->
+    <!-- 🆔 SİSTEM KİMLİK VE LİSANS MODALI (NO-MAIL VERSION) -->
+    <div class="modal fade" id="modal-system-about" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <!-- Üst Başlık -->
+                <div class="modal-header bg-primary text-white border-0">
+                    <h5 class="modal-title fw-light"><i class="fa-solid fa-heart-pulse me-2"></i>CureLogix</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                
+                <!-- İçerik -->
+                <div class="modal-body text-center p-4">
+                    <!-- Logo -->
+                    <div class="mb-3">
+                        <span class="fa-stack fa-3x">
+                            <i class="fas fa-circle fa-stack-2x text-primary opacity-25"></i>
+                            <i class="fas fa-heart-pulse fa-stack-1x text-primary"></i>
+                        </span>
+                    </div>
+
+                    <h3 class="fw-bold mb-1">CureLogix <span class="badge bg-warning text-dark" style="font-size: 0.5em; vertical-align: middle;">GOLD</span></h3>
+                    <p class="text-muted mb-4">Sağlık Lojistik ve Yapay Zeka Destek Sistemi</p>
+
+                    <!-- Lisans Bilgileri -->
+                    <div class="card bg-light border-0 mb-3">
+                        <div class="card-body p-2">
+                            <table class="table table-sm table-borderless mb-0 text-start" style="font-size: 0.9rem;">
+                                <tr>
+                                    <td class="text-muted"><i class="fas fa-code-branch me-2"></i>Versiyon:</td>
+                                    <td class="fw-bold text-end">v1.2.4 (Stable Build)</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><i class="fas fa-key me-2"></i>Lisans Tipi:</td>
+                                    <td class="fw-bold text-end text-success">Kurumsal / Sınırsız</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><i class="fas fa-fingerprint me-2"></i>Lisans No:</td>
+                                    <td class="fw-bold text-end" style="font-family: monospace;">CLX-2026-ENT-8842</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><i class="fas fa-server me-2"></i>Sunucu:</td>
+                                    <td class="fw-bold text-end">On-Premise (Local)</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Mail Butonu Yerine Sistem Durumu -->
+                    <div class="alert alert-success border-0 py-2 mb-0 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <small class="fw-bold">Sistem Durumu: AKTİF</small>
+                    </div>
+                </div>
+
+                <!-- Alt Bilgi -->
+                <div class="modal-footer justify-content-center bg-body-tertiary py-2">
+                    <small class="text-muted" style="font-size: 0.75rem;">
+                        &copy; 2026 Enterprise Health Solutions. Tüm hakları saklıdır.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
 </body>
 </html>

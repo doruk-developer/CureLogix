@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CureLogix.Entity.Concrete; // AuditLog için gerekli
+using System.ComponentModel.DataAnnotations;
 
 namespace CureLogix.WebUI.Models
 {
@@ -22,5 +23,9 @@ namespace CureLogix.WebUI.Models
         public string? ActiveTheme { get; set; }        // Dark / Light
         public string? ActiveChart { get; set; }        // Bar / Line
         public string? ActiveSidebarColor { get; set; } // Primary, Danger, Success vb.
+
+        // --- YENİ EKLENEN KISIM: GİRİŞ GEÇMİŞİ LİSTESİ ---
+        // Sayfada tabloyu göstermek için bu listeyi dolduracağız.
+        public List<AuditLog>? LogHistory { get; set; }
     }
 }

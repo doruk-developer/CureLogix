@@ -1,4 +1,5 @@
-﻿using CureLogix.Entity.Concrete;
+﻿using CureLogix.Business.Abstract; // Log Servisi için
+using CureLogix.Entity.Concrete;
 using CureLogix.WebUI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,24 +12,49 @@ namespace CureLogix.WebUI.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly IAuditLogService _auditService; // YENİ: Log servisi eklendi
 
-        public SettingsController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        public SettingsController(
+            UserManager<AppUser> userManager,
+            SignInManager<AppUser> signInManager,
+            IAuditLogService auditService) // YENİ: Constructor'a eklendi
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _auditService = auditService;
         }
 
         // SAYFA YÜKLENDİĞİNDE (GET)
         [HttpGet]
         public IActionResult Index()
         {
-            // Model oluştur ve Cookie'deki tercihleri oku
-            // Eğer Cookie yoksa varsayılan değerleri ata
+            // 1. Log Geçmişini Çek (Son 5 Kayıt)
+            var username = User.Identity?.Name ?? "";
+
+            // Eğer kullanıcı adı yoksa boş liste döndür (Güvenlik)
+            var userLogs = new List<AuditLog>();
+
+            if (!string.IsNullOrEmpty(username))
+            {
+                // Filtreleme: Sadece bu kullanıcının loglarını getir
+                // Sıralama: En yeniden eskiye
+                // Limitleme: Sadece son 5 kayıt
+                userLogs = _auditService.TGetList() // GenericRepository'de GetListByFilter varsa onu kullanmak daha performanslıdır
+                                .Where(x => x.UserName == username)
+                                .OrderByDescending(x => x.Date)
+                                .Take(30)
+                                .ToList();
+            }
+
+            // 2. Modeli Doldur
             var model = new SettingsViewModel
             {
                 ActiveTheme = Request.Cookies["ThemePreference"] ?? "light",
                 ActiveChart = Request.Cookies["ChartPreference"] ?? "bar",
-                ActiveSidebarColor = Request.Cookies["SidebarColorPreference"] ?? "primary"
+                ActiveSidebarColor = Request.Cookies["SidebarColorPreference"] ?? "primary",
+
+                // YENİ: Log listesini modele ekle
+                LogHistory = userLogs
             };
 
             return View(model);
@@ -76,14 +102,11 @@ namespace CureLogix.WebUI.Controllers
         }
 
         // TERCİHLERİ KAYDETME (AJAX POST)
-        // Bu metot sayfa yenilenmeden JavaScript tarafından çağrılır.
         [HttpPost]
         public IActionResult SetPreference(string theme, string chart, string sidebarColor)
         {
-            // Çerez ayarları (1 Yıl geçerli, tüm sitede erişilebilir)
             var options = new CookieOptions { Expires = DateTime.Now.AddYears(1), Path = "/" };
 
-            // Hangi veri geldiyse onu kaydet
             if (!string.IsNullOrEmpty(theme))
                 Response.Cookies.Append("ThemePreference", theme, options);
 
@@ -97,13 +120,23 @@ namespace CureLogix.WebUI.Controllers
         }
 
         // YARDIMCI METOT (HELPER)
-        // Hata durumunda sayfa geri dönerken, kullanıcının renk ayarlarının
-        // sıfırlanmasını (null gelmesini) engeller.
         private SettingsViewModel BuildModelWithCookies(SettingsViewModel model)
         {
             model.ActiveTheme = Request.Cookies["ThemePreference"] ?? "light";
             model.ActiveChart = Request.Cookies["ChartPreference"] ?? "bar";
             model.ActiveSidebarColor = Request.Cookies["SidebarColorPreference"] ?? "primary";
+
+            // Hata alıp sayfaya geri dönerken Log tablosu boş kalmasın diye tekrar çekiyoruz
+            var username = User.Identity?.Name ?? "";
+            if (!string.IsNullOrEmpty(username))
+            {
+                model.LogHistory = _auditService.TGetList()
+                                .Where(x => x.UserName == username)
+                                .OrderByDescending(x => x.Date)
+                                .Take(30)
+                                .ToList();
+            }
+
             return model;
         }
     }

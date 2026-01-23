@@ -123,6 +123,61 @@
                                 <!option value="line" @(Model.ActiveChart == "line" ? "selected" : "")>Çizgi Grafik</!option>
                             </select>
                         </div>
+
+                        <!-- GÜVENLİK GEÇMİŞİ KARTI -->
+                        <div class="card card-outline card-danger mt-4">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-user-shield me-2"></i> Son Erişim Kayıtları (Güvenlik Geçmişi)</h3>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>İşlem</th>
+                                            <th>IP Adresi</th>
+                                            <th>Tarih</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.LogHistory != null && Model.LogHistory.Any())
+                                        {
+                                            @foreach (var log in Model.LogHistory)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        @if (log.Activity.Contains("Hatalı"))
+                                                        {
+                                                            <span class="badge bg-danger">BAŞARISIZ GİRİŞ</span>
+                                                        }
+                                                        else if (log.Activity.Contains("Çıkış"))
+                                                        {
+                                                            <span class="badge bg-secondary">ÇIKIŞ</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-success">BAŞARILI GİRİŞ</span>
+                                                        }
+                                                        <small class="d-block text-muted">@log.Activity</small>
+                                                    </td>
+                                                    <td style="font-family: monospace;">@log.IpAddress</td>
+                                                    <td>@log.Date.ToString("dd.MM.yyyy HH:mm")</td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted">Henüz kayıt bulunamadı.</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="card-footer text-muted text-center small">
+                                * Hesap güvenliğiniz için son 30 erişim hareketiniz listelenmektedir.
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
