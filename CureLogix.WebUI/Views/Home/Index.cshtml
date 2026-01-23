@@ -12,28 +12,32 @@
         <!-- KPI KARTLARI -->
         <div class="row">
             <div class="col-lg-3 col-6">
-                <div class="small-box bg-info">
+                <!-- ID EKLENDİ: tour-kpi-hospital -->
+                <div id="tour-kpi-hospital" class="small-box bg-info">
                     <div class="inner"><h3>@Model.TotalHospitals</h3><p>Bağlı Hastane</p></div>
                     <div class="icon"><i class="fas fa-hospital-alt"></i></div>
                     <a href="/Hospital/Index" class="small-box-footer">Detaylar <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
             <div class="col-lg-3 col-6">
-                <div class="small-box bg-success">
+                <!-- ID EKLENDİ: tour-kpi-doctor -->
+                <div id="tour-kpi-doctor" class="small-box bg-success">
                     <div class="inner"><h3>@Model.TotalDoctors</h3><p>Aktif Personel</p></div>
                     <div class="icon"><i class="fas fa-user-md"></i></div>
                     <a href="/Doctor/Index" class="small-box-footer">Detaylar <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
             <div class="col-lg-3 col-6">
-                <div class="small-box bg-warning">
+                <!-- ID EKLENDİ: tour-kpi-request -->
+                <div id="tour-kpi-request" class="small-box bg-warning">
                     <div class="inner"><h3>@Model.PendingRequests</h3><p>Bekleyen Talep</p></div>
                     <div class="icon"><i class="fas fa-truck-loading"></i></div>
                     <a href="/Supply/Index" class="small-box-footer">Yönet <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
             <div class="col-lg-3 col-6">
-                <div class="small-box bg-danger">
+                <!-- ID EKLENDİ: tour-kpi-stock -->
+                <div id="tour-kpi-stock" class="small-box bg-danger">
                     <div class="inner"><h3>@Model.CriticalStockCount</h3><p>Kritik Stok Kalemi</p></div>
                     <div class="icon"><i class="fas fa-exclamation-triangle"></i></div>
                     <a href="/CentralStock/Index" class="small-box-footer">İkmal Yap <i class="fas fa-arrow-circle-right"></i></a>
@@ -44,7 +48,8 @@
         <!-- GRAFİKLER -->
         <div class="row">
             <div class="col-lg-8">
-                <div class="card card-primary card-outline">
+                <!-- ID EKLENDİ: tour-chart-main -->
+                <div id="tour-chart-main" class="card card-primary card-outline">
                     <div class="card-header">
                         <h3 class="card-title"><i class="fas fa-chart-line mr-1"></i> Hastane Doluluk Analizi</h3>
                         <div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div>
@@ -56,7 +61,8 @@
                     </div>
                 </div>
 
-                <div class="card card-danger card-outline">
+                <!-- ID EKLENDİ: tour-table-critical -->
+                <div id="tour-table-critical" class="card card-danger card-outline">
                     <div class="card-header"><h3 class="card-title"><i class="fas fa-battery-quarter mr-1"></i> Tükenmek Üzere Olan İlaçlar</h3></div>
                     <div class="card-body p-0 table-responsive" style="height: 300px;">
                         <table class="table table-striped table-valign-middle">
@@ -78,7 +84,8 @@
             </div>
 
             <div class="col-lg-4">
-                <div class="card card-warning card-outline">
+                <!-- ID EKLENDİ: tour-chart-pie -->
+                <div id="tour-chart-pie" class="card card-warning card-outline">
                     <div class="card-header"><h3 class="card-title">Talep/Karşılama Oranı</h3></div>
                     <div class="card-body">
                         <div class="chart" style="position: relative; height: 250px;">
@@ -87,7 +94,8 @@
                     </div>
                 </div>
 
-                <div class="card card-success card-outline">
+                <!-- ID EKLENDİ: tour-chart-radar -->
+                <div id="tour-chart-radar" class="card card-success card-outline">
                     <div class="card-header"><h3 class="card-title">Stok Yeterlilik (Radar)</h3></div>
                     <div class="card-body">
                         <div class="chart" style="position: relative; height: 250px;">
@@ -96,7 +104,8 @@
                     </div>
                 </div>
 
-                <div class="card card-secondary">
+                <!-- ID EKLENDİ: tour-logs -->
+                <div id="tour-logs" class="card card-secondary">
                     <div class="card-header"><h3 class="card-title">Son Aktiviteler</h3></div>
                     <div class="card-body p-0">
                         <ul class="products-list product-list-in-card pl-2 pr-2">

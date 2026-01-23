@@ -188,6 +188,8 @@
     <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/theme/css/adminlte.min.css">
+    <!-- Driver.js CSS (Tur için gerekli) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.css" />
 </head>
 
 <body class="layout-fixed sidebar-expand-lg @bodyClass" data-bs-theme="@themeAttr">
@@ -302,13 +304,13 @@
 
         <!-- C. İÇERİK ALANI -->
         <main class="app-main">
-    <div class="app-content pt-3">
-        <!-- Animasyon sınıfını buraya ekledik -->
-        <div class="container-fluid fade-in-page">
-            @RenderBody()
-        </div>
-    </div>
-</main>
+            <div class="app-content pt-3">
+                <!-- Animasyon sınıfını buraya ekledik -->
+                <div class="container-fluid fade-in-page">
+                    @RenderBody()
+                </div>
+            </div>
+        </main>
 
         <!-- D. FOOTER -->
         <footer class="app-footer">
@@ -322,6 +324,8 @@
     <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/sweetalert/sweetalert2.all.min.js"></script>
     <script src="~/theme/js/adminlte.js"></script>
+    <!-- Driver.js Kütüphanesi -->
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.js.iife.js"></script>
 
     <script>
         // 1. TOAST BİLDİRİMLER (FADE ONLY)
@@ -370,7 +374,89 @@
             setInterval(checkSystemPulse, 30000);
         });
 
-        function startTour() { /* Driver.js buraya */ }
+        // 3. INTERAKTİF SİSTEM TURU (Driver.js)
+        function startTour() {
+            // Eğer ana sayfada değilsek, önce ana sayfaya git
+            if (window.location.pathname !== "/" && window.location.pathname !== "/Home/Index") {
+                if(confirm("Sistem turu Ana Sayfa üzerinden başlamaktadır. Ana sayfaya yönlendirilmek ister misiniz?")) {
+                    window.location.href = "/?tour=start"; // URL'e parametre ekle
+                }
+                return;
+            }
+
+            const driver = window.driver.js.driver;
+            const driverObj = driver({
+                showProgress: true,
+                animate: true,
+                allowClose: true,
+                nextBtnText: 'İleri >',
+                prevBtnText: '< Geri',
+                doneBtnText: 'Turu Tamamla',
+                steps: [
+                    { 
+                        element: '.brand-link', 
+                        popover: { 
+                            title: 'CureLogix\'e Hoş Geldiniz!', 
+                            description: 'Bu sistem; sağlık lojistiği, kriz yönetimi ve yapay zeka destekli stok takibini tek çatı altında toplar.' 
+                        } 
+                    },
+                    { 
+                        element: '#tour-kpi-hospital', 
+                        popover: { 
+                            title: 'Hastane Ağı', 
+                            description: 'Sisteme bağlı tüm hastanelerin anlık durumunu ve toplam sayısını buradan görebilirsiniz.' 
+                        } 
+                    },
+                    { 
+                        element: '#tour-kpi-request', 
+                        popover: { 
+                            title: 'Acil Talepler', 
+                            description: 'Hastanelerden gelen ve onay bekleyen ilaç/malzeme talepleri burada listelenir.' 
+                        } 
+                    },
+                    { 
+                        element: '#tour-kpi-stock', 
+                        popover: { 
+                            title: 'Kritik Stok Uyarısı', 
+                            description: 'Stoğu tükenmek üzere olan veya SKT\'si yaklaşan (FEFO) ürünler için kırmızı alarm verir.' 
+                        } 
+                    },
+                    { 
+                        element: '#tour-chart-main', 
+                        popover: { 
+                            title: 'Yapay Zeka Destekli Analiz', 
+                            description: 'Bölgedeki hastanelerin doluluk oranlarını ve geleceğe yönelik trendleri görselleştirir.' 
+                        } 
+                    },
+                    { 
+                        element: '#tour-table-critical', 
+                        popover: { 
+                            title: 'Hızlı Müdahale Tablosu', 
+                            description: 'Acil müdahale gerektiren ilaçlar listelenir. Tek tıkla Merkez Depo\'dan ikmal başlatabilirsiniz.' 
+                        } 
+                    },
+                    { 
+                        element: '#tour-logs', 
+                        popover: { 
+                            title: 'Denetim Günlüğü (Audit Logs)', 
+                            description: 'Sistemdeki her işlem (Giriş, Kayıt, Silme) anlık olarak burada ve veritabanında loglanır.' 
+                        } 
+                    }
+                ]
+            });
+
+            driverObj.drive();
+        }
+
+        // Sayfa yüklendiğinde URL'de 'tour=start' varsa turu otomatik başlat
+        $(document).ready(function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('tour') === 'start') {
+                // URL'i temizle ve turu başlat
+                window.history.replaceState({}, document.title, "/");
+                startTour();
+            }
+        });
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
