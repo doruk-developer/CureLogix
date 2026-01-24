@@ -39,16 +39,22 @@ namespace CureLogix.DataAccess.Concrete
         // ==========================================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // ÖNEMLİ: Identity tablolarının (AspNetUsers, AspNetRoles) düzgün çalışması için
-            // base.OnModelCreating(modelBuilder); satırı MUTLAKA EN BAŞTA olmalıdır.
+            // 1. Identity ayarları için şart (EN ÜSTTE OLMALI)
             base.OnModelCreating(modelBuilder);
 
-            // Tablo Adı Eşleştirmeleri (Manuel Düzeltmeler)
+            // 2. Tablo İsim Sabitlemeleri
             modelBuilder.Entity<CentralWarehouse>().ToTable("CentralWarehouse");
             modelBuilder.Entity<HospitalInventory>().ToTable("HospitalInventory");
             modelBuilder.Entity<WasteReport>().ToTable("WasteReports");
             modelBuilder.Entity<ErrorLog>().ToTable("ErrorLogs");
             modelBuilder.Entity<AuditLog>().ToTable("AuditLogs");
+
+            // 3. ✅ KISIR DÖNGÜYÜ KIRAN KOD (Önceki hatanın çözümü)
+            modelBuilder.Entity<CouncilVote>()
+                .HasOne(v => v.TreatmentProtocol)
+                .WithMany(p => p.CouncilVotes)
+                .HasForeignKey(v => v.ProtocolId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

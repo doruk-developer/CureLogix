@@ -24,13 +24,20 @@ var builder = WebApplication.CreateBuilder(args);
 var machineName = Environment.MachineName;
 string connectionStringName;
 
-if (machineName == "N56VZ-DORUK")
+// Docker Kontrolü (Ortam değişkenine bakar)
+var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+
+if (isDocker)
+{
+    connectionStringName = "DockerConnection"; // Docker-Compose'dan gelen ayar
+}
+else if (machineName == "N56VZ-DORUK")
 {
     connectionStringName = "HomeConnection";
 }
 else
 {
-    connectionStringName = "WorkConnection"; // Varsayılan İş Bilgisayarı
+    connectionStringName = "WorkConnection";
 }
 
 var connectionString = builder.Configuration.GetConnectionString(connectionStringName)
@@ -128,7 +135,7 @@ builder.Services.AddHangfire(config => config
     .UseRecommendedSerializerSettings()
     .UseSqlServerStorage(connectionString));
 
-builder.Services.AddHangfireServer();
+// builder.Services.AddHangfireServer();
 
 // 5. SWAGGER KONFİGÜRASYONU (API Dökümantasyonu)
 builder.Services.AddEndpointsApiExplorer();
@@ -144,7 +151,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 
-// 6. UYGULAMA PIPELINE (MIDDLEWARE)
+// 5. UYGULAMA PIPELINE (MIDDLEWARE)
 var app = builder.Build();
 
 app.UseSwagger();
@@ -196,50 +203,63 @@ app.UseHangfireDashboard("/hangfire");
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<CureLogixContext>();
 
-    // A) HANGFIRE GÖREVLERİ
-    try
+    // Docker'da SQL Server'ın ayağa kalkması 15-20 saniye sürebilir.
+    // 3'er saniye arayla 10 kez (Toplam 30 saniye) deneyeceğiz.
+    int maxRetries = 10;
+    int delay = 3000;
+    bool isDbReady = false;
+
+    for (int i = 0; i < maxRetries; i++)
     {
-        var recurringJobManager = services.GetRequiredService<IRecurringJobManager>();
-        var warehouseService = services.GetRequiredService<ICentralWarehouseService>();
-
-        recurringJobManager.AddOrUpdate(
-            "Otomatik-Siparis-Olusturma",
-            () => warehouseService.CheckExpiriesAndCreateOrder(),
-            Cron.Daily(3) // Her gece 03:00
-        );
-    }
-    catch (Exception ex)
-    {
-        // DB yoksa Hangfire görevi kurulamaz, ama site açılsın.
-        Console.WriteLine($"⚠️ UYARI: Hangfire Job başlatılamadı (DB Hatası): {ex.Message}");
-    }
-
-    // B) VERİ TOHUMLAMA (SEED DATA)
-    try
-    {
-        var context = services.GetRequiredService<CureLogixContext>();
-
-        // Veritabanı ile el sıkış (Ping at)
-        if (context.Database.CanConnect())
+        try
         {
+            Console.WriteLine($"⏳ [VERİTABANI] Bağlantı deneniyor ({i + 1}/{maxRetries})...");
+
+            // Veritabanını oluşturmayı dene (Yoksa oluşturur, varsa dokunmaz)
+            context.Database.EnsureCreated();
+
+            // Kullanıcıları ve Rolleri oluştur
             var userManager = services.GetRequiredService<UserManager<AppUser>>();
             var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
-
-            // Veritabanı yoksa oluştur (Migrationları bas)
-            // context.Database.EnsureCreated(); // Bu satır bazen Migration çakışması yaratabilir, dikkatli kullanılmalı.
-            // Eğer Migration kullanıyorsan: context.Database.Migrate();
-
-            // Verileri Doldur
             await DbSeeder.SeedAsync(context, userManager, roleManager);
+
+            Console.WriteLine("✅ [BAŞARILI] Veritabanı ve Tohum Veriler Hazır.");
+            isDbReady = true;
+            break; // Başarılı, döngüden çık.
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"⚠️ [BEKLEMEDE] SQL Server henüz hazır değil: {ex.Message}");
+            System.Threading.Thread.Sleep(delay); // 3 saniye bekle
         }
     }
-    catch (Exception ex)
+
+    if (isDbReady)
     {
-        // DB yoksa Seed yapılamaz, ama site açılsın.
-        Console.WriteLine($"⚠️ UYARI: Seed Data atlandı (DB Hatası): {ex.Message}");
+        // Sadece veritabanı hazırsa Hangfire görevlerini kur
+        try
+        {
+            var recurringJobManager = services.GetRequiredService<IRecurringJobManager>();
+            var warehouseService = services.GetRequiredService<ICentralWarehouseService>();
+
+            recurringJobManager.AddOrUpdate(
+                "Otomatik-Siparis-Olusturma",
+                () => warehouseService.CheckExpiriesAndCreateOrder(),
+                Cron.Daily(3)
+            );
+            Console.WriteLine("✅ [HANGFIRE] Görevler başarıyla tanımlandı.");
+        }
+        catch (Exception ex) { Console.WriteLine($"❌ Hangfire Hatası: {ex.Message}"); }
+    }
+    else
+    {
+        // 30 saniye boyunca bağlanamazsa bile uygulama açılmaya devam eder (Fail-Safe)
+        Console.WriteLine("❌ [KRİTİK] Veritabanı ulaşılamadı. Uygulama verisiz başlatılıyor.");
     }
 }
+
 
 // Endpoint Tanımları
 app.MapHub<GeneralHub>("/generalHub"); // SignalR

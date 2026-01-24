@@ -9,7 +9,7 @@
         public string Comment { get; set; }
         public DateTime? VoteDate { get; set; }
 
-        public virtual TreatmentProtocol Protocol { get; set; }
+        public virtual TreatmentProtocol TreatmentProtocol { get; set; }
         public virtual Doctor RefereeDoctor { get; set; }
     }
 }
