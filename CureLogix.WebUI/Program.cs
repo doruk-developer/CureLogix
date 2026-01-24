@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,7 +72,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 // GLOBAL AUTHORIZATION ve JSON AYARLARI
 builder.Services.AddControllersWithViews(config =>
 {
-    // 1. Global Kilit (Authorization)
+    // 1. Global Kilit (Giriş yapmayan hiçbir sayfayı göremez)
     var policy = new AuthorizationPolicyBuilder()
                      .RequireAuthenticatedUser()
                      .Build();
@@ -80,7 +81,10 @@ builder.Services.AddControllersWithViews(config =>
 })
 .AddJsonOptions(options =>
 {
-    // 2. JSON Format Ayarı (Büyük/Küçük Harf Değiştirme)
+    // 2. Sonsuz Döngü (Circular Reference) Engelleme - API için kritik!
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+
+    // 3. JSON Format Ayarı (İsimleri olduğu gibi PascalCase bırakır)
     options.JsonSerializerOptions.PropertyNamingPolicy = null;
 });
 
@@ -126,11 +130,29 @@ builder.Services.AddHangfire(config => config
 
 builder.Services.AddHangfireServer();
 
-// ==================================================================
-// 5. UYGULAMA PIPELINE (MIDDLEWARE)
-// ==================================================================
+// 5. SWAGGER KONFİGÜRASYONU (API Dökümantasyonu)
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "CureLogix Enterprise API",
+        Version = "v1",
+        Description = "Sağlık Lojistiği ve Stok Yönetimi Entegrasyon Servisi",
+        Contact = new OpenApiContact { Name = "CureLogix Dev Team" }
+    });
+});
 
+
+// 6. UYGULAMA PIPELINE (MIDDLEWARE)
 var app = builder.Build();
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "CureLogix API v1");
+    c.RoutePrefix = "api-docs";
+});
 
 // HATA YÖNETİMİ
 //if (!app.Environment.IsDevelopment())
