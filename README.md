@@ -332,4 +332,10 @@ Interested in acquiring a license or hiring the architect? Please reach out via 
 
 ---
 
-**Author:** [Doruk AVGIN](https://github.com/doruk-developer) | *Full Stack Software Engineer*
+<div align="center">
+  <sub>Designed & Engineered by <strong>[Doruk AVGIN](https://github.com/doruk-developer)</strong></sub>
+  <br>
+  <small>Reliability • Intelligence • Security • Simplicity</small>
+  <br>
+  <sub style="font-size: 0.7em;">© 2026 CureLogix Project • Portfolio Showcase • Enterprise Architecture Demonstration</sub>
+</div>
