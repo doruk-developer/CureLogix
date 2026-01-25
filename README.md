@@ -20,6 +20,17 @@
 
 ## 📋 Executive Summary
 
+---
+
+## 📸 System Showcase
+<div align="center">
+  <img src="screenshots/Dashboard.png" width="90%" alt="CureLogix Dashboard View">
+  <br>
+  <em>CureLogix Komuta Kontrol Merkezi - Gerçek Zamanlı Veri Analizi ve AI Tahmin Ekranı</em>
+</div>
+
+---
+
 **CureLogix** is an advanced healthcare logistics management system engineered to demonstrate **Enterprise-Level Software Architecture**. Unlike traditional inventory software, it combines **Real-Time Logistics**, **AI-Powered Demand Forecasting**, and **Crisis Management** into a single, fail-safe platform.
 
 This project serves as a comprehensive **Technical Showcase**, highlighting modern software engineering principles such as **Offline-First**, **Zero-Trust Security**, and **Domain-Driven Design (DDD)**.
@@ -291,8 +302,8 @@ This isn't just code—it's a masterclass in enterprise software engineering.
 
 ---
 
-### 🏆 Why This Project Stands Out
-*This isn't just code—it's a masterclass in enterprise software engineering.*
+## 🏆 Why This Project Stands Out
+> *This isn't just code—it's a masterclass in enterprise software engineering.*
 
 | Feature | Traditional Projects | CureLogix Solution |
 | :--- | :--- | :--- |
@@ -305,21 +316,19 @@ This isn't just code—it's a masterclass in enterprise software engineering.
 ---
 
 ## 🔑 Default Credentials (Simulation Access)
-*The following credentials can be used to explore the RBAC (Role-Based Access Control) capabilities:*
+*The following credentials can be used to explore the RBAC capabilities:*
 
 | Role | Username | Password |
 | :--- | :--- | :--- |
 | **Administrator** | `Admin` | `CureLogix123!` |
 | **Standard User** | `[ANY_USER_NAME]` | `CureLogix123!` |
 
-> **Note:** For simulation purposes, any registered staff name can be used with the universal system password.
-
 ---
 
 ## ⚠️ Legal Notice & Usage Rights
 **© 2026 CureLogix Project. All Rights Reserved.**
 
-This software is a **Proprietary Work** developed by the author. It is published here for **Portfolio and Demonstration purposes only**. Unauthorized commercial use, redistribution, or resale is strictly prohibited.
+This software is a **Proprietary Work** developed by the author. It is published here for **Portfolio and Demonstration purposes only**. Unauthorized commercial use or redistribution is strictly prohibited.
 
 ### 💼 Commercial Inquiries
 Interested in acquiring a license or hiring the architect? Please reach out via **GitHub Profile** or create a **Private Issue** in this repository.
