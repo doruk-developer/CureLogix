@@ -51,23 +51,20 @@ The project follows strict **N-Tier Architecture** principles with **Separation 
 
 ```text
 ┌─────────────────────────────────────────┐
-│  Presentation Layer (WebUI)             │
-│  • ASP.NET Core MVC                     │
-│  • API Controllers (Swagger)            │
-│  • Middleware Pipeline                  │
+│       Presentation Layer (WebUI)        │
+│  - ASP.NET Core MVC   - SignalR Hubs    │
+│  - API Controllers    - Middleware Pipe │
 ├─────────────────────────────────────────┤
-│  Business Logic Layer                   │
-│  • Service Managers                     │
-│  • AI Engine (ML.NET)                   │
-│  • Validation Rules (FluentValidation)  │
+│         Business Logic Layer            │
+│  - Service Managers   - AI Engine (ML)  │
+│  - Validation Rules   - AutoMapper      │
 ├─────────────────────────────────────────┤
-│  Data Access Layer                      │
-│  • Entity Framework Core                │
-│  • Generic Repositories                 │
-│  • Intelligent DbSeeder                 │
+│          Data Access Layer              │
+│  - Entity Framework   - Generic Repos   │
+│  - Migrations         - Intelligent Seed│
 ├─────────────────────────────────────────┤
-│  Data Storage Layer                     │
-│  • MS SQL Server 2022                   │
+│          Data Storage Layer             │
+│  - MS SQL Server      - Audit Log Store │
 └─────────────────────────────────────────┘
 Key Architectural Principles
 Fail-Safe Engineering: Systems degrade gracefully, never crash
@@ -335,8 +332,4 @@ Interested in acquiring a license or hiring the architect? Please reach out via 
 
 ---
 
-<div align="center">
-  <sub>Designed & Engineered by <strong>Doruk (Full Stack Architect)</strong></sub>
-  <br>
-  <small>Reliability • Intelligence • Security • Simplicity</small>
-</div>
+**Author:** [Doruk AVGIN](https://github.com/doruk-developer) | *Full Stack Software Engineer*
