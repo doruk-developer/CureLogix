@@ -289,6 +289,8 @@ Note: I do not provide free technical support, custom development, or implementa
 🏆 Why This Project Stands Out
 This isn't just code—it's a masterclass in enterprise software engineering.
 
+---
+
 ### 🏆 Why This Project Stands Out
 *This isn't just code—it's a masterclass in enterprise software engineering.*
 
@@ -300,14 +302,32 @@ This isn't just code—it's a masterclass in enterprise software engineering.
 | **Inventory Logic** | Manual / Static entries | **AI-Powered FEFO** forecasting engine |
 | **Reliability** | Minimal / Happy-path testing | **100% Critical Path Coverage** (xUnit) |
 
-https://img.shields.io/badge/Explore_Full_Code-2563EB?style=for-the-badge
-https://img.shields.io/badge/Study_Architecture-7C3AED?style=for-the-badge
-https://img.shields.io/badge/Deploy_Demo-10B981?style=for-the-badge
+---
 
-Designed & Engineered by a Senior Full-Stack Architect
-A showcase of what enterprise software should be: Reliable, Intelligent, Secure, and Maintainable.
+## 🔑 Default Credentials (Simulation Access)
+*The following credentials can be used to explore the RBAC (Role-Based Access Control) capabilities:*
 
+| Role | Username | Password |
+| :--- | :--- | :--- |
+| **Administrator** | `Admin` | `CureLogix123!` |
+| **Standard User** | `[ANY_USER_NAME]` | `CureLogix123!` |
 
-<sub>© 2026 CureLogix Project • Portfolio Showcase • Enterprise Architecture Demonstration</sub>
+> **Note:** For simulation purposes, any registered staff name can be used with the universal system password.
 
-</div> ```
+---
+
+## ⚠️ Legal Notice & Usage Rights
+**© 2026 CureLogix Project. All Rights Reserved.**
+
+This software is a **Proprietary Work** developed by the author. It is published here for **Portfolio and Demonstration purposes only**. Unauthorized commercial use, redistribution, or resale is strictly prohibited.
+
+### 💼 Commercial Inquiries
+Interested in acquiring a license or hiring the architect? Please reach out via **GitHub Profile** or create a **Private Issue** in this repository.
+
+---
+
+<div align="center">
+  <sub>Designed & Engineered by <strong>Doruk (Full Stack Architect)</strong></sub>
+  <br>
+  <small>Reliability • Intelligence • Security • Simplicity</small>
+</div>
