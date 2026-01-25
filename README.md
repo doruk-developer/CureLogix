@@ -149,7 +149,7 @@ Deploy the full stack (App + SQL Server) with a single command:
 
 bash
 # Clone the repository
-git clone https://github.com/yourusername/CureLogix.git
+git clone https://github.com/doruk-developer/CureLogix.git
 cd CureLogix
 
 # Launch the entire system
@@ -289,12 +289,16 @@ Note: I do not provide free technical support, custom development, or implementa
 🏆 Why This Project Stands Out
 This isn't just code—it's a masterclass in enterprise software engineering.
 
-Traditional Projects	CureLogix
-Basic CRUD operations	Mission-critical logistics
-Simple authentication	Self-healing, fail-safe auth
-Online-only	Offline-first architecture
-Manual stock management	AI-powered FEFO forecasting
-Minimal testing	100% critical path coverage
+### 🏆 Why This Project Stands Out
+*This isn't just code—it's a masterclass in enterprise software engineering.*
+
+| Feature | Traditional Projects | CureLogix Solution |
+| :--- | :--- | :--- |
+| **Operational Scope** | Basic CRUD operations | Mission-critical logistics & crisis mgmt. |
+| **Authentication** | Simple login/logout | Self-healing, fail-safe auth architecture |
+| **Availability** | Online-only dependency | **Offline-First** (Zero-CDN) architecture |
+| **Inventory Logic** | Manual / Static entries | **AI-Powered FEFO** forecasting engine |
+| **Reliability** | Minimal / Happy-path testing | **100% Critical Path Coverage** (xUnit) |
 
 https://img.shields.io/badge/Explore_Full_Code-2563EB?style=for-the-badge
 https://img.shields.io/badge/Study_Architecture-7C3AED?style=for-the-badge
