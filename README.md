@@ -58,7 +58,7 @@ The project follows strict **N-Tier Architecture** principles with **Separation 
 │          Business Logic Layer             │
 │  - Service Managers   - AI Engine (ML)    │
 │  - Validation Rules   - AutoMapper        │
-├───────────────────────────────────────── ─┤
+├───────────────────────────────────────────┤
 │           Data Access Layer               │
 │  - Entity Framework   - Generic Repos     │
 │  - Migrations         - Intelligent Seed  │
@@ -332,8 +332,11 @@ Interested in acquiring a license or hiring the architect? Please reach out via 
 
 ---
 
-<p align="center">
-  <strong>Designed & Engineered by <a href="https://github.com/doruk-developer">Doruk AVGIN</a></strong><br>
-  <em>Reliability • Intelligence • Security • Simplicity</em><br>
-  <sub style="font-size: 0.8em;">© 2026 CureLogix Project • Portfolio Showcase • Enterprise Architecture Demonstration</sub>
-</p>
+### 👤 Author
+**Doruk AVGIN** - [GitHub Profile](https://github.com/doruk-developer)
+*Software Developer & Electrical/Electronics Engineer*
+
+**Core Principles:** Reliability • Intelligence • Security • Simplicity
+
+---
+> © 2026 **CureLogix Project**. This repository is maintained for portfolio and demonstration purposes. All architectural patterns and original logic are proprietary.
