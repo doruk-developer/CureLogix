@@ -50,22 +50,22 @@ This project serves as a comprehensive **Technical Showcase**, highlighting mode
 The project follows strict **N-Tier Architecture** principles with **Separation of Concerns (SoC)**.
 
 ```text
-┌─────────────────────────────────────────┐
-│       Presentation Layer (WebUI)        │
-│  - ASP.NET Core MVC   - SignalR Hubs    │
-│  - API Controllers    - Middleware Pipe │
-├─────────────────────────────────────────┤
-│         Business Logic Layer            │
-│  - Service Managers   - AI Engine (ML)  │
-│  - Validation Rules   - AutoMapper      │
-├─────────────────────────────────────────┤
-│          Data Access Layer              │
-│  - Entity Framework   - Generic Repos   │
-│  - Migrations         - Intelligent Seed│
-├─────────────────────────────────────────┤
-│          Data Storage Layer             │
-│  - MS SQL Server      - Audit Log Store │
-└─────────────────────────────────────────┘
+┌───────────────────────────────────────────┐
+│        Presentation Layer (WebUI)         │
+│  - ASP.NET Core MVC   - SignalR Hubs      │
+│  - API Controllers    - Middleware Pipe   │
+├───────────────────────────────────────────┤
+│          Business Logic Layer             │
+│  - Service Managers   - AI Engine (ML)    │
+│  - Validation Rules   - AutoMapper        │
+├───────────────────────────────────────── ─┤
+│           Data Access Layer               │
+│  - Entity Framework   - Generic Repos     │
+│  - Migrations         - Intelligent Seed  │
+├───────────────────────────────────────────┤
+│           Data Storage Layer              │
+│  - MS SQL Server      - Audit Log Store   │
+└───────────────────────────────────────────┘
 Key Architectural Principles
 Fail-Safe Engineering: Systems degrade gracefully, never crash
 
@@ -332,10 +332,8 @@ Interested in acquiring a license or hiring the architect? Please reach out via 
 
 ---
 
-<div align="center">
-  <sub>Designed & Engineered by <strong>[Doruk AVGIN](https://github.com/doruk-developer)</strong></sub>
-  <br>
-  <small>Reliability • Intelligence • Security • Simplicity</small>
-  <br>
-  <sub style="font-size: 0.7em;">© 2026 CureLogix Project • Portfolio Showcase • Enterprise Architecture Demonstration</sub>
-</div>
+<p align="center">
+  <strong>Designed & Engineered by <a href="https://github.com/doruk-developer">Doruk AVGIN</a></strong><br>
+  <em>Reliability • Intelligence • Security • Simplicity</em><br>
+  <sub style="font-size: 0.8em;">© 2026 CureLogix Project • Portfolio Showcase • Enterprise Architecture Demonstration</sub>
+</p>
