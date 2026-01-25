@@ -13,10 +13,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CureLogix.Business", "CureL
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
-		docker-compose.yml = docker-compose.yml
 		.dockerignore = .dockerignore
+		docker-compose.yml = docker-compose.yml
 		Dockerfile = Dockerfile
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CureLogix.Tests", "CureLogix.Tests\CureLogix.Tests.csproj", "{37422E82-0FA5-4852-A4A2-9E8D5FFD9D63}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +42,10 @@ Global
 		{D1E58CA3-6DED-4CB1-8E43-51D91E5488FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1E58CA3-6DED-4CB1-8E43-51D91E5488FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1E58CA3-6DED-4CB1-8E43-51D91E5488FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37422E82-0FA5-4852-A4A2-9E8D5FFD9D63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37422E82-0FA5-4852-A4A2-9E8D5FFD9D63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37422E82-0FA5-4852-A4A2-9E8D5FFD9D63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37422E82-0FA5-4852-A4A2-9E8D5FFD9D63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
