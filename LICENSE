@@ -1,0 +1,51 @@
+CURELOGIX PROPRIETARY SOURCE-AVAILABLE LICENSE AGREEMENT
+Version 1.0 (Enterprise Edition)
+
+Copyright (c) 2026 Doruk AVGIN. All Rights Reserved.
+
+IMPORTANT: PLEASE READ THIS LICENSE CAREFULLY BEFORE ACCESSING, DOWNLOADING, OR USING THE SOFTWARE.
+
+This software ("CureLogix"), including all source code, database schemas, algorithms (specifically FEFO and AI Forecasting logic), and documentation, is the exclusive proprietary property of Doruk AVGIN ("The Author").
+
+By accessing or using this repository, you agree to be bound by the terms of this License.
+
+---
+
+1. GRANT OF LIMITED LICENSE (NON-COMMERCIAL)
+The Author hereby grants you a limited, non-exclusive, non-transferable, and revocable license to:
+
+   A. EDUCATION & EVALUATION: View, download, and compile the source code for the sole purposes of:
+      i.  Educational study of the software architecture.
+      ii. Evaluating the technical skills and engineering capabilities of the Author (Portfolio Review).
+      iii. Local testing and demonstration on a non-production environment.
+
+   B. RESTRICTIONS: This license DOES NOT grant you any rights to:
+      i.  Use the Software for any commercial purpose, revenue generation, or business operation.
+      ii. Deploy the Software in a live healthcare environment (Hospitals, Pharmacies, Logistics Centers).
+      iii. Sell, sub-license, rent, lease, or redistribute the Software or any portion thereof.
+      iv. Use the Software to create a competing product or service (White-Labeling).
+
+2. INTELLECTUAL PROPERTY & PROPRIETARY RIGHTS
+   A. The Software is NOT Open Source. It is "Source-Available" proprietary software.
+   B. All intellectual property rights, including but not limited to the AI Forecasting Models, FEFO Logic, and Resilience Architectures, remain the sole property of the Author.
+   C. You may not remove, alter, or obscure any copyright, proprietary, or trademark notices from the Software.
+
+3. PATIENT SAFETY & DATA PRIVACY DISCLAIMER
+   This Software is designed for demonstration and architectural showcase purposes. It is NOT certified for clinical use by FDA, EMA, or any other health authority in its current public state.
+   
+   A. The Author assumes NO responsibility for the use of this software in actual medical or logistical operations.
+   B. The user is solely responsible for ensuring compliance with local data privacy laws (KVKK, GDPR, HIPAA) if they choose to deploy modified versions of this code.
+
+4. NO WARRANTY (AS-IS)
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+   
+   IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES (INCLUDING BUT NOT LIMITED TO PROCUREMENT OF SUBSTITUTE GOODS, LOSS OF DATA, OR BUSINESS INTERRUPTION), OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+5. COMMERCIAL LICENSING & CONTACT
+   Use of this software for production, commercial deployment, or corporate integration requires a separate Commercial License Agreement.
+   
+   For inquiries regarding commercial usage, enterprise support, or custom development:
+   > Please reach out via the Author's GitHub Profile or create a Private Issue in this repository.
+
+---
+VIOLATION OF THESE TERMS MAY RESULT IN LEGAL ACTION UNDER APPLICABLE INTELLECTUAL PROPERTY LAWS.
