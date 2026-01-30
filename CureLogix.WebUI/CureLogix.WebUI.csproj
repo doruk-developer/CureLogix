@@ -26,7 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CureLogix.Business\CureLogix.Business.csproj" />
-    <ProjectReference Include="..\CureLogix.DataAccess\CureLogix.DataAccess.csproj" />
+    <ProjectReference Include="..\CureLogix.Entity\CureLogix.Entity.csproj" />
   </ItemGroup>
 
 </Project>
