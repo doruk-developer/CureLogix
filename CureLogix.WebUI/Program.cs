@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -77,7 +78,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 // GLOBAL AUTHORIZATION ve JSON AYARLARI
-builder.Services.AddControllersWithViews(config =>
+var mvcBuilder = builder.Services.AddControllersWithViews(config =>
 {
     // 1. Global Kilit (Giriş yapmayan hiçbir sayfayı göremez)
     var policy = new AuthorizationPolicyBuilder()
@@ -95,12 +96,21 @@ builder.Services.AddControllersWithViews(config =>
     options.JsonSerializerOptions.PropertyNamingPolicy = null;
 });
 
+if (builder.Environment.IsDevelopment())
+{
+    mvcBuilder.AddRazorRuntimeCompilation();
+}
+
 // ==================================================================
 // 3. DEPENDENCY INJECTION (SERVİS KAYITLARI)
 // ==================================================================
 
+
+
 // Generic Repository
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+
 
 // Business Services (Managerlar)
 builder.Services.AddScoped<IHospitalService, HospitalManager>();
@@ -115,6 +125,9 @@ builder.Services.AddScoped<IVehicleService, VehicleManager>();
 builder.Services.AddScoped<IQrCodeService, QrCodeManager>();
 builder.Services.AddScoped<IWasteReportService, WasteReportManager>();
 builder.Services.AddScoped<IAuditLogService, AuditLogManager>();
+
+// ElasticSearch Servisi
+builder.Services.AddScoped<IElasticSearchService, ElasticSearchManager>();
 
 // AI Servisi (Singleton)
 builder.Services.AddSingleton<IAiForecastService, AiForecastManager>();

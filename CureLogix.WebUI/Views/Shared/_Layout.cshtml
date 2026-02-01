@@ -1,6 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using CureLogix.Entity.Concrete
 @inject UserManager<AppUser> UserManager
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 
 @{
     // -----------------------------------------------------------
@@ -207,6 +209,27 @@
                     <li class="nav-item d-none d-md-block">
                         <span class="nav-link fw-bold">CureLogix Yönetim Paneli</span>
                     </li>
+                    
+                    <!-- ElasticSearch Özelliği Açıksa Kutucuğu Göster -->
+                    @if (Configuration.GetValue<bool>("AppSettings:EnableElasticSearch"))
+                    {
+                        <!-- Global Elastic Search Arama Kutusu -->
+                        <li class="nav-item d-none d-md-block">
+                            <form class="form-inline ms-3" id="globalSearchForm" onsubmit="return false;" style="position: relative;">
+                                <div class="input-group input-group-sm" style="width: 300px;">
+                                    <input class="form-control form-control-navbar border-secondary" type="search" placeholder="İlaç Ara" id="globalSearchInput" autocomplete="off">
+                                    <button class="btn btn-navbar border-secondary bg-light" type="button">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                                <!-- Sonuç Paneli (Dropdown) -->
+                                <div id="searchResults" class="dropdown-menu dropdown-menu-lg shadow-lg border-0" style="position:absolute; top:45px; left:0; width:400px; display:none; max-height: 500px; overflow-y: auto; z-index: 9999;">
+                                    <!-- JS ile dinamik dökülecek -->
+                                </div>
+                            </form>
+                        </li>
+                    }
+
                 </ul>
                 <ul class="navbar-nav ms-auto align-items-center">
 
@@ -452,6 +475,71 @@
 
             driverObj.drive();
         }
+
+        // 4. ElasticSearch Sonuç Getirme Scripti
+        $("#globalSearchInput").on("input", function () {
+    var query = $(this).val();
+    var resultBox = $("#searchResults");
+
+    if (query.length < 2) {
+        resultBox.hide();
+        return;
+    }
+
+    // 1. Tarayıcı hafızasındaki token'ı al
+    var token = localStorage.getItem("accessToken"); 
+
+    $.ajax({
+        url: "/Search/QuickSearch", // Elasticsearch Controller'daki arama metodu
+        type: "GET",
+        data: { q: query },
+        
+        // 🚀 KRİTİK NOKTA: İstek gitmeden hemen önce Header'a Token'ı gömüyoruz
+        beforeSend: function (xhr) {
+            if (token) {
+                xhr.setRequestHeader("Authorization", "Bearer " + token);
+            }
+        },
+
+        success: function (data) {
+            resultBox.empty();
+            if (data.length > 0) {
+                data.forEach(item => {
+                    var isCriticalClass = item.IsCritical ? "text-danger" : "text-success";
+                    var html = `
+                        <a href="/Medicine/Update/${item.Id}" class="dropdown-item p-3 border-bottom">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-pills fa-2x text-muted me-3"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0 fw-bold text-primary">${item.Name}</h6>
+                                    <small class="text-muted d-block">${item.ActiveIngredient}</small>
+                                    <div class="d-flex justify-content-between align-items-center mt-1">
+                                        <span class="badge bg-light text-dark border-1 border-secondary">${item.Unit}</span>
+                                        <small class="${isCriticalClass} fw-bold">Stok: ${item.StockQuantity}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                    resultBox.append(html);
+                });
+                resultBox.show();
+            } else {
+                resultBox.html('<div class="dropdown-item text-muted text-center py-3 small">Sonuç bulunamadı...</div>').show();
+            }
+        },
+        error: function (xhr, status, error) {
+            // Eğer token geçersizse veya süre dolmuşsa (401)
+            if (xhr.status === 401) {
+                console.error("Yetkisiz erişim: Oturum süresi dolmuş olabilir.");
+                // Opsiyonel: Kullanıcıyı login sayfasına şutlayabilirsin
+                // window.location.href = "/Login/Index";
+            }
+        }
+    });
+});
 
         // Sayfa yüklendiğinde URL'de 'tour=start' varsa turu otomatik başlat
         $(document).ready(function() {

@@ -6,6 +6,7 @@ using CureLogix.Entity.DTOs.DoctorDTOs;
 using CureLogix.Entity.DTOs.HospitalDTOs;
 using CureLogix.Entity.DTOs.MedicineDTOs;
 using CureLogix.Entity.DTOs.ProtocolDTOs;
+using CureLogix.Entity.DTOs.SearchDTOs;
 using CureLogix.Entity.DTOs.SupplyDTOs;
 using CureLogix.Entity.DTOs.UserDTOs;
 using CureLogix.Entity.DTOs.WarehouseDTOs;
@@ -97,6 +98,11 @@ namespace CureLogix.Business.Mappings.AutoMapper
 
             // Email Gönderim İçin Kullanıcı Mappingi
             CreateMap<Doctor, DoctorListDto>().ReverseMap();
+
+            // İlaç nesnesini Elasticsearch modeline dönüştür
+            CreateMap<Medicine, MedicineSearchModel>()
+                .ForMember(dest => dest.StockQuantity, opt => opt.MapFrom(src => 0)) // Şimdilik 0
+                .ForMember(dest => dest.IsCritical, opt => opt.MapFrom(src => false));
         }
     }
 }

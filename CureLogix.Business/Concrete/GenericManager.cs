@@ -12,35 +12,34 @@ namespace CureLogix.Business.Concrete
             _repository = repository;
         }
 
-        public void TAdd(T t)
+        public virtual void TAdd(T t)
         {
             _repository.Insert(t);
         }
 
-        public void TDelete(T t)
+        public virtual void TDelete(T t)
         {
             _repository.Delete(t);
         }
 
-        public T TGetById(int id)
+        public virtual T TGetById(int id)
         {
-            return _repository.GetById(id);
+            // ✅ DÜZELTME: Sonuna '!' koyarak null uyarısını susturduk.
+            return _repository.GetById(id)!;
         }
 
-        public List<T> TGetList()
+        public virtual List<T> TGetList()
         {
             return _repository.GetList();
         }
 
-        public void TUpdate(T t)
+        public virtual void TUpdate(T t)
         {
             _repository.Update(t);
         }
 
-        // Server-Side Datatables Modülü için
         public IQueryable<T> GetQuery()
         {
-            // Business katmanı, işi Repository'e devreder
             return _repository.GetQuery();
         }
     }
