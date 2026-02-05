@@ -175,17 +175,17 @@ app.UseSwaggerUI(c =>
 });
 
 // HATA YÖNETİMİ
-//if (!app.Environment.IsDevelopment())
-//{
-//    app.UseExceptionHandler("/Error/Page500");
-//    app.UseHsts();
-//}
-//else
-//{
-//    app.UseExceptionHandler("/Error/Page500");
-//}
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error/Page500");
+    app.UseHsts();
+}
+else
+{
+    app.UseExceptionHandler("/Error/Page500");
+}
 
-app.UseDeveloperExceptionPage();
+//app.UseDeveloperExceptionPage();
 
 app.UseStatusCodePagesWithReExecute("/Error/Page404");
 
