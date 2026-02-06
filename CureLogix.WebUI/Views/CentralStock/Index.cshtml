@@ -16,18 +16,17 @@
             <div class="col-sm-6"><h1>📦 Merkez Depo Yönetimi</h1></div>
 
             <div class="col-sm-6 text-right">
-
                 <!-- Excel Çıktısı -->
                 <a href="/CentralStock/ExportExcel" class="btn btn-success mr-1">
                     <i class="fas fa-file-excel"></i> Excel Raporu
                 </a>
 
-                <!-- Hızlı Çıkış Terminali Butonu (Mevcut) -->
+                <!-- Hızlı Çıkış Terminali Butonu -->
                 <a href="/CentralStock/Scan" class="btn btn-dark">
                     <i class="fas fa-barcode"></i> Hızlı Çıkış Terminali
                 </a>
 
-                <!-- Mal Kabul Butonu (Mevcut) -->
+                <!-- Mal Kabul Butonu -->
                 <a href="/CentralStock/Entry" class="btn btn-indigo ml-2">
                     <i class="fas fa-boxes"></i> Mal Kabul / Stok Girişi
                 </a>
@@ -37,9 +36,9 @@
 </div>
 
 <section class="content">
-    <div class="card card-indigo card-outline">
+    <div class="card card-indigo card-outline shadow">
         <div class="card-body">
-            <!-- Table'a ID (stockTable) verdik ki DataTables yakalasın -->
+            <!-- Ana Stok Tablosu -->
             <table id="stockTable" class="table table-hover table-striped w-100">
                 <thead>
                     <tr>
@@ -55,7 +54,7 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        // SKT Kontrolü (Görsel Uyarı)
+                        // SKT Kontrolü ve Badge Belirleme
                         var daysLeft = (item.ExpiryDate - DateTime.Now).TotalDays;
                         string badgeClass = daysLeft < 90 ? "badge-danger" : "badge-success";
                         string statusText = daysLeft < 90 ? "Yaklaşıyor!" : "Uygun";
@@ -70,10 +69,9 @@
                             <td>@item.ExpiryDate.ToShortDateString()</td>
                             <td><span class="badge @badgeClass">@statusText</span></td>
 
-                            <!-- QR Butonu -->
+                            <!-- QR/Barkod Butonu: _Layout'taki global showQr fonksiyonunu çağırır -->
                             <td>
-                                <button type="button" class="btn btn-outline-dark btn-sm"
-                                        data-bs-toggle="modal" data-bs-target="#qrModal"
+                                <button type="button" class="btn btn-outline-dark btn-sm shadow-sm"
                                         onclick="showQr(@item.Id, '@item.BatchNo')">
                                     <i class="fas fa-qrcode"></i>
                                 </button>
@@ -81,36 +79,18 @@
                         </tr>
                     }
                 </tbody>
-
             </table>
         </div>
     </div>
 </section>
 
-<!-- MODAL (MEVCUT) -->
-<div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">📦 Stok Etiketi</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center">
-                <img id="qrImage" src="" class="img-fluid border p-2" />
-                <p id="qrBatch" class="mt-2 font-weight-bold text-indigo"></p>
-                <small class="text-muted">Bu kodu el terminali ile okutunuz.</small>
-            </div>
-        </div>
-    </div>
-</div>
-
 @section Scripts {
-    <!-- DataTables JS Zinciri (Sıralama Önemli!) -->
+    <!-- DataTables JS Zinciri -->
     <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
     <script src="~/lib/datatables/js/dataTables.bootstrap5.min.js"></script>
     <script src="~/lib/datatables/js/dataTables.responsive.min.js"></script>
 
-    <!-- Export Motorları (PDF, Excel) -->
+    <!-- Export (PDF/Excel) Motorları -->
     <script src="~/lib/datatables/js/dataTables.buttons.min.js"></script>
     <script src="~/lib/datatables/js/jszip.min.js"></script>
     <script src="~/lib/datatables/js/pdfmake.min.js"></script>
@@ -120,32 +100,28 @@
     <script src="~/lib/datatables/js/buttons.bootstrap5.min.js"></script>
 
     <script>
-        function showQr(id, batch) {
-            document.getElementById('qrImage').src = "/CentralStock/GetQrImage/" + id;
-            var fullCode = "STOK-" + id + "-" + batch;
-            document.getElementById('qrBatch').innerText = fullCode;
-        }
-
         $(document).ready(function () {
+            // DataTables Başlatma
             $('#stockTable').DataTable({
                 "language": { "url": "/lib/datatables/tr.json" },
                 "responsive": true,
                 "autoWidth": false,
                 "dom": '<"row"<"col-md-6"B><"col-md-6"f>>rtip',
                 "buttons": [
-                    
                     {
                         extend: 'pdfHtml5',
                         text: '<i class="fas fa-file-pdf"></i> PDF Rapor',
                         className: 'btn btn-danger btn-sm',
-                        orientation: 'landscape', // Yatay sayfa
+                        orientation: 'landscape',
                         pageSize: 'A4',
-                        title: 'CureLogix - Merkez Depo Stok Durumu'
+                        title: 'CureLogix - Merkez Depo Stok Durumu',
+                        exportOptions: { columns: [0, 1, 2, 3, 4] } // Sadece veri kolonlarını dışa aktar
                     },
                     {
                         extend: 'print',
                         text: '<i class="fas fa-print"></i> Yazdır',
-                        className: 'btn btn-secondary btn-sm'
+                        className: 'btn btn-secondary btn-sm',
+                        exportOptions: { columns: [0, 1, 2, 3, 4] }
                     }
                 ]
             });

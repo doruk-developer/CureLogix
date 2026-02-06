@@ -621,6 +621,100 @@
     </div>
 
 
+    <!-- ======================================================== -->
+    <!-- 📦 QR MODAL (Z-INDEX VE TIKLAMA SORUNU ÇÖZÜMÜ)    -->
+    <!-- ======================================================== -->
+    <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="background-color: white !important; opacity: 1 !important;">
+                <div class="modal-header bg-light border-0">
+                    <h5 class="modal-title text-dark fw-bold"><i class="fas fa-qrcode me-2"></i>Stok Etiketi</h5>
+                    <!-- Kapatma butonu -->
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <!-- QR Resmi -->
+                    <div class="mb-3 p-2 border rounded bg-white d-inline-block shadow-sm">
+                        <img id="qrImage" src="" class="img-fluid" style="min-width: 160px;" />
+                    </div>
+
+                    <!-- Kod Alanı ve Kopyala Butonu -->
+                    <div class="input-group mb-2">
+                        <input type="text" id="qrCodeText" class="form-control text-center fw-bold text-indigo font-monospace bg-light" readonly style="font-size: 0.9rem;">
+                        <button class="btn btn-outline-primary" type="button" id="btnCopyQr" onclick="copyQrToClipboard()">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <small id="copyFeedback" class="text-success fw-bold" style="display:none; font-size: 0.75rem;">
+                        <i class="fas fa-check-circle"></i> Kopyalandı!
+                    </small>
+                    
+                    <p class="text-muted small mt-2 mb-0">Bu kodu el terminali ile okutunuz.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🛠️ MODAL Z-INDEX VE GÖRÜNÜM FIX -->
+    <style>
+        /* Modalın karartma perdesinin (backdrop) önünde kalmasını sağlar */
+        .modal { z-index: 9999 !important; }
+        .modal-backdrop { z-index: 9990 !important; }
+        /* Kararmayı önlemek için modal içindeki her şeyi aydınlat */
+        #qrModal .modal-content { opacity: 1 !important; visibility: visible !important; }
+    </style>
+
+    <script>
+        // --- 📦 GLOBAL QR MOTORU ---
+        var qrBootstrapModal = null;
+
+        function showQr(id, batch) {
+            // 1. Verileri yerleştir
+            document.getElementById('qrImage').src = "/CentralStock/GetQrImage/" + id;
+            var fullCode = "STOK-" + id + "-" + batch;
+            document.getElementById('qrCodeText').value = fullCode;
+
+            // 2. Kopyala butonunu resetle
+            resetQrCopyButton();
+
+            // 3. Modalı aç (Eğer yoksa oluştur, varsa göster)
+            var modalEl = document.getElementById('qrModal');
+            if (!qrBootstrapModal) {
+                qrBootstrapModal = new bootstrap.Modal(modalEl, { keyboard: true, backdrop: true });
+            }
+            qrBootstrapModal.show();
+        }
+
+        // Kopyalama Fonksiyonu
+        function copyQrToClipboard() {
+            var copyText = document.getElementById("qrCodeText");
+            copyText.select();
+            
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                var btn = document.getElementById("btnCopyQr");
+                var feedback = document.getElementById("copyFeedback");
+                
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.className = "btn btn-success";
+                $(feedback).fadeIn(200);
+
+                // 2 saniye sonra eski haline döndür
+                setTimeout(resetQrCopyButton, 2000);
+            });
+        }
+
+        function resetQrCopyButton() {
+            var btn = document.getElementById("btnCopyQr");
+            var feedback = document.getElementById("copyFeedback");
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-copy"></i>';
+                btn.className = "btn btn-outline-primary";
+                $(feedback).fadeOut(200);
+            }
+        }
+    </script>
+
+
 
 </body>
 </html>
