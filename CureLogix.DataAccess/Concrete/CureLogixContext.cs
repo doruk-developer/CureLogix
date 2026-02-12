@@ -55,6 +55,22 @@ namespace CureLogix.DataAccess.Concrete
                 .WithMany(p => p.CouncilVotes)
                 .HasForeignKey(v => v.ProtocolId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            // 4. ENUM KONFİGÜRASYONU (ENTERPRISE READABILITY)
+            // Projedeki tüm Enum türündeki kolonları veritabanında sayı yerine metin (String) olarak saklar.
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                var properties = entityType.ClrType.GetProperties()
+                    .Where(p => p.PropertyType.IsEnum ||
+                               (Nullable.GetUnderlyingType(p.PropertyType)?.IsEnum ?? false));
+
+                foreach (var property in properties)
+                {
+                    modelBuilder.Entity(entityType.Name)
+                        .Property(property.Name)
+                        .HasConversion<string>();
+                }
+            }
         }
     }
 }
