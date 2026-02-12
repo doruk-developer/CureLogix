@@ -8,6 +8,7 @@ using CureLogix.Entity.Concrete;
 using CureLogix.WebUI.Hubs;
 using CureLogix.WebUI.Middlewares;
 using Hangfire;
+using Hangfire.PostgreSql;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -22,31 +23,22 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. AKILLI VERITABANI BAGLANTISI (SMART CONNECTION)
 // ==================================================================
 
-var machineName = Environment.MachineName;
-string connectionStringName;
-
 // Docker Kontrolü (Ortam değişkenine bakar)
-var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+var dbProvider = builder.Configuration["AppSettings:DbProvider"];
 
-if (isDocker)
-{
-    connectionStringName = "DockerConnection"; // Docker-Compose'dan gelen ayar
-}
-else if (machineName == "N56VZ-DORUK")
-{
-    connectionStringName = "HomeConnection";
-}
-else
-{
-    connectionStringName = "WorkConnection";
-}
-
-var connectionString = builder.Configuration.GetConnectionString(connectionStringName)
-                       ?? throw new InvalidOperationException($"HATA: '{connectionStringName}' bulunamadı!");
-
-// DbContext Kurulumu
 builder.Services.AddDbContext<CureLogixContext>(options =>
-    options.UseSqlServer(connectionString, b => b.MigrationsAssembly("CureLogix.DataAccess")));
+{
+    if (dbProvider == "PostgreSQL")
+    {
+        var conn = builder.Configuration.GetConnectionString("PostgreConnection");
+        options.UseNpgsql(conn, b => b.MigrationsAssembly("CureLogix.DataAccess"));
+    }
+    else
+    {
+        var conn = builder.Configuration.GetConnectionString("MSSQLConnection");
+        options.UseSqlServer(conn, b => b.MigrationsAssembly("CureLogix.DataAccess"));
+    }
+});
 
 // ==================================================================
 // 2. IDENTITY (KİMLİK) VE GÜVENLİK YAPILANDIRMASI
@@ -142,11 +134,23 @@ builder.Services.AddSignalR();
 // 4. HANGFIRE KURULUMU (ARKA PLAN İŞLERİ)
 // ==================================================================
 
-builder.Services.AddHangfire(config => config
-    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-    .UseSimpleAssemblyNameTypeSerializer()
-    .UseRecommendedSerializerSettings()
-    .UseSqlServerStorage(connectionString));
+builder.Services.AddHangfire(config =>
+{
+    config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+          .UseSimpleAssemblyNameTypeSerializer()
+          .UseRecommendedSerializerSettings();
+
+    if (dbProvider == "PostgreSQL")
+    {
+        var conn = builder.Configuration.GetConnectionString("PostgreConnection");
+        config.UsePostgreSqlStorage(options => options.UseNpgsqlConnection(conn));
+    }
+    else
+    {
+        var conn = builder.Configuration.GetConnectionString("MSSQLConnection");
+        config.UseSqlServerStorage(conn);
+    }
+});
 
 // builder.Services.AddHangfireServer();
 
