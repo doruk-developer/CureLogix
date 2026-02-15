@@ -34,9 +34,9 @@ namespace CureLogix.WebUI.Controllers
         [HttpGet]
         public IActionResult Index(string ReturnUrl)
         {
-            // Eğer kullanıcı zaten içerideyse, tekrar login sayfasına gelmesin
-            if (User.Identity.IsAuthenticated)
-            {
+			// Eğer kullanıcı zaten içerideyse, tekrar login sayfasına gelmesin
+			if (User.Identity?.IsAuthenticated == true)
+			{
                 return RedirectToAction("Index", "Home");
             }
 
@@ -47,40 +47,44 @@ namespace CureLogix.WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(string username, string password, string ReturnUrl)
         {
-            // ============================================================
-            // 1. DEMO MODU KONTROLÜ (SATIŞ SUNUMU İÇİN)
-            // ============================================================
-            bool isDemo = _configuration.GetValue<bool>("AppSettings:DemoMode");
+			// ============================================================
+			// 1. DEMO MODU KONTROLÜ (SATIŞ SUNUMU İÇİN)
+			// ============================================================
+			// 🛡️ KRİTİK: Şifreyi sunucu kasasından oku, yoksa yerel varsayılanı (CureLogix123!) kullan.
+			// Bu sayede GitHub'daki şifre canlıda bir işe yaramaz hale gelir.
+			string secureAdminPass = Environment.GetEnvironmentVariable("LIVE_ADMIN_PASSWORD") ?? "CureLogix123!";
 
-            if (isDemo)
-            {
-                // Demo modundaysak ve şifre doğruysa DB'ye sormadan içeri al (Bypass)
-                if (username == "Admin" && password == "CureLogix123!")
-                {
-                    var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, username),
-                        new Claim(ClaimTypes.Role, "Admin")
-                    };
+			bool isDemo = _configuration.GetValue<bool>("AppSettings:DemoMode");
 
-                    var claimsIdentity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
-                    var authProperties = new AuthenticationProperties { IsPersistent = true };
+			if (isDemo)
+			{
+				// Demo modundaysak ve şifre doğruysa DB'ye sormadan içeri al (Bypass)
+				if (username == "Admin" && password == secureAdminPass)
+				{
+					var claims = new List<Claim>
+					{
+						new Claim(ClaimTypes.Name, username),
+						new Claim(ClaimTypes.Role, "Admin")
+					};
 
-                    await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+					var claimsIdentity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
+					var authProperties = new AuthenticationProperties { IsPersistent = true };
 
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    ViewBag.Error = "Demo Modu: Kullanıcı adı veya şifre hatalı! (Admin / CureLogix123!)";
-                    return View();
-                }
-            }
+					await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
-            // ============================================================
-            // 2. NORMAL MOD (VERİTABANI BAĞLANTISI)
-            // ============================================================
-            try
+					return RedirectToAction("Index", "Home");
+				}
+				else
+				{
+					ViewBag.Error = "Demo Modu: Kullanıcı adı veya şifre hatalı!";
+					return View();
+				}
+			}
+
+			// ============================================================
+			// 2. NORMAL MOD (VERİTABANI BAĞLANTISI)
+			// ============================================================
+			try
             {
                 // --- SELF-HEALING (KENDİ KENDİNİ ONARMA) ---
                 // Veritabanı sıfırlandıysa Admin kullanıcısı silinmiştir.
@@ -108,10 +112,11 @@ namespace CureLogix.WebUI.Controllers
                             ProfilePicture = ""
                         };
 
-                        var createResult = await _userManager.CreateAsync(newAdmin, "CureLogix123!");
+						// Admin kullanıcısı yoksa sıfırdan oluştururken kullanılan şifreyi de aynı yöntemle koruyoruz.
+						var createResult = await _userManager.CreateAsync(newAdmin, secureAdminPass);
 
-                        // 3. Rolü Ata
-                        if (createResult.Succeeded)
+						// 3. Rolü Ata
+						if (createResult.Succeeded)
                         {
                             await _userManager.AddToRoleAsync(newAdmin, "Admin");
                         }

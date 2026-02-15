@@ -21,40 +21,56 @@ namespace CureLogix.DataAccess.Concrete
                 await roleManager.CreateAsync(new AppRole { Name = "User" });
             }
 
-            // ------------------------------------------------------------
-            // 3. VARSAYILAN KULLANICILAR (Identity)
-            // ------------------------------------------------------------
-            if (!userManager.Users.Any())
-            {
-                var admin = new AppUser
-                {
-                    UserName = "Admin",
-                    Email = "admin@curelogix.com",
-                    NameSurname = "Sistem Yöneticisi",
-                    Title = "Başhekim / Sistem Mimarı",
-                    EmailConfirmed = true,
-                    ProfilePicture = "default-admin.jpg"
-                };
+			// ------------------------------------------------------------
+			// 3. VARSAYILAN KULLANICILAR (Identity)
+			// ------------------------------------------------------------
+			if (!userManager.Users.Any())
+			{
+				// 🛡️ GÜVENLİK KİLİDİ: Canlı sunucudaki gizli şifreyi oku.
+				// Eğer sunucuda bu değişken tanımlanmamışsa (Lokaldeysek) eski şifreyi kullan.
+				string adminSecretPass = Environment.GetEnvironmentVariable("LIVE_ADMIN_PASSWORD") ?? "CureLogix123!";
+				string doctorSecretPass = Environment.GetEnvironmentVariable("LIVE_DOCTOR_PASSWORD") ?? "Doktor123!";
 
-                await userManager.CreateAsync(admin, "CureLogix123!");
-                await userManager.AddToRoleAsync(admin, "Admin");
+				// 1. ADMİN KULLANICISI OLUŞTURMA
+				var admin = new AppUser
+				{
+					UserName = "Admin",
+					Email = "admin@curelogix.com",
+					NameSurname = "Sistem Yöneticisi",
+					Title = "Başhekim / Sistem Mimarı",
+					EmailConfirmed = true,
+					ProfilePicture = "default-admin.jpg"
+				};
 
-                var doctorUser = new AppUser
-                {
-                    UserName = "Doktor",
-                    Email = "doktor@curelogix.com",
-                    NameSurname = "Dr. Ali Vefa",
-                    Title = "Uzman Doktor",
-                    EmailConfirmed = true
-                };
-                await userManager.CreateAsync(doctorUser, "Doktor123!");
-                await userManager.AddToRoleAsync(doctorUser, "User");
-            }
+				// Şifreyi yukarıdaki değişkenden (Secret) alıyoruz
+				var adminResult = await userManager.CreateAsync(admin, adminSecretPass);
+				if (adminResult.Succeeded)
+				{
+					await userManager.AddToRoleAsync(admin, "Admin");
+				}
 
-            // ------------------------------------------------------------
-            // 4. HASTANELER
-            // ------------------------------------------------------------
-            if (!context.Hospitals.Any())
+				// 2. DOKTOR KULLANICISI OLUŞTURMA
+				var doctorUser = new AppUser
+				{
+					UserName = "Doktor",
+					Email = "doktor@curelogix.com",
+					NameSurname = "Dr. Ali Vefa",
+					Title = "Uzman Doktor",
+					EmailConfirmed = true
+				};
+
+				// Şifreyi yukarıdaki değişkenden (Secret) alıyoruz
+				var doctorResult = await userManager.CreateAsync(doctorUser, doctorSecretPass);
+				if (doctorResult.Succeeded)
+				{
+					await userManager.AddToRoleAsync(doctorUser, "User");
+				}
+			}
+
+			// ------------------------------------------------------------
+			// 4. HASTANELER
+			// ------------------------------------------------------------
+			if (!context.Hospitals.Any())
             {
                 context.Hospitals.AddRange(new List<Hospital>
                 {
