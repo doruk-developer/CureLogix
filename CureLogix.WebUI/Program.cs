@@ -72,15 +72,18 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
 });
 
+// Canlıdaki demo filtresi için
+builder.Services.AddScoped<CureLogix.WebUI.Filters.DemoRestrictionFilter>();
+
 // GLOBAL AUTHORIZATION ve JSON AYARLARI
 var mvcBuilder = builder.Services.AddControllersWithViews(config =>
 {
-    // 1. Global Kilit (Giriş yapmayan hiçbir sayfayı göremez)
-    var policy = new AuthorizationPolicyBuilder()
-                     .RequireAuthenticatedUser()
-                     .Build();
+	// 1. Global Kilit (Giriş zorunluluğu)
+	var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+	config.Filters.Add(new AuthorizeFilter(policy));
 
-    config.Filters.Add(new AuthorizeFilter(policy));
+	// 🛡️ 2. Vitrin Modu Kilidi (Dinamik yetki kontrolü)
+	config.Filters.AddService<CureLogix.WebUI.Filters.DemoRestrictionFilter>();
 })
 .AddJsonOptions(options =>
 {

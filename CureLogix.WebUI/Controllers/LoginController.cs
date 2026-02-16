@@ -44,139 +44,83 @@ namespace CureLogix.WebUI.Controllers
             return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Index(string username, string password, string ReturnUrl)
-        {
-			// ============================================================
-			// 1. DEMO MODU KONTROLÜ (SATIŞ SUNUMU İÇİN)
-			// ============================================================
-			// 🛡️ KRİTİK: Şifreyi sunucu kasasından oku, yoksa yerel varsayılanı (CureLogix123!) kullan.
-			// Bu sayede GitHub'daki şifre canlıda bir işe yaramaz hale gelir.
+		[HttpPost]
+		public async Task<IActionResult> Index(string username, string password, string ReturnUrl)
+		{
+			// 🛡️ 1. GÜVENLİK MATRİSİ: Şifre Çözümleme
+			// Canlıda (Render) ise server şifresini, yereldeyse varsayılanı kullanır.
 			string secureAdminPass = Environment.GetEnvironmentVariable("LIVE_ADMIN_PASSWORD") ?? "CureLogix123!";
 
-			bool isDemo = _configuration.GetValue<bool>("AppSettings:DemoMode");
-
-			if (isDemo)
+			try
 			{
-				// Demo modundaysak ve şifre doğruysa DB'ye sormadan içeri al (Bypass)
-				if (username == "Admin" && password == secureAdminPass)
+				// 🛡️ 2. SELF-HEALING (KENDİ KENDİNİ ONARMA)
+				// Eğer Admin girmeye çalışıyorsa ve DB'de yoksa, yeni şifreyle o an oluşturur.
+				if (username == "Admin")
 				{
-					var claims = new List<Claim>
+					var existingAdmin = await _userManager.FindByNameAsync("Admin");
+
+					if (existingAdmin == null)
 					{
-						new Claim(ClaimTypes.Name, username),
-						new Claim(ClaimTypes.Role, "Admin")
-					};
+						// Rol kontrolü
+						if (!await _roleManager.RoleExistsAsync("Admin"))
+						{
+							await _roleManager.CreateAsync(new AppRole { Name = "Admin" });
+						}
 
-					var claimsIdentity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
-					var authProperties = new AuthenticationProperties { IsPersistent = true };
+						// Admin nesnesi oluşturma
+						var newAdmin = new AppUser
+						{
+							UserName = "Admin",
+							Email = "admin@curelogix.com",
+							NameSurname = "Sistem Yöneticisi",
+							Title = "Başhekim / Sistem Mimarı",
+							EmailConfirmed = true
+						};
 
-					await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+						// KRİTİK: Canlıda ise gizli şifreyle, yereldeyse CureLogix123! ile oluşturur.
+						await _userManager.CreateAsync(newAdmin, secureAdminPass);
+						await _userManager.AddToRoleAsync(newAdmin, "Admin");
+					}
+				}
+
+				// 🛡️ 3. GİRİŞ DENEMESİ (İster Admin, İster User/Demo)
+				// password; kullanıcı tarafından girilen veridir.
+				var result = await _signInManager.PasswordSignInAsync(username, password, false, false);
+
+				if (result.Succeeded)
+				{
+					// Başarılı Giriş Logu
+					try
+					{
+						_auditService.TAdd(new AuditLog
+						{
+							UserName = username,
+							Activity = "Sisteme giriş yapıldı.",
+							Date = DateTime.Now,
+							IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "::1"
+						});
+					}
+					catch { }
+
+					if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+						return Redirect(ReturnUrl);
 
 					return RedirectToAction("Index", "Home");
 				}
 				else
 				{
-					ViewBag.Error = "Demo Modu: Kullanıcı adı veya şifre hatalı!";
+					ViewBag.Error = "Kullanıcı adı veya şifre hatalı!";
 					return View();
 				}
 			}
+			catch (Exception ex)
+			{
+				ViewBag.Error = "Sistem Hatası: " + ex.Message;
+				return View();
+			}
+		}
 
-			// ============================================================
-			// 2. NORMAL MOD (VERİTABANI BAĞLANTISI)
-			// ============================================================
-			try
-            {
-                // --- SELF-HEALING (KENDİ KENDİNİ ONARMA) ---
-                // Veritabanı sıfırlandıysa Admin kullanıcısı silinmiştir.
-                // Eğer "Admin" girmeye çalışıyorsa ve yoksa, o an oluştur.
-                if (username == "Admin")
-                {
-                    var existingAdmin = await _userManager.FindByNameAsync("Admin");
-
-                    if (existingAdmin == null)
-                    {
-                        // 1. Önce Rolü Kontrol Et/Oluştur
-                        if (!await _roleManager.RoleExistsAsync("Admin"))
-                        {
-                            await _roleManager.CreateAsync(new AppRole { Name = "Admin" });
-                        }
-
-                        // 2. Kullanıcıyı Oluştur
-                        var newAdmin = new AppUser
-                        {
-                            UserName = "Admin",
-                            Email = "admin@curelogix.com",
-                            NameSurname = "Sistem Yöneticisi",
-                            Title = "Başhekim",
-                            EmailConfirmed = true,
-                            ProfilePicture = ""
-                        };
-
-						// Admin kullanıcısı yoksa sıfırdan oluştururken kullanılan şifreyi de aynı yöntemle koruyoruz.
-						var createResult = await _userManager.CreateAsync(newAdmin, secureAdminPass);
-
-						// 3. Rolü Ata
-						if (createResult.Succeeded)
-                        {
-                            await _userManager.AddToRoleAsync(newAdmin, "Admin");
-                        }
-                    }
-                }
-                // -------------------------------------------------------------
-
-                // GİRİŞ DENEMESİ
-                var result = await _signInManager.PasswordSignInAsync(username, password, false, false);
-
-                if (result.Succeeded)
-                {
-                    // ✅ BAŞARILI GİRİŞ LOGU (Yeni Yapı)
-                    // Loglama başarısız olursa (DB sorunu vb.) giriş işlemini engellemesin diye try-catch
-                    try
-                    {
-                        _auditService.TAdd(new AuditLog
-                        {
-                            UserName = username,
-                            Activity = "Kullanıcı sisteme başarılı giriş yaptı.",
-                            Date = DateTime.Now,
-                            IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "::1"
-                        });
-                    }
-                    catch { /* Log atılamadı, sessizce devam et */ }
-
-                    // Eğer bir sayfadan yönlendirilmişse oraya dön, yoksa Ana Sayfaya git
-                    if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
-                        return Redirect(ReturnUrl);
-                    else
-                        return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    // ❌ BAŞARISIZ GİRİŞ LOGU
-                    try
-                    {
-                        _auditService.TAdd(new AuditLog
-                        {
-                            UserName = username,
-                            Activity = "Hatalı şifre veya kullanıcı adı denemesi.",
-                            Date = DateTime.Now,
-                            IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "::1"
-                        });
-                    }
-                    catch { /* Sessiz kal */ }
-
-                    ViewBag.Error = "Kullanıcı adı veya şifre hatalı!";
-                    return View();
-                }
-            }
-            catch (Exception ex)
-            {
-                // Veritabanı bağlantısı kopuksa veya başka kritik hata varsa
-                ViewBag.Error = "Sistem Hatası (DB Bağlantısı Yok): " + ex.Message;
-                return View();
-            }
-        }
-
-        public async Task<IActionResult> LogOut()
+		public async Task<IActionResult> LogOut()
         {
             var username = User.Identity?.Name ?? "Bilinmiyor";
 

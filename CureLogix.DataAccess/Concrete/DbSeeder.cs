@@ -26,45 +26,31 @@ namespace CureLogix.DataAccess.Concrete
 			// ------------------------------------------------------------
 			if (!userManager.Users.Any())
 			{
-				// 🛡️ GÜVENLİK KİLİDİ: Canlı sunucudaki gizli şifreyi oku.
-				// Eğer sunucuda bu değişken tanımlanmamışsa (Lokaldeysek) eski şifreyi kullan.
-				string adminSecretPass = Environment.GetEnvironmentVariable("LIVE_ADMIN_PASSWORD") ?? "CureLogix123!";
-				string doctorSecretPass = Environment.GetEnvironmentVariable("LIVE_DOCTOR_PASSWORD") ?? "Doktor123!";
+				// 1. Ortam Kontrolü
+				string adminPass;
+				var liveAdminSecret = Environment.GetEnvironmentVariable("LIVE_ADMIN_PASSWORD");
 
-				// 1. ADMİN KULLANICISI OLUŞTURMA
-				var admin = new AppUser
+				if (!string.IsNullOrEmpty(liveAdminSecret))
 				{
-					UserName = "Admin",
-					Email = "admin@curelogix.com",
-					NameSurname = "Sistem Yöneticisi",
-					Title = "Başhekim / Sistem Mimarı",
-					EmailConfirmed = true,
-					ProfilePicture = "default-admin.jpg"
-				};
-
-				// Şifreyi yukarıdaki değişkenden (Secret) alıyoruz
-				var adminResult = await userManager.CreateAsync(admin, adminSecretPass);
-				if (adminResult.Succeeded)
+					// CANLI MOD: Admin şifresini sadece sunucudan çek
+					adminPass = liveAdminSecret;
+				}
+				else
 				{
-					await userManager.AddToRoleAsync(admin, "Admin");
+					// YEREL MOD: Admin şifresi standart kalsın
+					adminPass = "CureLogix123!";
 				}
 
-				// 2. DOKTOR KULLANICISI OLUŞTURMA
-				var doctorUser = new AppUser
-				{
-					UserName = "Doktor",
-					Email = "doktor@curelogix.com",
-					NameSurname = "Dr. Ali Vefa",
-					Title = "Uzman Doktor",
-					EmailConfirmed = true
-				};
+				// 2. ADMIN HESABI OLUŞTURMA
+				var admin = new AppUser { UserName = "Admin", Email = "admin@curelogix.com", EmailConfirmed = true };
+				await userManager.CreateAsync(admin, adminPass);
+				await userManager.AddToRoleAsync(admin, "Admin");
 
-				// Şifreyi yukarıdaki değişkenden (Secret) alıyoruz
-				var doctorResult = await userManager.CreateAsync(doctorUser, doctorSecretPass);
-				if (doctorResult.Succeeded)
-				{
-					await userManager.AddToRoleAsync(doctorUser, "User");
-				}
+				// 3. USER (DEMO) HESABI OLUŞTURMA
+				// Canlıda da yerelde de şifresi senin dediğin gibi "CureLogix123!"
+				var demoUser = new AppUser { UserName = "User", Email = "user@curelogix.com", EmailConfirmed = true };
+				await userManager.CreateAsync(demoUser, "CureLogix123!");
+				await userManager.AddToRoleAsync(demoUser, "User");
 			}
 
 			// ------------------------------------------------------------
