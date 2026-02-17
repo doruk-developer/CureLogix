@@ -29,10 +29,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Docker Kontrolü (Ortam değişkenine bakar)
 var dbProvider = builder.Configuration["AppSettings:DbProvider"];
 
-// --- TANI KODU (LOGLAMA) ---
-Console.WriteLine($"--- DEBUG: DbProvider Degeri: '{dbProvider}' ---");
-if (string.IsNullOrEmpty(dbProvider)) { Console.WriteLine("!!! UYARI: DbProvider NULL GEDI !!!"); }
-
 builder.Services.AddDbContext<CureLogixContext>(options =>
 {
     if (dbProvider == "PostgreSQL")
