@@ -31,18 +31,55 @@ namespace CureLogix.WebUI.Controllers
             _configuration = configuration;
         }
 
-        [HttpGet]
-        public IActionResult Index(string ReturnUrl)
-        {
-			// Eğer kullanıcı zaten içerideyse, tekrar login sayfasına gelmesin
+		[HttpGet]
+		public async Task<IActionResult> Index(string ReturnUrl, string auto)
+		{
+			// 1. Kullanıcı zaten içerideyse direkt ana sayfaya at
 			if (User.Identity?.IsAuthenticated == true)
 			{
-                return RedirectToAction("Index", "Home");
-            }
+				return RedirectToAction("Index", "Home");
+			}
 
-            ViewBag.ReturnUrl = ReturnUrl;
-            return View();
-        }
+			// ============================================================
+			// 🚀 OTOMATİK GİRİŞ KAPISI (PORTAL ENTEGRASYONU)
+			// ============================================================
+			// Bu "// ===" çizgileri sadece yorum satırıdır, kodun okunabilirliğini artırır.
+			// İşleve bir etkisi yoktur, silsen de çalışır ama böyle düzenli durur.
+
+			bool isShowcase = _configuration.GetValue<bool>("AppSettings:IsShowcaseMode");
+
+			// Eğer Vitrin modundaysak VE linkin sonunda ?auto=visitor yazıyorsa
+			if (isShowcase && auto == "visitor")
+			{
+				// Standart "User" hesabını bul
+				var user = await _userManager.FindByEmailAsync("user@curelogix.com");
+
+				if (user != null)
+				{
+					// Şifre sormadan (Bypass) içeri al
+					await _signInManager.SignInAsync(user, isPersistent: false);
+
+					// Log at (Hata verirse yut, akış bozulmasın)
+					try
+					{
+						_auditService.TAdd(new Entity.Concrete.AuditLog
+						{
+							UserName = "Misafir (Auto)",
+							Activity = "Portal üzerinden otomatik ziyaretçi girişi.",
+							Date = DateTime.Now,
+							IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "::1"
+						});
+					}
+					catch { }
+
+					return RedirectToAction("Index", "Home");
+				}
+			}
+			// ============================================================
+
+			ViewBag.ReturnUrl = ReturnUrl;
+			return View();
+		}
 
 		[HttpPost]
 		public async Task<IActionResult> Index(string username, string password, string ReturnUrl)
