@@ -24,14 +24,13 @@ namespace CureLogix.DataAccess.Concrete
 			// ------------------------------------------------------------
 			// 3. VARSAYILAN KULLANICILAR (Identity)
 			// ------------------------------------------------------------
-			if (!userManager.Users.Any())
+			var adminCheck = await userManager.FindByNameAsync("Admin");
+			if (adminCheck == null)
 			{
-				// 🛡️ 1. ADMİN ŞİFRESİ ÇÖZÜMLEME
 				// Canlıda (Render) ise server'daki gizli kasadan oku, yereldeyse standart şifreyi kullan.
 				string? liveAdminSecret = Environment.GetEnvironmentVariable("LIVE_ADMIN_PASSWORD");
-				string adminPass = !string.IsNullOrEmpty(liveAdminSecret) ? liveAdminSecret : "CureLogix123!";
+				string adminPass = !string.IsNullOrEmpty(liveAdminSecret) ? liveAdminSecret : "Admin123!";
 
-				// 🛡️ 2. ADMİN HESABI (Yüksek Yetkili)
 				var admin = new AppUser
 				{
 					UserName = "Admin",
@@ -46,9 +45,12 @@ namespace CureLogix.DataAccess.Concrete
 				{
 					await userManager.AddToRoleAsync(admin, "Admin");
 				}
+			}
 
-				// 🛡️ 3. USER HESABI (Canlıda Demo Modunda Çalışacak)
-				// Şifresi senin istediğin gibi sabit "CureLogix123!"
+			// B. USER HESABI (DEMO / VİTRİN ERİŞİMİ)
+			var userCheck = await userManager.FindByNameAsync("User");
+			if (userCheck == null)
+			{
 				var demoUser = new AppUser
 				{
 					UserName = "User",
@@ -58,10 +60,10 @@ namespace CureLogix.DataAccess.Concrete
 					Title = "Ziyaretçi"
 				};
 
+				// Şifresi senin istediğin gibi sabit: CureLogix123!
 				var userResult = await userManager.CreateAsync(demoUser, "CureLogix123!");
 				if (userResult.Succeeded)
 				{
-					// HATA BURADAYDI: userResult yerine userManager yazıyoruz
 					await userManager.AddToRoleAsync(demoUser, "User");
 				}
 			}

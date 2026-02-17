@@ -34,48 +34,25 @@ namespace CureLogix.WebUI.Controllers
 		[HttpGet]
 		public async Task<IActionResult> Index(string ReturnUrl, string auto)
 		{
-			// 1. Kullanıcı zaten içerideyse direkt ana sayfaya at
+			// 1. Kullanıcı zaten içerideyse ana sayfaya at
 			if (User.Identity?.IsAuthenticated == true)
 			{
 				return RedirectToAction("Index", "Home");
 			}
 
-			// ============================================================
-			// 🚀 OTOMATİK GİRİŞ KAPISI (PORTAL ENTEGRASYONU)
-			// ============================================================
-			// Bu "// ===" çizgileri sadece yorum satırıdır, kodun okunabilirliğini artırır.
-			// İşleve bir etkisi yoktur, silsen de çalışır ama böyle düzenli durur.
-
+			// 🛡️ 2. LİNK İLE OTOMATİK GİRİŞ (PORTAL ENTEGRASYONU)
+			// Sadece Frankfurt/Render (Showcase) modundaysak ve ?auto=visitor yazıyorsa çalışır
 			bool isShowcase = _configuration.GetValue<bool>("AppSettings:IsShowcaseMode");
 
-			// Eğer Vitrin modundaysak VE linkin sonunda ?auto=visitor yazıyorsa
 			if (isShowcase && auto == "visitor")
 			{
-				// Standart "User" hesabını bul
-				var user = await _userManager.FindByEmailAsync("user@curelogix.com");
-
-				if (user != null)
+				// Şifre sormadan 'User' hesabıyla (CureLogix123!) otomatik giriş
+				var result = await _signInManager.PasswordSignInAsync("User", "CureLogix123!", false, false);
+				if (result.Succeeded)
 				{
-					// Şifre sormadan (Bypass) içeri al
-					await _signInManager.SignInAsync(user, isPersistent: false);
-
-					// Log at (Hata verirse yut, akış bozulmasın)
-					try
-					{
-						_auditService.TAdd(new Entity.Concrete.AuditLog
-						{
-							UserName = "Misafir (Auto)",
-							Activity = "Portal üzerinden otomatik ziyaretçi girişi.",
-							Date = DateTime.Now,
-							IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "::1"
-						});
-					}
-					catch { }
-
 					return RedirectToAction("Index", "Home");
 				}
 			}
-			// ============================================================
 
 			ViewBag.ReturnUrl = ReturnUrl;
 			return View();
@@ -84,44 +61,35 @@ namespace CureLogix.WebUI.Controllers
 		[HttpPost]
 		public async Task<IActionResult> Index(string username, string password, string ReturnUrl)
 		{
-			// 🛡️ 1. GÜVENLİK MATRİSİ: Şifre Çözümleme
-			// Canlıda (Render) ise server şifresini, yereldeyse varsayılanı kullanır.
+			// 🛡️ 1. GİZLİ ANAHTAR ÇÖZÜMLEME
+			// Canlıda Render'daki gizli şifreyi, yerelde standart şifreyi (CureLogix123!) kullanır.
 			string secureAdminPass = Environment.GetEnvironmentVariable("LIVE_ADMIN_PASSWORD") ?? "CureLogix123!";
 
 			try
 			{
-				// 🛡️ 2. SELF-HEALING (KENDİ KENDİNİ ONARMA)
-				// Eğer Admin girmeye çalışıyorsa ve DB'de yoksa, yeni şifreyle o an oluşturur.
+				// 🛡️ 2. SELF-HEALING (ADMİN ONARMA)
 				if (username == "Admin")
 				{
 					var existingAdmin = await _userManager.FindByNameAsync("Admin");
-
 					if (existingAdmin == null)
 					{
-						// Rol kontrolü
 						if (!await _roleManager.RoleExistsAsync("Admin"))
-						{
 							await _roleManager.CreateAsync(new AppRole { Name = "Admin" });
-						}
 
-						// Admin nesnesi oluşturma
 						var newAdmin = new AppUser
 						{
 							UserName = "Admin",
 							Email = "admin@curelogix.com",
-							NameSurname = "Sistem Yöneticisi",
-							Title = "Başhekim / Sistem Mimarı",
-							EmailConfirmed = true
+							EmailConfirmed = true,
+							NameSurname = "Sistem Yöneticisi"
 						};
 
-						// KRİTİK: Canlıda ise gizli şifreyle, yereldeyse CureLogix123! ile oluşturur.
 						await _userManager.CreateAsync(newAdmin, secureAdminPass);
 						await _userManager.AddToRoleAsync(newAdmin, "Admin");
 					}
 				}
 
-				// 🛡️ 3. GİRİŞ DENEMESİ (İster Admin, İster User/Demo)
-				// password; kullanıcı tarafından girilen veridir.
+				// 🛡️ 3. STANDART GİRİŞ (Identity Doğrulama)
 				var result = await _signInManager.PasswordSignInAsync(username, password, false, false);
 
 				if (result.Succeeded)
@@ -129,7 +97,7 @@ namespace CureLogix.WebUI.Controllers
 					// Başarılı Giriş Logu
 					try
 					{
-						_auditService.TAdd(new AuditLog
+						_auditService.TAdd(new Entity.Concrete.AuditLog
 						{
 							UserName = username,
 							Activity = "Sisteme giriş yapıldı.",
@@ -139,16 +107,12 @@ namespace CureLogix.WebUI.Controllers
 					}
 					catch { }
 
-					if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
-						return Redirect(ReturnUrl);
-
+					if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl)) return Redirect(ReturnUrl);
 					return RedirectToAction("Index", "Home");
 				}
-				else
-				{
-					ViewBag.Error = "Kullanıcı adı veya şifre hatalı!";
-					return View();
-				}
+
+				ViewBag.Error = "Kullanıcı adı veya şifre hatalı!";
+				return View();
 			}
 			catch (Exception ex)
 			{
