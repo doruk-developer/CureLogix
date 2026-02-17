@@ -28,7 +28,7 @@ namespace CureLogix.DataAccess.Concrete
 			{
 				// 🛡️ 1. ADMİN ŞİFRESİ ÇÖZÜMLEME
 				// Canlıda (Render) ise server'daki gizli kasadan oku, yereldeyse standart şifreyi kullan.
-				string liveAdminSecret = Environment.GetEnvironmentVariable("LIVE_ADMIN_PASSWORD");
+				string? liveAdminSecret = Environment.GetEnvironmentVariable("LIVE_ADMIN_PASSWORD");
 				string adminPass = !string.IsNullOrEmpty(liveAdminSecret) ? liveAdminSecret : "CureLogix123!";
 
 				// 🛡️ 2. ADMİN HESABI (Yüksek Yetkili)
@@ -61,7 +61,8 @@ namespace CureLogix.DataAccess.Concrete
 				var userResult = await userManager.CreateAsync(demoUser, "CureLogix123!");
 				if (userResult.Succeeded)
 				{
-					await userResult.AddToRoleAsync(demoUser, "User");
+					// HATA BURADAYDI: userResult yerine userManager yazıyoruz
+					await userManager.AddToRoleAsync(demoUser, "User");
 				}
 			}
 
