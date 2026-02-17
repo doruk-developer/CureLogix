@@ -26,31 +26,43 @@ namespace CureLogix.DataAccess.Concrete
 			// ------------------------------------------------------------
 			if (!userManager.Users.Any())
 			{
-				// 1. Ortam Kontrolü
-				string adminPass;
-				var liveAdminSecret = Environment.GetEnvironmentVariable("LIVE_ADMIN_PASSWORD");
+				// 🛡️ 1. ADMİN ŞİFRESİ ÇÖZÜMLEME
+				// Canlıda (Render) ise server'daki gizli kasadan oku, yereldeyse standart şifreyi kullan.
+				string liveAdminSecret = Environment.GetEnvironmentVariable("LIVE_ADMIN_PASSWORD");
+				string adminPass = !string.IsNullOrEmpty(liveAdminSecret) ? liveAdminSecret : "CureLogix123!";
 
-				if (!string.IsNullOrEmpty(liveAdminSecret))
+				// 🛡️ 2. ADMİN HESABI (Yüksek Yetkili)
+				var admin = new AppUser
 				{
-					// CANLI MOD: Admin şifresini sadece sunucudan çek
-					adminPass = liveAdminSecret;
-				}
-				else
+					UserName = "Admin",
+					Email = "admin@curelogix.com",
+					EmailConfirmed = true,
+					NameSurname = "Sistem Yöneticisi",
+					Title = "Başhekim / Sistem Mimarı"
+				};
+
+				var adminResult = await userManager.CreateAsync(admin, adminPass);
+				if (adminResult.Succeeded)
 				{
-					// YEREL MOD: Admin şifresi standart kalsın
-					adminPass = "CureLogix123!";
+					await userManager.AddToRoleAsync(admin, "Admin");
 				}
 
-				// 2. ADMIN HESABI OLUŞTURMA
-				var admin = new AppUser { UserName = "Admin", Email = "admin@curelogix.com", EmailConfirmed = true };
-				await userManager.CreateAsync(admin, adminPass);
-				await userManager.AddToRoleAsync(admin, "Admin");
+				// 🛡️ 3. USER HESABI (Canlıda Demo Modunda Çalışacak)
+				// Şifresi senin istediğin gibi sabit "CureLogix123!"
+				var demoUser = new AppUser
+				{
+					UserName = "User",
+					Email = "user@curelogix.com",
+					EmailConfirmed = true,
+					NameSurname = "İnceleme Kullanıcısı",
+					Title = "Ziyaretçi"
+				};
 
-				// 3. USER (DEMO) HESABI OLUŞTURMA
-				// Canlıda da yerelde de şifresi senin dediğin gibi "CureLogix123!"
-				var demoUser = new AppUser { UserName = "User", Email = "user@curelogix.com", EmailConfirmed = true };
-				await userManager.CreateAsync(demoUser, "CureLogix123!");
-				await userManager.AddToRoleAsync(demoUser, "User");
+				var userResult = await userManager.CreateAsync(demoUser, "CureLogix123!");
+				if (userResult.Succeeded)
+				{
+					await userResult.AddToRoleAsync(demoUser, "User");
+				}
 			}
 
 			// ------------------------------------------------------------
