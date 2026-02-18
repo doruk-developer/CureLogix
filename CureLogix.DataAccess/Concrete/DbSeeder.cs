@@ -28,12 +28,25 @@ namespace CureLogix.DataAccess.Concrete
 			var adminCheck = await userManager.FindByNameAsync("Admin");
 			if (adminCheck == null)
 			{
+				// Şifre Belirleme (Canlıda Gizli, Yerelde Standart)
 				string? liveAdminSecret = Environment.GetEnvironmentVariable("LIVE_ADMIN_PASSWORD");
 				string adminPass = !string.IsNullOrEmpty(liveAdminSecret) ? liveAdminSecret : "Admin123!";
 
-				var admin = new AppUser { UserName = "Admin", Email = "admin@curelogix.com", EmailConfirmed = true };
-				await userManager.CreateAsync(admin, adminPass);
-				await userManager.AddToRoleAsync(admin, "Admin");
+				var admin = new AppUser
+				{
+					UserName = "Admin",
+					Email = "admin@curelogix.com",
+					EmailConfirmed = true,
+					// 👇 BURALAR EKSİKTİ, ŞİMDİ EKLENDİ (DB Hatasını Çözer)
+					NameSurname = "Sistem Yöneticisi",
+					Title = "Başhekim / Sistem Mimarı"
+				};
+
+				var adminResult = await userManager.CreateAsync(admin, adminPass);
+				if (adminResult.Succeeded)
+				{
+					await userManager.AddToRoleAsync(admin, "Admin");
+				}
 			}
 
 			// B. USER HESABI KONTROLÜ (DEMO / VİTRİN ERİŞİMİ)
@@ -45,13 +58,17 @@ namespace CureLogix.DataAccess.Concrete
 					UserName = "User",
 					Email = "user@curelogix.com",
 					EmailConfirmed = true,
+					// 👇 BURALAR EKSİKTİ, ŞİMDİ EKLENDİ
 					NameSurname = "İnceleme Kullanıcısı",
 					Title = "Sistem Ziyaretçisi"
 				};
 
-				// Şifresi istediğimiz gibi sabit: CureLogix123!
-				await userManager.CreateAsync(demoUser, "CureLogix123!");
-				await userManager.AddToRoleAsync(demoUser, "User");
+				// Şifresi senin istediğin gibi sabit: CureLogix123!
+				var userResult = await userManager.CreateAsync(demoUser, "CureLogix123!");
+				if (userResult.Succeeded)
+				{
+					await userManager.AddToRoleAsync(demoUser, "User");
+				}
 			}
 
 			// ------------------------------------------------------------
