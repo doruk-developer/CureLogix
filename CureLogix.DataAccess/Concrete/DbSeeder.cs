@@ -22,32 +22,21 @@ namespace CureLogix.DataAccess.Concrete
             }
 
 			// ------------------------------------------------------------
-			// 3. VARSAYILAN KULLANICILAR (Identity)
+			// 3. Varsayılan Kullanıcılar (Identity)
 			// ------------------------------------------------------------
+			// A. ADMIN HESABI KONTROLÜ
 			var adminCheck = await userManager.FindByNameAsync("Admin");
 			if (adminCheck == null)
 			{
-				// Canlıda (Render) ise server'daki gizli kasadan oku, yereldeyse standart şifreyi kullan.
 				string? liveAdminSecret = Environment.GetEnvironmentVariable("LIVE_ADMIN_PASSWORD");
 				string adminPass = !string.IsNullOrEmpty(liveAdminSecret) ? liveAdminSecret : "Admin123!";
 
-				var admin = new AppUser
-				{
-					UserName = "Admin",
-					Email = "admin@curelogix.com",
-					EmailConfirmed = true,
-					NameSurname = "Sistem Yöneticisi",
-					Title = "Başhekim / Sistem Mimarı"
-				};
-
-				var adminResult = await userManager.CreateAsync(admin, adminPass);
-				if (adminResult.Succeeded)
-				{
-					await userManager.AddToRoleAsync(admin, "Admin");
-				}
+				var admin = new AppUser { UserName = "Admin", Email = "admin@curelogix.com", EmailConfirmed = true };
+				await userManager.CreateAsync(admin, adminPass);
+				await userManager.AddToRoleAsync(admin, "Admin");
 			}
 
-			// B. USER HESABI (DEMO / VİTRİN ERİŞİMİ)
+			// B. USER HESABI KONTROLÜ (DEMO / VİTRİN ERİŞİMİ)
 			var userCheck = await userManager.FindByNameAsync("User");
 			if (userCheck == null)
 			{
@@ -57,15 +46,12 @@ namespace CureLogix.DataAccess.Concrete
 					Email = "user@curelogix.com",
 					EmailConfirmed = true,
 					NameSurname = "İnceleme Kullanıcısı",
-					Title = "Ziyaretçi"
+					Title = "Sistem Ziyaretçisi"
 				};
 
-				// Şifresi senin istediğin gibi sabit: CureLogix123!
-				var userResult = await userManager.CreateAsync(demoUser, "CureLogix123!");
-				if (userResult.Succeeded)
-				{
-					await userManager.AddToRoleAsync(demoUser, "User");
-				}
+				// Şifresi istediğimiz gibi sabit: CureLogix123!
+				await userManager.CreateAsync(demoUser, "CureLogix123!");
+				await userManager.AddToRoleAsync(demoUser, "User");
 			}
 
 			// ------------------------------------------------------------
