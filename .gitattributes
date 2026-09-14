@@ -61,3 +61,19 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+###############################################################################
+# for GitHub to correctly calculate the lines of code
+wwwroot/** linguist-vendored
+**/wwwroot/** linguist-vendored
+
+*.js linguist-detectable=false
+*.ts linguist-detectable=false
+*.tsx linguist-detectable=false
+*.css linguist-detectable=false
+*.scss linguist-detectable=false
+*.html linguist-detectable=false
+*.htm linguist-detectable=false
+*.cshtml linguist-detectable=false
+*.razor linguist-detectable=false
+*.json linguist-detectable=false
