@@ -127,6 +127,14 @@ dotnet run
 
 ---
 
+## 🔐 Default Login Credentials
+When running the project locally, you can test both Administrative and Standard User roles using the following default credentials:
+
+| Role | Username | Password | Access Scope |
+| :--- | :--- | :--- | :--- |
+| **Administrator** | `Admin` | `CureLogix123!` | Full Access (Dashboard, AI Forecasting, System Settings, Audit Logs) |
+| **Standard User** | `User` | `CureLogix123!` | Operational Access (Logistics, FEFO Tracking, Warehouse View) |
+
 ## 📉 Impact Analysis (Business Benefits)
 
 | Feature | Operational Impact | Technical Excellence |
